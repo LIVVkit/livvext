@@ -34,7 +34,7 @@
 import argparse
 import os
 from pathlib import Path
-
+from loguru import logger
 import livvkit
 import pandas as pd
 from livvkit import elements as el
@@ -64,6 +64,7 @@ def run(name, config):
 
     """
     img_dir = Path(livvkit.output_dir, "validation", "imgs", name)
+    logger.info(f"Starting ENERGY BALANCE WITH OUTPUT TO {img_dir}")
     if not img_dir.exists():
         img_dir.mkdir(parents=True)
 
@@ -86,6 +87,7 @@ def run(name, config):
     tables = {}
 
     for season in ["ANN", "DJF", "MAM", "JJA", "SON"]:
+        logger.info(f"PLOTTING COMPARE GRIDDED FOR {config.get('icesheet', '')} {season}")
         _plots, aavgs = compare_gridded.main(args, config, sea=season)
         images[season] = _plots
 
@@ -102,6 +104,7 @@ def run(name, config):
 
     timeseries_img = []
     if "timeseries_dirs" in config:
+        logger.info(f"PLOTTING TIMESERIES FOR {config.get('icesheet', '')}")
         timeseries_img.extend(time_series_plot.main(args, config))
 
     tabs = {}

@@ -19,6 +19,7 @@ from cartopy import feature as cfeature
 from livvkit import elements as el
 from livvkit.util.LIVVDict import LIVVDict
 from numpy import ma
+from loguru import logger
 
 import lex.utils as lxu
 
@@ -377,6 +378,7 @@ def gen_file_list_timeseries(
     return var_files
 
 
+@logger.catch
 def load_timeseries_data(config):
     """Load data for timeseries."""
     files = {}
@@ -389,19 +391,30 @@ def load_timeseries_data(config):
         for _var in config["data_vars"]:
             files[overs].extend(gen_file_list_timeseries(config, _var[overs], overs))
 
-        if len(set(files[overs])) == 1:
+        if  len(set(files[overs]))== 1:
             files[overs] = files[overs][0]
-
+            _nfiles = 1
+        else:
+            _nfiles = len(set(files[overs]))
+        _dsname = config['dataset_names'].get(
+            overs, config['dataset_names'].get('model_native')
+        )
+        logger.info(
+            f"LOAD TIMESERIES DATA FOR {overs}: {_dsname} NFILES: {_nfiles}"
+        )
         try:
-            obs_data[overs] = xr.open_mfdataset(files[overs]).squeeze()
+            obs_data[overs] = xr.open_mfdataset(files[overs]).squeeze().load()
         except (xr.MergeError, ValueError):
             if isinstance(files[overs], Path):
-                obs_data[overs] = xr.open_dataset(files[overs]).squeeze()
+                obs_data[overs] = xr.open_dataset(files[overs]).squeeze().load()
             else:
                 obs_data[overs] = xr.open_mfdataset(
                     files[overs],
                     combine="nested",
-                ).squeeze()
+                ).squeeze().load()
+        logger.info(
+            f"LOAD TIMESERIES DATA FOR {overs}: {_dsname} DONE"
+        )
 
     return obs_data
 

@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 from livvkit import elements as el
+from loguru import logger
 
 import lex.common as lxc
 
@@ -15,7 +16,6 @@ DESCRIBE_COMPONENTS = """
 Annual cycle of components of SMB from {model}, {dset_a}.
 Sign of component based on its contribution to total.
 """
-
 
 def main(args, config):
     model_data = xr.open_mfdataset(
@@ -40,6 +40,7 @@ def main(args, config):
     model_data_out = {}
 
     for idx, data_var in enumerate(config["data_vars"]):
+        logger.info(f"WORKING ON {data_var['title']}")
         _obs_in = {}
 
         aavg_config = data_var.get("aavg", None)

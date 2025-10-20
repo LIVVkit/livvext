@@ -15,6 +15,7 @@ from livvkit import elements as el
 
 import lex.common as lxc
 import lex.utils as lxu
+from loguru import logger
 
 IMG_GROUP = "Timeseries"
 
@@ -39,7 +40,7 @@ def assemble_outdata(args, config, dataset, aavg_data, ts_data, aavg_units):
             else:
                 _aavg = aavg_data.get(data_var["title"])
         else:
-            print(f"DATA NOT FOUND FOR {data_var['title']} in {dataset}")
+            logger.error(f"DATA NOT FOUND FOR {data_var['title']} in {dataset}")
             continue
 
         aavg_out[data_var["title"].replace(" ", "_")] = xr.DataArray(
@@ -79,6 +80,7 @@ def main(args, config):
             config_names[_dset] = _dset
     img_elem = []
     for idx, data_var in enumerate(config["data_vars"]):
+        logger.info(f"   PLOTTING {config.get('icesheet', '')} TS: {data_var['title']}")
         _obs_in = {}
 
         aavg_config = data_var.get("aavg", None)
