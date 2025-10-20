@@ -261,7 +261,7 @@ def main(args, config):
             relative_to="",
         )
         img_elem.append(_img_elem)
-
+        logger.info(f"   DONE - PLOTTING {config.get('icesheet', '')} TS: {data_var['title']}")
     # assemble_outdata(args, config, "model", model_aavg, ts_data, _aavg_units)
     # assemble_outdata(args, config, "dset_a", obs_aavg, ts_data, _aavg_units)
 

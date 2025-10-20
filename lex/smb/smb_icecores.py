@@ -104,6 +104,7 @@ def run(name, config):
     if "smb_cf_file" in config and "smb_mo_file" in config and "ib_file" in config:
         logger.info(f"PLOT SPATIAL METADATA")
         spatial_img.extend(plt_spatial.plot_metadata(args, config))
+        logger.info(f"DONE - PLOT SPATIAL METADATA")
 
     if "smb_cf_file" in config and "smb_mo_file" in config:
         logger.info(f"PLOT SPATIAL CORE DATA")
@@ -112,19 +113,23 @@ def run(name, config):
         statistic_img.extend(transects[3:])
         statistic_img.extend(IB_scatter.main(args, config))
         statistic_img.extend(c_hists.main(args, config))
+        logger.info(f"DONE - PLOT SPATIAL CORE DATA")
 
     if "ib_file" in config:
         logger.info(f"PLOT SPATIAL IB DATA")
         spatial_img.extend(plt_spatial.plot_ib_spatial(args, config))
         statistic_img.extend(IB_hist.main(args, config))
+        logger.info(f"DONE - PLOT SPATIAL IB DATA")
 
     if "smb_cf_file" in config and "smb_mo_file" in config:
         logger.info(f"PLOT STATSTICAL DATA")
         statistic_img.extend(transects[:3])
+        logger.info(f"DONE - PLOT STATSTICAL DATA")
 
     if "timeseries_dirs" in config:
         logger.info(f"PLOT TIMESERIES DATA")
         timeseries_img.extend(time_series_plot.main(args, config))
+        logger.info(f"DONE - PLOT TIMESERIES DATA")
 
     seasons = ["ANN", "DJF", "MAM", "JJA", "SON"]
     seasonal_components = {}
@@ -138,12 +143,14 @@ def run(name, config):
         for season in seasons:
             logger.info(f"COMPARE GRIDDED {season} DATA")
             _img, _aavg = compare_gridded.main(args, config, sea=season)
+            logger.info(f"DONE - COMPARE GRIDDED {season} DATA")
 
             seasonal_components[season] = []
 
             if season == "ANN":
                 logger.info(f"PLOT ANNUAL CYCLE DATA")
                 seasonal_components[season].extend(annual_cycle.main(args, config))
+                logger.info(f"DONE - PLOT ANNUAL CYCLE DATA")
 
             seasonal_components[season].extend(_img)
             seasonal_tables[season] = el.Table(
@@ -187,6 +194,7 @@ def run(name, config):
 
     tabs["References"] = [refs]
 
+    logger.info(f"FINISHED SMB_ICECORES WITH OUTPUT TO {img_dir}")
     return el.Page(
         name,
         PAGE_DOCS[config.get("icesheet", "gis")],

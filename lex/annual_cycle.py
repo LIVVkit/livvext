@@ -65,7 +65,7 @@ def main(args, config):
                 / 365
             )
         except KeyError:
-            print(f"MODEL DATA NOT FOUND FOR {data_var['model']}")
+            logger.error(f"MODEL DATA NOT FOUND FOR {data_var['model']}")
             continue
 
         obs_aavg[data_var["title"]] = {}
@@ -126,6 +126,7 @@ def main(args, config):
             marker=".",
             lw=lw,
         )
+        logger.info(f"DONE - WORKING ON {data_var['title']}")
 
     obs_data_out["month"] = np.arange(1, 12 + 1)
     model_data_out["month"] = np.arange(1, 12 + 1)

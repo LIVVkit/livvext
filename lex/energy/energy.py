@@ -101,11 +101,16 @@ def run(name, config):
             transpose=True,
         )
         tables[season] = table_el
+        logger.info(
+            "FINISHED PLOTTING COMPARE GRIDDED FOR "
+            f"{config.get('icesheet', '')} {season}"
+        )
 
     timeseries_img = []
     if "timeseries_dirs" in config:
         logger.info(f"PLOTTING TIMESERIES FOR {config.get('icesheet', '')}")
         timeseries_img.extend(time_series_plot.main(args, config))
+        logger.info(f"FINISHED PLOTTING TIMESERIES FOR {config.get('icesheet', '')}")
 
     tabs = {}
 
@@ -135,6 +140,7 @@ def run(name, config):
     tabs["References"] = [ref_ele]
     elements = [run_summary, el.Tabs(tabs)]
 
+    logger.info(f"FINISHED ENERGY BALANCE WITH OUTPUT TO {img_dir}")
     return el.Page(name, PAGE_DOCS[config.get("icesheet", "gis")], elements)
 
 

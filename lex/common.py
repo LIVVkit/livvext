@@ -413,7 +413,7 @@ def load_timeseries_data(config):
                     combine="nested",
                 ).squeeze().load()
         logger.info(
-            f"LOAD TIMESERIES DATA FOR {overs}: {_dsname} DONE"
+            f"DONE - LOAD TIMESERIES DATA FOR {overs}: {_dsname}"
         )
 
     return obs_data
