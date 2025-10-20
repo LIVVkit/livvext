@@ -1,7 +1,18 @@
 #!/bin/bash
 CASE=$1
-echo "LEX ON ${CASE}"
+if [ $(command -v conda) ]; then
+    conda activate lex_env
+fi
 
+livv_cmd='livv'
+livv_exe=`which ${livv_cmd}`
+if [ -z "${livv_exe}" ]; then
+     echo "ERROR: Unable to find LIVV binary executable for command \"${livv_cmd}\""
+    exit 1
+else
+    echo "Running LIVV from ${livv_exe}"
+fi
+echo "LEX ON ${CASE}"
 # Allow for standalone (outside of batch script) by setting WEBDIR if it's not already set
 WEBDIR="${WEBDIR:-/global/cfs/projectdirs/e3sm/www/${USER}}"
 
