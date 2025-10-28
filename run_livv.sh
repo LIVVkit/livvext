@@ -1,7 +1,10 @@
 #!/bin/bash
 CASE=$1
 if [ $(command -v conda) ]; then
-    conda activate lex_env
+    conda_activate_script=/global/common/software/e3sm/anaconda_envs/base/etc/profile.d/conda.sh
+    echo "ACTIVATE: ${conda_activate_script}"
+    source $conda_activate_script
+    conda activate ${HOME}/.conda/envs/lex_env
 fi
 
 livv_cmd='livv'
@@ -12,6 +15,7 @@ if [ -z "${livv_exe}" ]; then
 else
     echo "Running LIVV from ${livv_exe}"
 fi
+
 echo "LEX ON ${CASE}"
 # Allow for standalone (outside of batch script) by setting WEBDIR if it's not already set
 WEBDIR="${WEBDIR:-/global/cfs/projectdirs/e3sm/www/${USER}}"
