@@ -14,7 +14,7 @@ ncra ${OUTDIR}/${MONFILE}.nc ${OUTDIR}/${MONFILE}_mean.nc
 
 for var in topo landfrac
 do
-    ncks -m -v ${var} ${OUTDIR}/${MONFILE}_mean.nc > /dev/null || ncks -A -C -v ${var} ${INFILE_REF} ${OUTDIR}/${MONFILE}_mean.nc
+    ncks -m -v ${var} ${OUTDIR}/${MONFILE}_mean.nc > /dev/null 2>&1 || ncks -A -C -v ${var} ${INFILE_REF} ${OUTDIR}/${MONFILE}_mean.nc
 done
 
 ncremap \

@@ -8,8 +8,9 @@
 conda_activate_script=/global/common/software/e3sm/anaconda_envs/base/etc/profile.d/conda.sh
 echo $conda_activate_script
 source $conda_activate_script
-conda activate lex
+conda activate ${HOME}/.conda/envs/lex_env
 
+LEXDIR=$HOME/lex
 INDIR=/global/cfs/projectdirs/e3sm/zender/livvkit
 LIVVPROJ=/global/cfs/cdirs/e3sm/livvkit
 
@@ -86,10 +87,10 @@ ANN_MEAN_FILE=${OUTDIR}/${OUTCASE}.ANN_mean.nc
 ncra $INFILE ${ANN_MEAN_FILE}
 for var in topo landfrac
 do
-    ncks -m -v ${var} ${INFILE} > /dev/null || ncks -A -C -v ${var} ${INFILE_REF} ${ANN_MEAN_FILE}
+    ncks -m -v ${var} ${INFILE} > /dev/null 2>&1 || ncks -A -C -v ${var} ${INFILE_REF} ${ANN_MEAN_FILE}
 done
 
-srun parallel --jobs 12 ./split_files.sh ::: {0..11}
+srun parallel --jobs 12 ${LEXDIR}/lex/postproc/e3sm/split_files.sh ::: {0..11}
 
 ncra \
     ${OUTDIR}/${OUTCASE}.01.nc \
@@ -122,7 +123,7 @@ do
     do
         # Check if the mean output file has ${var} (topography or landfrac) if it
         # doesn't, then get that field from a reference file (set by the resolution)
-        ncks -m -v ${var} ${MEAN_FILE} > /dev/null || ncks -A -C -v ${var} ${INFILE_REF} ${MEAN_FILE}
+        ncks -m -v ${var} ${MEAN_FILE} > /dev/null 2>&1 || ncks -A -C -v ${var} ${INFILE_REF} ${MEAN_FILE}
     done
 
     ncremap \
@@ -163,7 +164,7 @@ echo "#########################"
 echo "POST PROCESSING COMPLETE"
 echo "#########################"
 
-pushd $HOME/lex
+pushd ${LEXDIR}
 if [ ! -d config/${OUTCASE} ]; then
     echo "CREATING CONFIG DIRECTORY FOR ${OUTCASE}"
     cp -R config/template_${RES} config/${OUTCASE}
