@@ -41,10 +41,12 @@ $ pip install -e .    # Installs the lex module as an editable Python package to
 ### Python virtualenv
 ```bash
 $ git clone https://github.com/LIVVkit/lex.git
-$ cd lex python -m venv .env
-$ source .env/bin/activate
-$ pip install --upgrade pip # Needed if the system pip version < 21.3
-$ pip install -e .
+$ cd lex
+$ module load python/3.13
+$ python -m venv .env --prompt lex_env  # Creates the virtual env in ${HOME}/lex/.env
+$ source .env/bin/activate              # Switch to the new environment
+$ pip install --upgrade pip             # Needed if the system pip version < 21.3
+$ pip install -e .                      # Installs LEX as editable
 ```
 
 This will create a virtual environment at `lex/.env`, and install the
