@@ -93,24 +93,28 @@ done
 srun parallel --jobs 12 ${LEXDIR}/lex/postproc/e3sm/split_files.sh ::: {0..11}
 
 ncra \
+    -O \
     ${OUTDIR}/${OUTCASE}.01.nc \
     ${OUTDIR}/${OUTCASE}.02.nc \
     ${OUTDIR}/${OUTCASE}.12.nc \
     ${OUTDIR}/${OUTCASE}.DJF_mean.nc &
 
 ncra \
+    -O \
     ${OUTDIR}/${OUTCASE}.03.nc \
     ${OUTDIR}/${OUTCASE}.04.nc \
     ${OUTDIR}/${OUTCASE}.05.nc \
     ${OUTDIR}/${OUTCASE}.MAM_mean.nc &
 
 ncra \
+    -O \
     ${OUTDIR}/${OUTCASE}.06.nc \
     ${OUTDIR}/${OUTCASE}.07.nc \
     ${OUTDIR}/${OUTCASE}.08.nc \
     ${OUTDIR}/${OUTCASE}.JJA_mean.nc &
 
 ncra \
+    -O \
     ${OUTDIR}/${OUTCASE}.09.nc \
     ${OUTDIR}/${OUTCASE}.10.nc \
     ${OUTDIR}/${OUTCASE}.11.nc \

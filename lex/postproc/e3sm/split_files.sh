@@ -7,7 +7,7 @@ MON=$(printf "%02d" $(($MON_IDX + 1)))
 
 # Monthly split
 MONFILE=${OUTCASE}.${YEAR_STR}${MON}
-ncks -t 16 -d time,$MON_IDX,$MAXTIME,12 $INFILE ${OUTDIR}/$MONFILE.nc
+ncks -O -t 16 -d time,$MON_IDX,$MAXTIME,12 $INFILE ${OUTDIR}/$MONFILE.nc
 
 # echo "MEAN FOR ${MON}: ${MON_IDX}-${MAXTIME}"
 ncra ${OUTDIR}/${MONFILE}.nc ${OUTDIR}/${MONFILE}_mean.nc
