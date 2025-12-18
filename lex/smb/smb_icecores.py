@@ -46,8 +46,8 @@ with fn.TempSysPath(os.path.dirname(__file__)):
     import smb.plot_spatial as plt_spatial
     import smb.preproc as preproc
     import smb.utils as utils
-from loguru import logger
 
+from loguru import logger
 
 PAGE_DOCS = {
     "gis": """Validation of the Greenland Ice Sheet (GrIS) surface mass balance by
@@ -102,34 +102,34 @@ def run(name, config):
     statistic_img = []
     timeseries_img = []
     if "smb_cf_file" in config and "smb_mo_file" in config and "ib_file" in config:
-        logger.info(f"PLOT SPATIAL METADATA")
+        logger.info("PLOT SPATIAL METADATA")
         spatial_img.extend(plt_spatial.plot_metadata(args, config))
-        logger.info(f"DONE - PLOT SPATIAL METADATA")
+        logger.info("DONE - PLOT SPATIAL METADATA")
 
     if "smb_cf_file" in config and "smb_mo_file" in config:
-        logger.info(f"PLOT SPATIAL CORE DATA")
+        logger.info("PLOT SPATIAL CORE DATA")
         spatial_img.extend(plt_spatial.plot_core(args, config))
         transects = c_transects.main(args, config)
         statistic_img.extend(transects[3:])
         statistic_img.extend(IB_scatter.main(args, config))
         statistic_img.extend(c_hists.main(args, config))
-        logger.info(f"DONE - PLOT SPATIAL CORE DATA")
+        logger.info("DONE - PLOT SPATIAL CORE DATA")
 
     if "ib_file" in config:
-        logger.info(f"PLOT SPATIAL IB DATA")
+        logger.info("PLOT SPATIAL IB DATA")
         spatial_img.extend(plt_spatial.plot_ib_spatial(args, config))
         statistic_img.extend(IB_hist.main(args, config))
-        logger.info(f"DONE - PLOT SPATIAL IB DATA")
+        logger.info("DONE - PLOT SPATIAL IB DATA")
 
     if "smb_cf_file" in config and "smb_mo_file" in config:
-        logger.info(f"PLOT STATSTICAL DATA")
+        logger.info("PLOT STATSTICAL DATA")
         statistic_img.extend(transects[:3])
-        logger.info(f"DONE - PLOT STATSTICAL DATA")
+        logger.info("DONE - PLOT STATSTICAL DATA")
 
     if "timeseries_dirs" in config:
-        logger.info(f"PLOT TIMESERIES DATA")
+        logger.info("PLOT TIMESERIES DATA")
         timeseries_img.extend(time_series_plot.main(args, config))
-        logger.info(f"DONE - PLOT TIMESERIES DATA")
+        logger.info("DONE - PLOT TIMESERIES DATA")
 
     seasons = ["ANN", "DJF", "MAM", "JJA", "SON"]
     seasonal_components = {}
@@ -148,9 +148,9 @@ def run(name, config):
             seasonal_components[season] = []
 
             if season == "ANN":
-                logger.info(f"PLOT ANNUAL CYCLE DATA")
+                logger.info("PLOT ANNUAL CYCLE DATA")
                 seasonal_components[season].extend(annual_cycle.main(args, config))
-                logger.info(f"DONE - PLOT ANNUAL CYCLE DATA")
+                logger.info("DONE - PLOT ANNUAL CYCLE DATA")
 
             seasonal_components[season].extend(_img)
             seasonal_tables[season] = el.Table(

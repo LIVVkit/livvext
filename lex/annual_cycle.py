@@ -17,6 +17,7 @@ Annual cycle of components of SMB from {model}, {dset_a}.
 Sign of component based on its contribution to total.
 """
 
+
 def main(args, config):
     model_data = xr.open_mfdataset(
         [config["climo_remap"].format(clim=f"{mon:02d}") for mon in range(1, 13)],
