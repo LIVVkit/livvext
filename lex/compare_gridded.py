@@ -286,7 +286,7 @@ def main(args, config, sea="ANN"):
             all_aavg[_vers], mask_r[_vers], area_r[_vers], _ = lxc.area_avg(
                 _plt_data[_vers],
                 config,
-                area_file=config["masks"][_vers],
+                area_file=config["masks"][_vers].format(icesheet=config["icesheet"]),
                 area_var="area",
                 mask_var="Icemask",
                 sum_out=_do_sum,
@@ -302,7 +302,7 @@ def main(args, config, sea="ANN"):
             diffs_aavg[_diffname], _, _, _ = lxc.area_avg(
                 diffs[_diffname],
                 config,
-                area_file=config["masks"][_ds2],
+                area_file=config["masks"][_ds2].format(icesheet=config["icesheet"]),
                 area_var="area",
                 mask_var="Icemask",
                 sum_out=_do_sum,

@@ -116,7 +116,7 @@ def main(args, config):
                 lxc.area_avg(
                     _obs_in[_vers],
                     {},
-                    area_file=config["masks"][_vers],
+                    area_file=config["masks"][_vers].format(icesheet=config["icesheet"]),
                     area_var="area",
                     mask_var="Icemask",
                     sum_out=_do_sum,
@@ -126,7 +126,7 @@ def main(args, config):
         model_aavg[data_var["title"]], _, _, _ = lxc.area_avg(
             _model_plt,
             {},
-            area_file=config["masks"]["model_native"],
+            area_file=config["masks"]["model_native"].format(icesheet=config["icesheet"]),
             area_var="area",
             mask_var="Icemask",
             sum_out=_do_sum,

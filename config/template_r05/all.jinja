@@ -19,16 +19,6 @@ common_smb: &common_smb
     smbv: QICE
     maskv: gis_mask2
     smbscale: 31536000
-    core_year_s: 1980
-    core_year_e: 2021
-    ib_year_e: 1987-1976
-    ib_year_s: 2014-2004
-    preprocess: []
-    preproc_dir: {{ livvproj_dir }}/data/smb/processed
-    zwally_file: model_zwally_basins_elm_r05.csv
-    ib_file: IceBridge_modelXY_elm{}_r05.csv
-    smb_cf_file: SMB_CoreFirnEstimates_elm{}_r05.csv
-    smb_mo_file: SMB_Obs_Model_elm{}_r05.csv
     cmap: BrBG
     cmap_diff: BrBG
     clim_even: 1
@@ -49,22 +39,22 @@ common_energy: &common_energy
   cmap_diff: RdBu_r
 
 common_racmo: &common_racmo
-    clim_years:
-      dset_a: { year_s: 1980, year_e: 2020 }
-    dataset_names: { model: ELM, dset_a: RACMO 2.4 }
-    in_dirs: { dset_a: "{{ racmo_root_dir }}/clm/{_var}" }
-    file_patterns:
-      { dset_a: "{_var}_{icesheet}_{season}_{sea_s}_{sea_e}_climo.nc" }
-    timeseries_dirs:
-      {
-        model: "{{ model_ts_dir }}",
-        dset_a: "{{ racmo_root_dir }}/ts",
-      }
-    ts_file_patterns:
-      {
-        model: "{{ case_id }}.nc",
-        dset_a: "{_var}_{icesheet}_{year_s}01_{year_e}12.nc",
-      }
+  clim_years:
+    dset_a: { year_s: 1980, year_e: 2020 }
+  dataset_names: { model: ELM, dset_a: RACMO 2.4 }
+  in_dirs: { dset_a: "{{ racmo_root_dir }}/clm/{_var}" }
+  file_patterns:
+    dset_a: "{_var}_{icesheet}_{season}_{sea_s}_{sea_e}_climo.nc"
+  timeseries_dirs:
+    model: "{{ model_ts_dir }}"
+    dset_a: "{{ racmo_root_dir }}/ts"
+  ts_file_patterns:
+    model: "{{ case_id }}.nc"
+    dset_a: "{_var}_{icesheet}_{year_s}01_{year_e}12.nc"
+  masks:
+    dset_a: {{ livvproj_dir }}/grids/msk_{icesheet}_r025_rcm.nc
+    model: {{ livvproj_dir }}/grids/msk_{icesheet}_r025_rcm.nc
+    model_native: {{ livvproj_dir }}/grids/msk_{icesheet}_rcm_r05.nc
 
 common_era5: &common_era5
   climo_remap: {{ case_out_dir }}/remap/{{ case_id }}.{clim}_mean_era5.nc
@@ -75,19 +65,19 @@ common_era5: &common_era5
     dset_a: { year_s: 1979, year_e: 2019}
   in_dirs: {dset_a: {{ e3sm_diags_data_dir }}/climatology/ERA5}
   file_patterns: {dset_a: 'ERA5_{season}_{sea_s}_{sea_e}_climo.nc'}
-  masks: {
-    dset_a: {{ livvproj_dir }}/grids/msk_gis_rcm_r025_regrid_era5_traave_20250213.nc,
-    model_remap: {{ livvproj_dir }}/grids/msk_gis_rcm_r025_regrid_era5_traave_20250213.nc,
-    model_native: {{ livvproj_dir }}/grids/msk_gis_rcm_r05.nc
-  }
+  masks:
+    dset_a: {{ livvproj_dir }}/grids/msk_{icesheet}_r025_remap_era5.traave.nc
+    model_remap: {{ livvproj_dir }}/grids/msk_{icesheet}_r025_remap_era5.traave.nc
+    model_native: {{ livvproj_dir }}/grids/msk_{icesheet}_rcm_r05.nc
 
 common_merra: &common_merra
   climo_remap: {{ case_out_dir }}/remap/{{ case_id }}.{clim}_mean_merra2.nc
   in_dirs: {dset_a: {{ e3sm_diags_data_dir }}/climatology/MERRA2}
   file_patterns: {dset_a: 'MERRA2_{season}_{sea_s}_{sea_e}_climo.nc'}
-  masks: {dset_a: {{ livvproj_dir }}/grids/msk_gis_r025_remap_merra2.traave.20250124.nc,
-    model_remap: {{ livvproj_dir }}/grids/msk_gis_r025_remap_merra2.traave.20250124.nc,
-    model_native: {{ livvproj_dir }}/grids/msk_gis_rcm_r05.nc}
+  masks:
+    dset_a: {{ livvproj_dir }}/grids/msk_{icesheet}_r025_remap_merra2.traave.nc
+    model_remap: {{ livvproj_dir }}/grids/msk_{icesheet}_r025_remap_merra2.traave.nc
+    model_native: {{ livvproj_dir }}/grids/msk_{icesheet}_rcm_r05.nc
   dataset_names: {model_remap: 'ELM [MERRA2 Grid]', model_native: ELM, dset_a: MERRA2}
   aavg_sort: [ELM, 'ELM [MERRA2 Grid]', MERRA2]
   scales: {model: 1, dset_a: 1}
@@ -107,29 +97,28 @@ common_ceres: &common_ceres
   file_patterns:
     dset_a: ceres_ebaf_surface_v4.1_{season}_{sea_s}_{sea_e}_climo.nc
   masks:
-    dset_a: {{ livvproj_dir }}/grids/msk_gis_r025_remap_cmip6.traave.20250124.nc
-    model_native: {{ grid_dir }}/msk_gis_rcm_r05.nc
-    model_remap: {{ livvproj_dir }}/grids/msk_gis_r025_remap_cmip6.traave.20250124.nc
+    dset_a: {{ livvproj_dir }}/grids/msk_{icesheet}_r025_remap_cmip6.traave.nc
+    model_remap: {{ livvproj_dir }}/grids/msk_{icesheet}_r025_remap_cmip6.traave.nc
+    model_native: {{ livvproj_dir }}/grids/msk_{icesheet}_rcm_r05.nc
 
 common_racmo_gis: &common_racmo_gis
+  core_year_s: 1980
+  core_year_e: 2021
+  ib_year_e: 1987-1976
+  ib_year_s: 2014-2004
+  preprocess: []
+  preproc_dir: {{ livvproj_dir }}/data/smb/processed
+  zwally_file: model_zwally_basins_elm_r05.csv
+  ib_file: IceBridge_modelXY_elm{}_r05.csv
+  smb_cf_file: SMB_CoreFirnEstimates_elm{}_r05.csv
+  smb_mo_file: SMB_Obs_Model_elm{}_r05.csv
   climo_remap: {{ case_out_dir }}/remap/{{ case_id }}.{clim}_mean_rcmgis.nc
   icesheet: gis
-  masks:
-    {
-        dset_a: {{ grid_dir }}/msk_gis_r025_rcm.nc,
-        model: {{ grid_dir }}/msk_gis_r025_rcm.nc,
-        model_native: {{ livvproj_dir }}/grids/msk_gis_rcm_r05.nc,
-      }
 
 common_racmo_ais: &common_racmo_ais
   climo_remap: {{ case_out_dir }}/remap/{{ case_id }}.{clim}_mean_rcmais.nc
   icesheet: ais
-  masks:
-    {
-        dset_a: {{ grid_dir }}/msk_ais_r025_rcm.nc,
-        model: {{ grid_dir }}/msk_ais_r025_rcm.nc,
-        model_native: {{ livvproj_dir }}/grids/msk_ais_rcm_r05.nc,
-      }
+
 common_racmo_smb_vars: &common_racmo_smb_vars
   # Surface mass balance variables for dset_a: RACMO 2.4, model: ELM
   # Each field must have:

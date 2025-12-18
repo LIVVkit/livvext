@@ -481,7 +481,12 @@ def area_avg(
         Input `data` masked by `isheet_mask`
 
     """
-    area_data = xr.open_dataset(area_file)
+    try:
+        area_data = xr.open_dataset(area_file)
+    except ValueError as err:
+        logger.error(f"INCOMPATABLE FILE {area_file}")
+        raise
+
     area_data = check_longitude(area_data)
     if mask_file is None:
         mask_data = area_data
