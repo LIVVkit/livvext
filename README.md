@@ -105,7 +105,7 @@ $ sbatch run_lex_pm-cpu.sbatch
 ## Running new cases on PM-CPU
 
 ### Generate a single timeseries file from ELM h0 outputs
-- `ncrcat -v topo,landfrac,QSNOFRZ,FSRND,FSRVD,FSDSVD,FSDSND,EFLX_LH_TOT,FIRA,FLDS,FSA,FSDS,FSH,QICE,QRUNOFF,QSNOMELT,QSOIL,RAIN,SNOW,TSA elm*h0*.nc -o ${CASE}.nc`
+- `ncrcat -v topo,landfrac,QSNOFRZ,FSRND,FSRVD,FSDSVD,FSDSND,EFLX_LH_TOT,FIRA,FLDS,FSA,FSDS,FSH,QICE,QRUNOFF,QSNOMELT,QSOIL,RAIN,SNOW,TSA,SNOWICE,SNOWLIQ,H2OSNO elm*h0*.nc -o ${CASE}.nc`
 
 ### Perform post-processing on a single time series ELM h0 output
 - Edit the `lex/lex/postproc/e3sm/postproc.sbatch` batch file to mach the new run
