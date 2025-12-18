@@ -48,6 +48,11 @@ def add_colorbar(color_field, fig, axis, cblabel, cbar_span=False, ndsets=3):
             _ = fig.colorbar(
                 color_field, cax=cbar_ax, orientation="horizontal", label=cblabel
             )
+    elif ndsets == 1:
+        _ = fig.colorbar(
+            color_field, location="right", shrink=0.85, pad=0.01, label=cblabel
+        )
+
     else:
         raise NotImplementedError(
             f"THIS NUMBER OF PLOTS ({ndsets}) NOT IMPLEMENTED (yet)"
@@ -74,11 +79,22 @@ def annotate_plot(
     xlabel=None,
     cblabel=None,
     cnrtxt=None,
+    gridline_args=None,
     icesheet="gis",
 ):
     """Add land / ocean, gridlines, colourbar."""
     axis.coastlines(linewidth=0.1)
-    axis.gridlines(linestyle="--", linewidth=0.1)
+    gridline_args_def = {"linestyle": "--", "linewidth": 0.1}
+
+    if gridline_args is None:
+        gridline_args = gridline_args_def
+    else:
+        for _arg, _value in gridline_args_def.items():
+            if _arg not in gridline_args:
+                gridline_args[_arg] = _value
+
+    axis.gridlines(**gridline_args)
+
     if icesheet.lower() == "gis":
         axis.set_extent([-60, -27, 59, 84], ccrs.PlateCarree())
     elif icesheet.lower() == "ais":
@@ -116,12 +132,22 @@ def annotate_plot(
         )
 
 
-def get_figure(n_dsets, proj, icesheet="gis"):
+def get_figure(n_dsets, proj=None, icesheet="gis"):
     """Set up figure based on number of datasets to be plotted."""
     fig_size = {
-        "gis": {3: (10, 10), 2: (10, 8)},
-        "ais": {3: (10, 10), 2: (16, 7)},
+        "gis": {3: (10, 10), 2: (10, 8), 1: (7, 10)},
+        "ais": {3: (10, 10), 2: (16, 7), 1: (8, 8)},
     }
+    if proj is None:
+        if icesheet == "gis":
+            lon_0 = -45
+            lat_0 = 70
+            proj = ccrs.LambertConformal(
+                central_longitude=lon_0, central_latitude=lat_0
+            )
+        elif icesheet == "ais":
+            proj = ccrs.SouthPolarStereo(central_longitude=0)
+
     fig = plt.figure(figsize=fig_size[icesheet][n_dsets], dpi=90)
 
     if n_dsets == 3:
@@ -131,8 +157,10 @@ def get_figure(n_dsets, proj, icesheet="gis"):
         )
     elif n_dsets == 2:
         axes = [fig.add_subplot(1, 3, i + 1, projection=proj) for i in range(3)]
+    elif n_dsets == 1:
+        axes = [fig.add_subplot(1, 1, 1, projection=proj)]
 
-    return fig, axes
+    return fig, axes, proj
 
 
 def main(args, config, sea="ANN"):
@@ -303,7 +331,7 @@ def main(args, config, sea="ANN"):
         else:
             raise NotImplementedError(f"ICESHEET {icesheet} NOT FOUND USE ais / gis")
 
-        fig, axes = get_figure(n_dsets_to_plot, proj, icesheet=icesheet)
+        fig, axes, _ = get_figure(n_dsets_to_plot, proj, icesheet=icesheet)
 
         for _vers in _plt_data:
             try:

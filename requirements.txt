@@ -10,7 +10,6 @@
   jinja2
   pylint
   matplotlib
-  basemap
   netcdf4
   pandas
   nco
