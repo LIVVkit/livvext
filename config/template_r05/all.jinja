@@ -36,16 +36,7 @@ common_smb: &common_smb
     References:
       - {{ livvproj_dir }}/data/smb/smb_icecores.bib
       - {{ livvproj_dir }}/data/livvkit.bib
-    timeseries_dirs:
-      {
-        model: "{{ model_ts_dir }}",
-        dset_a: "{{ racmo_root_dir }}/ts",
-      }
-    ts_file_patterns:
-      {
-        model: "{{ case_id }}.nc",
-        dset_a: "{_var}_{icesheet}_{year_s}01_{year_e}12.nc",
-      }
+
 
 common_energy: &common_energy
   desc: Surface energy balance component {component}{comment} from {data_var_names}
@@ -64,6 +55,16 @@ common_racmo: &common_racmo
     in_dirs: { dset_a: "{{ racmo_root_dir }}/clm/{_var}" }
     file_patterns:
       { dset_a: "{_var}_{icesheet}_{season}_{sea_s}_{sea_e}_climo.nc" }
+    timeseries_dirs:
+      {
+        model: "{{ model_ts_dir }}",
+        dset_a: "{{ racmo_root_dir }}/ts",
+      }
+    ts_file_patterns:
+      {
+        model: "{{ case_id }}.nc",
+        dset_a: "{_var}_{icesheet}_{year_s}01_{year_e}12.nc",
+      }
 
 common_era5: &common_era5
   climo_remap: {{ case_out_dir }}/remap/{{ case_id }}.{clim}_mean_era5.nc
