@@ -95,7 +95,7 @@ def run(name, config):
 
     config_arg_list.extend(["--out", img_dir])
     args = parse_args(config_arg_list)
-    if config["preprocess"]:
+    if config.get("preprocess", False):
         preproc.main(args, config)
 
     spatial_img = []

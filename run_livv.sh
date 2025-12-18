@@ -29,27 +29,32 @@ else
 fi
 
 echo "LEX ON ${CASE}"
+if [[ ${CASE} == *"r05"* || ${CASE} == *".LR."* ]]; then
+    template=config/template_r05/all.jinja
+else if [[ ${CASE} == *"r025"* || ${CASE} == *".HR."* ]]; then
+    template=config/template_r025/all.jinja
+fi
+fi
+
 # Allow for standalone (outside of batch script) by setting WEBDIR if it's not already set
 WEBDIR="${WEBDIR:-/global/cfs/projectdirs/e3sm/www/${USER}}"
+
+# (Re-)generate the config file for this run
+python3 lex/generate_cfg.py \
+    --template ${template} \
+    --mach pm-cpu \
+    --casedir $PSCRATCH/lex/data/e3sm/${CASE} \
+    --case ${CASE} \
+    --cfg_out ./config \
+    --icesheets run_gis,run_ais \
+    --sets set_all
 
 # Run LIVVkit with all the configs we want for this case
 # writes the output website to the user's scratch directory
 mkdir -p ${SCRATCH}/lex
-
-livv -V \
-    config/${CASE}/cmb_gis.yml \
-    config/${CASE}/smb_gis.yml \
-    config/${CASE}/energy_e3sm_racmo_gis.yml \
-    config/${CASE}/energy_e3sm_era5_gis.yml \
-    config/${CASE}/energy_e3sm_merra2_merra_grid_gis.yml \
-    config/${CASE}/energy_e3sm_ceres_gis.yml \
-    config/${CASE}/cmb_ais.yml \
-    config/${CASE}/smb_ais.yml \
-    config/${CASE}/energy_e3sm_racmo_ais.yml \
-    config/${CASE}/energy_e3sm_era5_ais.yml \
-    config/${CASE}/energy_e3sm_merra2_merra_grid_ais.yml \
-    config/${CASE}/energy_e3sm_ceres_ais.yml \
-    -o $SCRATCH/lex/${CASE} &> livv_log_${CASE}.log
+livv \
+    --validate config/${CASE}/livvkit.yml \
+    --out-dir $SCRATCH/lex/${CASE} >> livv_stdoe_${CASE}.log 2>&1
 
 # Backup the existing published version of this analysis
 mv ${WEBDIR}/${CASE} ${WEBDIR}/${CASE}_bkd_$(date +'%Y%m%dT%H%M')
