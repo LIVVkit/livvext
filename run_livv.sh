@@ -4,7 +4,9 @@ if [ $(command -v conda) ]; then
     conda_activate_script=/global/common/software/e3sm/anaconda_envs/base/etc/profile.d/conda.sh
     echo "ACTIVATE: ${conda_activate_script}"
     source $conda_activate_script
-    if [ -d ${HOME}/.conda/envs/lex_env ]; then
+    if [ ! -z ${LEX_ENV+x} ]; then
+        conda activate ${LEX_ENV}
+    else if [ -d ${HOME}/.conda/envs/lex_env ]; then
         conda activate ${HOME}/.conda/envs/lex_env
     else if [ -d ${HOME}/anaconda/envs/lex_env ]; then
         conda activate ${HOME}/anaconda/envs/lex_env
@@ -12,6 +14,7 @@ if [ $(command -v conda) ]; then
         echo "LEX ENV NOT FOUND AT EITHER $HOME/.conda or $HOME/anaconda "
         echo "SET LEX_ENV variable to point to \$CONDA_PREFIX for lex_env"
         exit 1
+    fi
     fi
     fi
 fi
@@ -66,3 +69,5 @@ for htmlfile in validation/*.html
 do
     sed -i "s/\(<\!-- GROUP LINK-->\)/\<a id=\"header-group\" href=\"..\/..\/current_runs.html\">\nCurrent\ runs\n\<\/a\>/g" ${htmlfile}
 done
+echo "LIVVkit results availalble at:"
+echo "https://portal.nersc.gov/project/e3sm/${USER}/${CASE}/index.html"

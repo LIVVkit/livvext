@@ -9,7 +9,9 @@ conda_activate_script=/global/common/software/e3sm/anaconda_envs/base/etc/profil
 echo $conda_activate_script
 source $conda_activate_script
 
-if [ -d ${HOME}/.conda/envs/lex_env ]; then
+if [ -n ${LEX_ENV} ]; then
+    conda activate ${LEX_ENV}
+else if [ -d ${HOME}/.conda/envs/lex_env ]; then
     conda activate ${HOME}/.conda/envs/lex_env
 else if [ -d ${HOME}/anaconda/envs/lex_env ]; then
     conda activate ${HOME}/anaconda/envs/lex_env
@@ -17,6 +19,7 @@ else
     echo "LEX ENV NOT FOUND AT EITHER $HOME/.conda or $HOME/anaconda "
     echo "SET LEX_ENV variable to point to \$CONDA_PREFIX for lex_env"
     exit 1
+fi
 fi
 fi
 
