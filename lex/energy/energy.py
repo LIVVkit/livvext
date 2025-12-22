@@ -34,10 +34,11 @@
 import argparse
 import os
 from pathlib import Path
-from loguru import logger
+
 import livvkit
 import pandas as pd
 from livvkit import elements as el
+from loguru import logger
 
 from lex import compare_gridded, time_series_plot, utils
 from lex.common import SEASON_NAME
@@ -87,7 +88,9 @@ def run(name, config):
     tables = {}
 
     for season in ["ANN", "DJF", "MAM", "JJA", "SON"]:
-        logger.info(f"PLOTTING COMPARE GRIDDED FOR {config.get('icesheet', '')} {season}")
+        logger.info(
+            f"PLOTTING COMPARE GRIDDED FOR {config.get('icesheet', '')} {season}"
+        )
         _plots, aavgs = compare_gridded.main(args, config, sea=season)
         images[season] = _plots
 

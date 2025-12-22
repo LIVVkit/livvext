@@ -79,7 +79,9 @@ def main(args, config):
                 lxc.area_avg(
                     _obs_in[_vers],
                     {},
-                    area_file=config["masks"][_vers].format(icesheet=config["icesheet"]),
+                    area_file=config["masks"][_vers].format(
+                        icesheet=config["icesheet"]
+                    ),
                     area_var="area",
                     mask_var="Icemask",
                     sum_out=_do_sum,

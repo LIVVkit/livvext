@@ -483,7 +483,7 @@ def area_avg(
     """
     try:
         area_data = xr.open_dataset(area_file)
-    except ValueError as err:
+    except ValueError:
         logger.error(f"INCOMPATABLE FILE {area_file}")
         raise
 
