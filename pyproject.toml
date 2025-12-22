@@ -73,3 +73,6 @@ dev = { file = ["requirements-dev.txt"] }
 
 [project.urls]
 Homepage = "https://code.ornl.gov/LIVVkit/lex"
+
+[project.scripts]
+lex-cfg = "lex.generate_cfg:main"
