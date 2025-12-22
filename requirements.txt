@@ -11,6 +11,7 @@
   pylint
   matplotlib
   netcdf4
+  mache
   pandas
   nco
   cartopy

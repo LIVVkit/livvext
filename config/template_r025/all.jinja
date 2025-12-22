@@ -63,7 +63,7 @@ common_era5: &common_era5
   scales: {model: 1, dset_a: 1}
   clim_years:
     dset_a: { year_s: 1979, year_e: 2019}
-  in_dirs: {dset_a: {{ e3sm_diags_data_dir }}/climatology/ERA5}
+  in_dirs: {dset_a: {{ e3sm_diags_data_dir }}/observations/Atm/climatology/ERA5}
   file_patterns: {dset_a: 'ERA5_{season}_{sea_s}_{sea_e}_climo.nc'}
   masks:
     dset_a: {{ livvproj_dir }}/grids/msk_{icesheet}_r025_remap_era5.traave.nc
@@ -72,7 +72,7 @@ common_era5: &common_era5
 
 common_merra: &common_merra
   climo_remap: {{ case_out_dir }}/remap/{{ case_id }}.{clim}_mean_merra2.nc
-  in_dirs: {dset_a: {{ e3sm_diags_data_dir }}/climatology/MERRA2}
+  in_dirs: {dset_a: {{ e3sm_diags_data_dir }}/observations/Atm/climatology/MERRA2}
   file_patterns: {dset_a: 'MERRA2_{season}_{sea_s}_{sea_e}_climo.nc'}
   masks:
     dset_a: {{ livvproj_dir }}/grids/msk_{icesheet}_r025_remap_merra2.traave.nc
@@ -93,7 +93,7 @@ common_ceres: &common_ceres
   clim_years:
     dset_a: { year_s: 2001, year_e: 2018 }
   in_dirs:
-    dset_a: {{ e3sm_diags_data_dir }}/climatology/ceres_ebaf_surface_v4.1
+    dset_a: {{ e3sm_diags_data_dir }}/observations/Atm/climatology/ceres_ebaf_surface_v4.1
   file_patterns:
     dset_a: ceres_ebaf_surface_v4.1_{season}_{sea_s}_{sea_e}_climo.nc
   masks:
