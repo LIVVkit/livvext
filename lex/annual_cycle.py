@@ -19,8 +19,9 @@ Sign of component based on its contribution to total.
 
 
 def main(args, config):
+    _files = [lxc.proc_climo_file(config, "climo_remap", mon) for mon in range(1, 13)]
     model_data = xr.open_mfdataset(
-        [config["climo_remap"].format(clim=f"{mon:02d}") for mon in range(1, 13)],
+        _files,
         combine="nested",
         concat_dim="time",
     )

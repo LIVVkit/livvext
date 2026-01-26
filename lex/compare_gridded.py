@@ -187,13 +187,15 @@ def main(args, config, sea="ANN"):
 
     if "model_native" in config["dataset_names"]:
         all_data = {
-            "model_remap": xr.open_dataset(config["climo_remap"].format(clim=sea)),
-            "model_native": xr.open_dataset(config["climo"].format(clim=sea)),
+            "model_remap": xr.open_dataset(
+                lxc.proc_climo_file(config, "climo_remap", sea)
+            ),
+            "model_native": xr.open_dataset(lxc.proc_climo_file(config, "climo", sea)),
             **lxc.load_obs(config, sea, mode=mode),
         }
     else:
         all_data = {
-            "model": xr.open_dataset(config["climo_remap"].format(clim=sea)),
+            "model": xr.open_dataset(lxc.proc_climo_file(config, "climo_remap", sea)),
             **lxc.load_obs(config, sea, mode=mode),
         }
     for _vers in all_data:

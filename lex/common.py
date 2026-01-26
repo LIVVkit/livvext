@@ -82,15 +82,18 @@ def check_longitude(data, lon_coord="lon"):
 
 def get_season_bounds(season, year_s, year_e, sep="_"):
     """Determine season bounds for climatology files."""
-    _seasons = {"DJF": (1, 12), "MAM": (3, 5), "JJA": (6, 8), "SON": (9, 11)}
+    _seasons = {
+        "DJF": (1, 12),
+        "MAM": (3, 5),
+        "JJA": (6, 8),
+        "SON": (9, 11),
+        "ANN": (1, 12),
+    }
     _annual = (1, 12)
     if season in _seasons:
         _lb, _ub = _seasons[season]
         bound_l = f"{year_s:04d}{_lb:02d}"
         bound_u = f"{year_e:04d}{_ub:02d}"
-    elif season.upper() == "ANN":
-        bound_l = f"{year_s:04d}01"
-        bound_u = f"{year_e:04d}12"
     else:
         # Months
         if isinstance(season, str):
@@ -100,6 +103,40 @@ def get_season_bounds(season, year_s, year_e, sep="_"):
             bound_l = f"{year_s:04d}{season:02d}"
             bound_u = f"{year_e:04d}{season:02d}"
     return bound_l, bound_u
+
+
+def proc_climo_file(config, file_tag, sea):
+    """
+    Process the climatology file to maintain backward compatibility with standalone LEX.
+
+    Parameters
+    ----------
+    config : dict
+        LIVVkit /LEX configuration dict
+    file_tag : str
+        Configuration item which points to climatology filename to be formatted, usually
+        `climo` or `climo_remap`
+    sea : str
+        Season identifier
+
+    Returns
+    -------
+    climo_file : str
+        Formatted name of climatology file
+
+    """
+    _filename = config[file_tag]
+    if "sea_s" in _filename:
+        sea_s, sea_e = get_season_bounds(
+            sea, config.get("year_s", None), config.get("year_e", None)
+        )
+        if isinstance(sea, int):
+            sea = f"{sea:02d}"
+        climo_file = _filename.format(clim=sea, sea_s=sea_s, sea_e=sea_e)
+    else:
+        climo_file = _filename.format(clim=sea)
+
+    return climo_file
 
 
 def get_cycle(sea):
@@ -344,7 +381,10 @@ def gen_file_list_timeseries(
 
     clim_years = config.get("clim_years", None)
 
-    clim_years_default = {"year_s": None, "year_e": None}
+    clim_years_default = {
+        "year_s": config.get("year_s", None),
+        "year_e": config.get("year_e", None),
+    }
     if clim_years:
         clim_years = clim_years.get(overs, clim_years_default)
     else:

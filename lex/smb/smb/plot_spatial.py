@@ -14,10 +14,12 @@ import numpy.ma as ma
 import pandas as pd
 import smb.preproc as preproc
 from livvkit import elements as el
+from loguru import logger
 from matplotlib import colors as c
 from netCDF4 import Dataset
 from scipy.interpolate import griddata
 
+import lex.common as lxc
 import lex.compare_gridded as lxcg
 
 DESCRIBE_CORE = """
@@ -86,7 +88,14 @@ def mali_to_contour(lon_cell, lat_cell, data_cell):
 
 def load_model_data(config, regrid=True):
     """Load Model data."""
-    clim_nc = Dataset(config["climo"].format(m_s=1, m_e=12, clim="ANN"), mode="r")
+    sea_s, sea_e = lxc.get_season_bounds(
+        "ANN", config.get("year_s", None), config.get("year_e", None)
+    )
+    _climfile = config["climo"].format(sea_s=sea_s, sea_e=sea_e, clim="ANN")
+    _elevfile = config["elevation"].format(sea_s=sea_s, sea_e=sea_e, clim="ANN")
+    _gridfile = config["latlon"].format(sea_s=sea_s, sea_e=sea_e, clim="ANN")
+    logger.info(f"LOADING CLIMO FILE: {_climfile}")
+    clim_nc = Dataset(_climfile, mode="r")
     grid_nc = Dataset(config["latlon"], mode="r")
     elev_nc = Dataset(config["elevation"], mode="r")
 

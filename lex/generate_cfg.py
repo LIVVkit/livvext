@@ -6,8 +6,10 @@ from pathlib import Path
 import jinja2
 import mache
 
-ALL_SHEETS = "run_gis,run_ais"
-ALL_SETS = "set_cmb,set_smb,set_energy_racmo,set_energy_era5,set_energy_merra2,set_energy_ceres"
+import lex
+
+ALL_SHEETS = "gis,ais"
+ALL_SETS = "cmb,smb,energy_racmo,energy_era5,energy_merra2,energy_ceres"
 
 
 def args():
@@ -33,7 +35,7 @@ def args():
     parser.add_argument(
         "--casedir",
         "-d",
-        type=Path,
+        type=str,
         help="Output directory where climatology files for `case` are stored",
         required=True,
     )
@@ -50,10 +52,9 @@ def args():
         "--sets",
         "-s",
         type=str,
-        default="",
         help=(
-            "Analysis sets to run: set_cmb, set_smb, set_energy_racmo, "
-            "set_energy_era5, set_energy_merra2, set_energy_ceres"
+            "Analysis sets to run: cmb, smb, energy_racmo, energy_era5, "
+            "energy_merra2, energy_ceres, or all to run all available"
         ),
     )
 
@@ -61,11 +62,18 @@ def args():
         "--icesheets",
         "-i",
         type=str,
-        default="",
         help=(
-            "Comma separated icesheets to analyse (run_ais for Antarctica,"
-            " run_gis for Greenland)"
+            "Comma separated icesheets to analyse (ais for Antarctica,"
+            " gis for Greenland), or all to run both"
         ),
+    )
+
+    parser.add_argument(
+        "-z",
+        "--from-zppy",
+        action="store_true",
+        default=False,
+        help="Flag to be called from zppy, makes grid parsed",
     )
 
     return parser.parse_args()
@@ -76,7 +84,6 @@ def gen_cfg(cfg_template, params, cfg_out):
         loader=jinja2.FileSystemLoader(cfg_template.resolve().parent)
     )
     template = jenv.get_template(cfg_template.name)
-
     cfg = template.render(**params)
 
     if not Path(cfg_out.parent).exists():
@@ -92,9 +99,9 @@ def parse_sets(sheets, sets):
     """Parse comma separated strings of sets / icesheets to analyse."""
 
     params = {}
-    if sheets.lower() == "run_all":
+    if sheets.lower() == "all":
         sheets = ALL_SHEETS
-    if sets.lower() == "set_all":
+    if sets.lower() == "all":
         sets = ALL_SETS
 
     _sheets = sheets.lower().split(",")
@@ -129,6 +136,22 @@ def main():
             "racmo_root_dir": Path("/global/cfs/cdirs/fanssie/racmo/2.4.1"),
         },
     }
+    climo_dirs = {}
+    ts_dirs = {}
+
+    if cl_args.from_zppy:
+        for _grid in ["native", "racmo_ais", "racmo_gis", "era5", "ceres", "merra2"]:
+            if _grid == "ceres":
+                _grid_dir = cl_args.casedir.replace("DATA_GRID", "180x360_traave")
+            else:
+                _grid_dir = cl_args.casedir.replace("DATA_GRID", _grid)
+
+            _ts_dir = _grid_dir.replace("/clim/", "/ts/monthly/")
+            climo_dirs[f"dir_{_grid}"] = Path(_grid_dir)
+            ts_dirs[f"dir_ts_{_grid}"] = Path(_ts_dir)
+
+    case_dir = Path(cl_args.casedir)
+
     _mach_defaults = defaults[mach]
     _mach_defaults["e3sm_diags_data_dir"] = Path(
         mach_info.config.get("diagnostics", "base_path")
@@ -136,11 +159,15 @@ def main():
     params = {
         **_mach_defaults,
         "case_id": cl_args.case,
-        "case_out_dir": cl_args.casedir,
+        "case_out_dir": case_dir,
+        "lex_root": Path(lex.__file__).parent,
         **parse_sets(cl_args.icesheets, cl_args.sets),
+        **climo_dirs,
+        **ts_dirs,
     }
     out_cfg = Path(cl_args.cfg_out, "livvkit.yml")
     gen_cfg(cl_args.template, params, out_cfg)
+    print(f"CONFIGURATION WRITTEN TO: {out_cfg}")
 
 
 if __name__ == "__main__":
