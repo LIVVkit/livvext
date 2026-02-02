@@ -1,6 +1,6 @@
 ![](https://raw.githubusercontent.com/wiki/LIVVkit/LIVVkit/imgs/livvkit.png)
 
-# LIVVkit Extensions (LEX)
+# LIVVkit Extensions (LivvEX)
 
 This repository holds a collection of extensions to
 [LIVVkit](https://livvkit.github.io/Docs/index.html) for validation and
@@ -19,8 +19,8 @@ machines, including Perlmutter at NERSC, and Chrysalis at ANL\'s LCRC.
 The Python package itself is described in `pyproject.toml`, which is used by
 `pip` to install this package
 
-Currently, LEX is designed to run on Perlmutter, but future work is
-planned to support other machines.
+Currently, LEX is designed to run on NERSC's Perlmutter, and ANL-LCRC's Chrysalis, 
+but future work is planned to support other machines where E3SM runs.
 
 ## Environment setup
 
