@@ -124,7 +124,7 @@ def main():
     mach_info = mache.MachineInfo()
 
     defaults = {
-        "chrys": {
+        "chrysalis": {
             "livvproj_dir": Path("/lcrc/group/e3sm/livvkit"),
             "model_ts_dir": Path("/lcrc/group/e3sm/ac.zender/scratch/livvkit"),
             "grid_dir": Path("/lcrc/group/e3sm/zender/grids"),
@@ -142,7 +142,8 @@ def main():
     if cl_args.from_zppy:
         for _grid in ["native", "racmo_ais", "racmo_gis", "era5", "ceres", "merra2"]:
             if _grid == "ceres":
-                _grid_dir = cl_args.casedir.replace("DATA_GRID", "180x360_traave")
+                _ceres_grid = "180x360_traave"
+                _grid_dir = cl_args.casedir.replace("DATA_GRID", _ceres_grid)
             else:
                 _grid_dir = cl_args.casedir.replace("DATA_GRID", _grid)
 
