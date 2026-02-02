@@ -126,7 +126,7 @@ def proc_climo_file(config, file_tag, sea):
 
     """
     _filename = config[file_tag]
-    if "sea_s" in _filename:
+    if "{sea_s}" in _filename:
         sea_s, sea_e = get_season_bounds(
             sea, config.get("year_s", None), config.get("year_e", None)
         )
@@ -134,6 +134,8 @@ def proc_climo_file(config, file_tag, sea):
             sea = f"{sea:02d}"
         climo_file = _filename.format(clim=sea, sea_s=sea_s, sea_e=sea_e)
     else:
+        if isinstance(sea, int):
+            sea = f"{sea:02d}"
         climo_file = _filename.format(clim=sea)
 
     return climo_file

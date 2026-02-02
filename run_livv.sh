@@ -42,7 +42,6 @@ WEBDIR="${WEBDIR:-/global/cfs/projectdirs/e3sm/www/${USER}}"
 # (Re-)generate the config file for this run
 lex-cfg \
     --template ${template} \
-    --mach pm-cpu \
     --casedir $PSCRATCH/lex/data/e3sm/${CASE} \
     --case ${CASE} \
     --cfg_out ./config \

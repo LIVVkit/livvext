@@ -89,7 +89,7 @@ def mali_to_contour(lon_cell, lat_cell, data_cell):
 def load_model_data(config, regrid=True):
     """Load Model data."""
     sea_s, sea_e = lxc.get_season_bounds(
-        "ANN", config.get("year_s", None), config.get("year_e", None)
+        "ANN", config.get("year_s", 0), config.get("year_e", 1)
     )
     _climfile = config["climo"].format(sea_s=sea_s, sea_e=sea_e, clim="ANN")
     _elevfile = config["elevation"].format(sea_s=sea_s, sea_e=sea_e, clim="ANN")
