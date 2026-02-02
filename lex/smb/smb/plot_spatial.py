@@ -96,8 +96,8 @@ def load_model_data(config, regrid=True):
     _gridfile = config["latlon"].format(sea_s=sea_s, sea_e=sea_e, clim="ANN")
     logger.info(f"LOADING CLIMO FILE: {_climfile}")
     clim_nc = Dataset(_climfile, mode="r")
-    grid_nc = Dataset(config["latlon"], mode="r")
-    elev_nc = Dataset(config["elevation"], mode="r")
+    grid_nc = Dataset(_gridfile, mode="r")
+    elev_nc = Dataset(_elevfile, mode="r")
 
     lats_model = clim_nc.variables[config["latv"]][:]
     lons_model = clim_nc.variables[config["lonv"]][:]
