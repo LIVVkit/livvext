@@ -19,15 +19,28 @@ machines, including Perlmutter at NERSC, and Chrysalis at ANL\'s LCRC.
 The Python package itself is described in `pyproject.toml`, which is used by
 `pip` to install this package
 
-Currently, LEX is designed to run on NERSC's Perlmutter, and ANL-LCRC's Chrysalis, 
+Currently, LEX is designed to run on NERSC's Perlmutter, and ANL-LCRC's Chrysalis,
 but future work is planned to support other machines where E3SM runs.
 
 ## Environment setup
 
 For setting up an environment to which lex and dependencies will be
-installed, conda and Python virtualenv are documented here. **NB** this
-will only currently work on NERSC's Perlmutter, the environment should be
+installed, Pixi and conda are documented here. **NB** this
+will only currently work on Perlmutter and Chrysalis, the environment should be
 created there.
+
+### Pixi environment
+[pixi](https://pixi.sh/latest/) is a package management tool, and the primary
+environment management tool for LEX.
+First, it must be [installed](https://pixi.prefix.dev/latest/installation/) locally.
+Then an enviornment for lex development can be created:
+```bash
+$ git clone https://github.com/LIVVkit/lex.git
+$ cd lex
+$ pixi install --all     # This will install the default and development environments
+$ pixi shell -e default  # To activate the default (runtime) environment
+$ pixi shell -e dev      # To activate the dev environment (for code testing and checks)
+```
 
 ### Conda environment
 ```bash
@@ -37,25 +50,6 @@ $ {conda, mamba} create -n lex_env python --file requirements.txt
 $ {conda, mamba} activate lex_env
 $ pip install -e .    # Installs the lex module as an editable Python package to the lex_env environment.
 ```
-
-### Python virtualenv
-```bash
-$ git clone https://github.com/LIVVkit/lex.git
-$ cd lex
-$ module load python/3.13
-$ python -m venv .env --prompt lex_env  # Creates the virtual env in ${HOME}/lex/.env
-$ source .env/bin/activate              # Switch to the new environment
-$ pip install --upgrade pip             # Needed if the system pip version < 21.3
-$ pip install -e .                      # Installs LEX as editable
-```
-
-This will create a virtual environment at `lex/.env`, and install the
-LEX package as editable with all its Python requirements to run.
-
-### Other available environment management solutions
-Not documented here, but also available for environment management
-- [uv](https://docs.astral.sh/uv/)
-- [pixi](https://pixi.sh/latest/)
 
 ## Basic usage
 

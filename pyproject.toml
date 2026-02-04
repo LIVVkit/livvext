@@ -42,6 +42,27 @@ description = "Extensions for the land ice verification and validation toolkit (
 readme = { file = "README.rst", content-type = "text/x-rst" }
 license = { text = "BSD-3-Clause" }
 
+dependencies = [
+    "numpy>=2.4.2",
+    "scipy>=1.17.0",
+    "xarray>=2026.1.0",
+    "dask>=2026.1.2",
+    "seaborn>=0.13.2",
+    "cftime>=1.6.5",
+    "nc-time-axis>=1.4.1",
+    "scikit-learn>=1.8.0",
+    "ruamel.yaml>=0.19.1",
+    "jinja2>=3.1.6",
+    "matplotlib>=3.10.8",
+    "netcdf4>=1.7.4",
+    "pandas>=3.0.0",
+    "cartopy>=0.25.0",
+    "pybtex>=0.25.1",
+    "f90nml>=1.5",
+    "loguru>=0.7.3",
+    "livvkit>=3.3.0",
+]
+
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Science/Research",
@@ -51,28 +72,48 @@ classifiers = [
     "Natural Language :: English",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
 ]
+dynamic = ["version"]
 
-dynamic = ["version", "dependencies", "optional-dependencies"]
+[dependency-groups]
+dev = [
+    "isort",
+    "pytest",
+    "ruff",
+    "pre-commit",
+]
 
 [tool.setuptools]
 packages = ["lex", "lex.smb", "lex.energy"]
 
 [tool.setuptools.dynamic]
-dependencies = { file = ["requirements.txt"] }
 version = { attr = "lex.__version__" }
 
-[tool.setuptools.dynamic.optional-dependencies]
-dev = { file = ["requirements-dev.txt"] }
-
-
 [project.urls]
-Homepage = "https://code.ornl.gov/LIVVkit/lex"
+Homepage = "https://github.com/LIVVkit/lex"
 
 [project.scripts]
 lex-cfg = "lex.generate_cfg:main"
+
+[tool.pixi.workspace]
+channels = ["conda-forge"]
+platforms = ["linux-64"]
+
+[tool.pixi.pypi-dependencies]
+lex = { path = ".", editable = true }
+
+[tool.pixi.tasks]
+
+[tool.pixi.dependencies]
+mache = ">=2.1.0"
+nco = ">=5.3.6"
+
+[tool.pixi.feature.dev.dependencies]
+
+[tool.pixi.environments]
+default = { solve-group = "default" }
+dev = { features = ["dev"], solve-group = "default" }
