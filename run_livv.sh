@@ -1,6 +1,9 @@
 #!/bin/bash
 CASE=$1
-if [ $(command -v conda) ]; then
+if [ $(command -v pixi) ];then
+    echo "ACTIVATING PIXI SHELL"
+    eval $(pixi shell-hook -e default)
+else if [ $(command -v conda) ]; then
     conda_activate_script=/global/common/software/e3sm/anaconda_envs/base/etc/profile.d/conda.sh
     echo "ACTIVATE: ${conda_activate_script}"
     source $conda_activate_script
@@ -17,6 +20,7 @@ if [ $(command -v conda) ]; then
     fi
     fi
     fi
+fi
 fi
 
 livv_cmd='livv'

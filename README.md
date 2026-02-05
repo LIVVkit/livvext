@@ -37,16 +37,22 @@ Then an enviornment for lex development can be created:
 ```bash
 $ git clone https://github.com/LIVVkit/lex.git
 $ cd lex
-$ pixi install --all     # This will install the default and development environments
-$ pixi shell -e default  # To activate the default (runtime) environment
-$ pixi shell -e dev      # To activate the dev environment (for code testing and checks)
+$ pixi install          # This will install the default environment
+$ pixi shell -e default # To activate the default (runtime) environment
 ```
+
+If development tools are needed (e.g. `pytest`), install and activate the `dev` environment:
+```bash
+$ pixi install -e dev   # Installs the environment
+$ pixi shell -e dev     # Activates the dev environment (for code testing and checks)
+```
+**N.B.** it is not recommended to do `pixi install --all`, as this will install the environment versions used for testing.
 
 ### Conda environment
 ```bash
 $ git clone https://github.com/LIVVkit/lex.git
 $ cd lex
-$ {conda, mamba} create -n lex_env python --file requirements.txt
+$ {conda, mamba} env create -n lex_env python --file env.yml
 $ {conda, mamba} activate lex_env
 $ pip install -e .    # Installs the lex module as an editable Python package to the lex_env environment.
 ```
@@ -68,7 +74,9 @@ website you\'d run this command:
 ```bash
 $ livv -V config/example/example.yml -o vv_test -s
 ```
-This will create a directory in the current directory called `vv_test` (~7.5 MB), and spawn an HTTP server, which should only be used for testing purposes. (This works best if the output is in the current directory)
+This will create a directory in the current directory called `vv_test` (~7.5 MB), and
+spawn an HTTP server, which should only be used for testing purposes.
+(This works best if the output is in the current directory)
 
 *Note:* All the extension configurations files assume you are working
 from the top level `lex` directory. You *can* run any of these
@@ -99,20 +107,24 @@ $ sbatch run_lex_pm-cpu.sbatch
 ## Running new cases on PM-CPU
 
 ### Generate a single timeseries file from ELM h0 outputs
-- `ncrcat -v topo,landfrac,QSNOFRZ,FSRND,FSRVD,FSDSVD,FSDSND,EFLX_LH_TOT,FIRA,FLDS,FSA,FSDS,FSH,QICE,QRUNOFF,QSNOMELT,QSOIL,RAIN,SNOW,TSA,SNOWICE,SNOWLIQ,H2OSNO elm*h0*.nc -o ${CASE}.nc`
+- `CASE="The case name"`
+- `ncrcat -v topo,landfrac,QSNOFRZ,FSRND,FSRVD,FSDSVD,FSDSND,EFLX_LH_TOT,FIRA,FLDS,FSA,FSDS,FSH,QICE,QRUNOFF,QSNOMELT,QSOIL,RAIN,SNOW,TSA,SNOWICE,SNOWLIQ,H2OSNO ${CASE}.elm.h0*.nc -o ${CASE}.nc`
 
 ### Perform post-processing on a single time series ELM h0 output
 - Edit the `lex/lex/postproc/e3sm/postproc.sbatch` batch file to mach the new run
 
     Key variables:
     - `INDIR`: Path which contains single output time series file
-    - `OUTCASE`: Name of the new case which is the name of the netCDF file without extension (e.g. `v2.1.r025.IGERA5ELM_MLI-deep_firn_1980_2020`)
+    - `OUTCASE`: Name of the new case which is the name of the netCDF file without
+        extension (e.g. `v2.1.r025.IGERA5ELM_MLI-deep_firn_1980_2020`)
     - `RES`: ELM output resolution (currently accepts `R05` and `R025`)
-    - `OUTDIR`: Scratch directory into which climatology files will be written, defaults to `${SCRATCH}/lex/data/e3sm/${OUTCASE}`
+    - `OUTDIR`: Scratch directory into which climatology files will be written,
+        defaults to `${SCRATCH}/lex/data/e3sm/${OUTCASE}`
 - Run the post-processing script:
   - `cd lex/lex/postproc/e3sm; sbatch postproc.sbatch`
 
-**NB**: the `postproc.sbatch` script will create the configuration for your case (based on `OUTCASE` and `OUTDIR`), then run LIVVkit on it with `lex/run_livv.sh`
+**NB**: the `postproc.sbatch` script will create the configuration for your case
+(based on `OUTCASE` and `OUTDIR`), then run LIVVkit on it with `lex/run_livv.sh`
 
 ## Developing a custom extension
 

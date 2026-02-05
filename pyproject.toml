@@ -37,25 +37,25 @@ authors = [
     { name = "Joseph H. Kennedy", email = "kennedyjh@ornl.gov" },
 ]
 name = "lex"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 description = "Extensions for the land ice verification and validation toolkit (Livvkit EXtensions)"
 readme = { file = "README.rst", content-type = "text/x-rst" }
 license = { text = "BSD-3-Clause" }
 
 dependencies = [
-    "numpy>=2.4.2",
-    "scipy>=1.17.0",
-    "xarray>=2026.1.0",
+    "numpy>=2.2.6",
+    "scipy>=1.15.3",
+    "xarray>=2025.6.1",
     "dask>=2026.1.2",
     "seaborn>=0.13.2",
     "cftime>=1.6.5",
     "nc-time-axis>=1.4.1",
-    "scikit-learn>=1.8.0",
+    "scikit-learn>=1.7.2",
     "ruamel.yaml>=0.19.1",
     "jinja2>=3.1.6",
     "matplotlib>=3.10.8",
     "netcdf4>=1.7.4",
-    "pandas>=3.0.0",
+    "pandas>=2.2.3",
     "cartopy>=0.25.0",
     "pybtex>=0.25.1",
     "f90nml>=1.5",
@@ -76,16 +76,9 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
 ]
 dynamic = ["version"]
-
-[dependency-groups]
-dev = [
-    "isort",
-    "pytest",
-    "ruff",
-    "pre-commit",
-]
 
 [tool.setuptools]
 packages = ["lex", "lex.smb", "lex.energy"]
@@ -112,8 +105,34 @@ lex = { path = ".", editable = true }
 mache = ">=2.1.0"
 nco = ">=5.3.6"
 
+# Development tools
 [tool.pixi.feature.dev.dependencies]
+isort = "*"
+pytest = "*"
+ruff = "*"
+pre-commit = "*"
+
+# Different Python versions for CI testing
+[tool.pixi.feature.py310dev.dependencies]
+python = "3.10.*"
+
+[tool.pixi.feature.py311dev.dependencies]
+python = "3.11.*"
+
+[tool.pixi.feature.py312dev.dependencies]
+python = "3.12.*"
+
+[tool.pixi.feature.py313dev.dependencies]
+python = "3.13.*"
+
+[tool.pixi.feature.py314dev.dependencies]
+python = "3.14.*"
 
 [tool.pixi.environments]
 default = { solve-group = "default" }
-dev = { features = ["dev"], solve-group = "default" }
+dev = ["dev"]
+py310dev = ["py310dev", "dev"]
+py311dev = ["py311dev", "dev"]
+py312dev = ["py312dev", "dev"]
+py313dev = ["py313dev", "dev"]
+py314dev = ["py314dev", "dev"]
