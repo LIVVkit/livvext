@@ -80,7 +80,7 @@ def check_longitude(data, lon_coord="lon"):
     return _data
 
 
-def get_season_bounds(season, year_s, year_e, sep="_"):
+def get_season_bounds(season, year_s, year_e):
     """Determine season bounds for climatology files."""
     _seasons = {
         "DJF": (1, 12),
@@ -89,19 +89,33 @@ def get_season_bounds(season, year_s, year_e, sep="_"):
         "SON": (9, 11),
         "ANN": (1, 12),
     }
-    _annual = (1, 12)
+
     if season in _seasons:
         _lb, _ub = _seasons[season]
-        bound_l = f"{year_s:04d}{_lb:02d}"
-        bound_u = f"{year_e:04d}{_ub:02d}"
+        _lb = f"{_lb:02d}"
+        _ub = f"{_ub:02d}"
     else:
-        # Months
+        # Assume "season" is a month
         if isinstance(season, str):
-            bound_l = f"{year_s:04d}{season}"
-            bound_u = f"{year_e:04d}{season}"
+            if len(season) == 1:
+                try:
+                    _lb = f"{int(season):02d}"
+                    _ub = f"{int(season):02d}"
+                except (ValueError, TypeError) as _err:
+                    logger.error(f"UNKNOWN SEASON TYPE: {season}")
+                    raise (_err)
+            else:
+                _lb = season
+                _ub = season
         elif isinstance(season, int):
-            bound_l = f"{year_s:04d}{season:02d}"
-            bound_u = f"{year_e:04d}{season:02d}"
+            _lb = f"{int(season):02d}"
+            _ub = f"{int(season):02d}"
+        else:
+            logger.error(f"UNKNOWN SEASON TYPE: {season}")
+
+    bound_l = f"{year_s:04d}{_lb}"
+    bound_u = f"{year_e:04d}{_ub}"
+
     return bound_l, bound_u
 
 
@@ -615,7 +629,13 @@ def closest_points(model_x, model_y, obs_x, obs_y):
     _, closests = kdtree.query(obs_points)
     obs_ij = np.zeros((len(obs_points), 3), dtype=int)
     for i in range(0, len(closests)):
-        obs_ij[i, :] = np.unravel_index(closests[i], lat2d.flatten().shape)
+        _index = np.unravel_index(closests[i], lat2d.flatten().shape)
+        if len(_index) == 3:
+            obs_ij[i, :] = _index
+        elif isinstance(_index, tuple):
+            obs_ij[i, :] = np.array(_index * 3).T
+        else:
+            obs_ij[i, :] = np.array([_index] * 3).T
 
     return closests, obs_ij
 
