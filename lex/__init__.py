@@ -31,5 +31,5 @@
 Storage for global variables.  These are set upon startup in the options module
 """
 
-__version_info__ = (0, 2, 0)
+__version_info__ = (1, 0, 0)
 __version__ = ".".join(str(vi) for vi in __version_info__)

@@ -1,6 +1,8 @@
+"""Test lex.common methods."""
+
+import os
 import numpy as np
 import xarray as xr
-
 import lex.common as lxc
 
 
@@ -112,8 +114,36 @@ def test_get_cycle():
         assert lxc.get_cycle(cycle) == truth[idx]
 
 
-# def test_var_filename_format():
-#     """"""
+def test_var_filename_format():
+    """"""
+    file_pattern = "{_var}_{icesheet}_{season}_{sea_s}_{sea_e}_climo.nc"
+    varname = "smbgl"
+    ice_sheet = "gis"
+    seasons = ["DJF", "ANN", "MAM", "01", 5]
+    year_s = 1923
+    year_e = 1962
+
+    truth = [
+        "smbgl_gis_DJF_192301_196212_climo.nc",
+        "smbgl_gis_ANN_192301_196212_climo.nc",
+        "smbgl_gis_MAM_192303_196205_climo.nc",
+        "smbgl_gis_01_192301_196201_climo.nc",
+        "smbgl_gis_05_192305_196205_climo.nc",
+    ]
+    for idx, _season in enumerate(seasons):
+        assert (
+            lxc.var_filename_format(
+                file_pattern,
+                _var=varname,
+                isheet=ice_sheet,
+                _sea=_season,
+                year_s=year_s,
+                year_e=year_e,
+            )
+            == truth[idx]
+        )
+
+
 #
 # def test_gen_file_list():
 #     """"""
@@ -127,8 +157,58 @@ def test_get_cycle():
 # def test_parse_var_name():
 #     """"""
 #
-# def test_area_avg():
-#     """"""
+def test_area_avg():
+    """"""
+    # First need to generate the file for area / mask
+    n_x = 10
+    n_y = 12
+
+    lon = np.linspace(0, 360.0, n_x)
+    lat = np.linspace(-90.0, 90.0, n_y)
+    data = np.array(n_y * [np.arange(1, n_x + 1)])
+    area = np.ones((n_y, n_x))
+    area[:, 0] = 2.0
+    area[:, -1] = 2.0
+
+    mask = np.ones(area.shape)
+    mask[:, 4:6] = 0.0
+
+    landfrac = np.ones(area.shape)
+    landfrac[:, 0:5] = 0.5
+
+    xarea = xr.DataArray(area, dims=("lat", "lon"), coords={"lat": lat, "lon": lon})
+    xmask = xr.DataArray(mask, dims=("lat", "lon"), coords={"lat": lat, "lon": lon})
+    xlnd = xr.DataArray(landfrac, dims=("lat", "lon"), coords={"lat": lat, "lon": lon})
+    xdata = xr.DataArray(data, dims=("lat", "lon"), coords={"lat": lat, "lon": lon})
+
+    area_ds = xr.Dataset({"mask": xmask, "area": xarea, "landfrac": xlnd})
+    area_ds.to_netcdf("area_testfile.nc")
+
+    config = {"maskv": "mask"}
+    _avg, isheet_mask, area_maskice, _data = lxc.area_avg(
+        xdata, config, "area_testfile.nc", area_var="area", mask_var="mask"
+    )
+    assert _avg == 5.5
+    _sum, *_ = lxc.area_avg(
+        xdata,
+        config,
+        "area_testfile.nc",
+        area_var="area",
+        mask_var="mask",
+        sum_out=True,
+    )
+    assert _sum == 660.0
+
+    _avg_lo, *_ = lxc.area_avg(
+        xdata,
+        config,
+        "area_testfile.nc",
+        area_var="area",
+        mask_var="mask",
+        land_only=True,
+    )
+    assert _avg_lo == 3.8
+    os.remove("area_testfile.nc")
 
 
 def test_closest_points():
@@ -145,7 +225,7 @@ def test_closest_points():
     # 10  |
     #     L______________________
     #       1    2    3    4    5
-    ########################################    
+    ########################################
     mod_x = np.array([1, 2, 3, 4, 5])
     mod_y = np.array([10, 20, 30, 40, 50])
 
@@ -155,6 +235,7 @@ def test_closest_points():
     _pts = lxc.closest_points(mod_x, mod_y, obs_x, obs_y)
     truth = np.array([12, 21, 7, 8])
     assert (_pts[0][:, 0] == truth).all()
+
 
 # def test_summarize_result():
 #     """"""
