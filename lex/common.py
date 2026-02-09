@@ -255,11 +255,15 @@ def gen_file_list_old(
 
 
 def var_filename_format(file_pattern, _var, isheet, _sea, year_s, year_e, sep="_"):
-    sea_s, sea_e = get_season_bounds(_sea, year_s, year_e, sep)
+    sea_s, sea_e = get_season_bounds(_sea, year_s, year_e)
+    if isinstance(_sea, int):
+        season = f"{_sea:02d}"
+    else:
+        season = _sea
     return file_pattern.format(
         _var=_var,
         icesheet=isheet,
-        season=_sea,
+        season=season,
         sea_s=sea_s,
         sea_e=sea_e,
     )
