@@ -169,5 +169,5 @@ Want to send us a private message?
     similar CISM-Albany simulation, but likely would *not* be able to
     analyze output from the PISM ice sheet model without \"massaging\"
     the PISM files into a CISM-Albany like structure, or adjusting the
-    extension. *This is a problem we are working on for future LIVVext 
+    extension. *This is a problem we are working on for future LIVVext
     releases.*

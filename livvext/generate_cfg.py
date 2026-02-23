@@ -6,7 +6,7 @@ from pathlib import Path
 import jinja2
 import mache
 
-import livvext 
+import livvext
 
 ALL_SHEETS = "gis,ais"
 ALL_SETS = "cmb,smb,energy_racmo,energy_era5,energy_merra2,energy_ceres"
