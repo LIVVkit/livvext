@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright (c) 2018-2025 UT-BATTELLE, LLC
+# Copyright (c) 2018-2026 UT-BATTELLE, LLC
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -37,14 +37,14 @@ authors = [
     { name = "Joseph H. Kennedy", email = "kennedyjh@ornl.gov" },
 ]
 name = "LIVVext"
-requires-python = ">=3.10"
-description = "Extensions for the land ice verification and validation toolkit (Livvkit EXtensions)"
-readme = { file = "README.rst", content-type = "text/x-rst" }
-license = { text = "BSD-3-Clause" }
+requires-python = ">=3.11"
+description = "Extensions for the land ice verification and validation toolkit (LIVVkit EXTensions)"
+readme = { file = "README.md", content-type = "text/markdown" }
+license = "BSD-3-Clause"
 
 dependencies = [
     "numpy>=2.2.6",
-    "scipy>=1.15.3",
+    "scipy>=1.17.0",
     "xarray>=2025.6.1",
     "dask>=2026.1.2",
     "seaborn>=0.13.2",
@@ -68,11 +68,9 @@ classifiers = [
     "Intended Audience :: Science/Research",
     "Topic :: Scientific/Engineering",
     "Topic :: Software Development :: Testing",
-    "License :: OSI Approved :: BSD License",
     "Natural Language :: English",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
@@ -81,7 +79,15 @@ classifiers = [
 dynamic = ["version"]
 
 [tool.setuptools]
-packages = ["livvext", "livvext.smb", "livvext.energy"]
+packages = [
+    "livvext",
+    "livvext.smb",
+    "livvext.smb.smb",
+    "livvext.energy",
+    "livvext.example",
+    "livvext.postproc",
+    "livvext.postproc.e3sm",
+]
 
 [tool.setuptools.dynamic]
 version = { attr = "livvext.__version__" }
@@ -113,9 +119,6 @@ ruff = "*"
 pre-commit = "*"
 
 # Different Python versions for CI testing
-[tool.pixi.feature.py310dev.dependencies]
-python = "3.10.*"
-
 [tool.pixi.feature.py311dev.dependencies]
 python = "3.11.*"
 
@@ -131,7 +134,6 @@ python = "3.14.*"
 [tool.pixi.environments]
 default = { solve-group = "default" }
 dev = ["dev"]
-py310dev = ["py310dev", "dev"]
 py311dev = ["py311dev", "dev"]
 py312dev = ["py312dev", "dev"]
 py313dev = ["py313dev", "dev"]
