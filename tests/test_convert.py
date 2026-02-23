@@ -3,7 +3,7 @@ from pathlib import Path
 
 import livvkit.util.functions as fcn
 
-import lex.convert_cfg as lconvert
+import livvext.convert_cfg as lconvert
 
 
 def test_convert_to_yaml():

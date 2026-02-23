@@ -12,9 +12,10 @@ import nc_time_axis  # noqa: F401
 import numpy as np
 import xarray as xr
 from livvkit import elements as el
+from loguru import logger
 
-import lex.common as lxc
-import lex.utils as lxu
+import livvext.common as lxc
+import livvext.utils as lxu
 
 IMG_GROUP = "Timeseries"
 
@@ -39,7 +40,7 @@ def assemble_outdata(args, config, dataset, aavg_data, ts_data, aavg_units):
             else:
                 _aavg = aavg_data.get(data_var["title"])
         else:
-            print(f"DATA NOT FOUND FOR {data_var['title']} in {dataset}")
+            logger.error(f"DATA NOT FOUND FOR {data_var['title']} in {dataset}")
             continue
 
         aavg_out[data_var["title"].replace(" ", "_")] = xr.DataArray(
@@ -79,6 +80,7 @@ def main(args, config):
             config_names[_dset] = _dset
     img_elem = []
     for idx, data_var in enumerate(config["data_vars"]):
+        logger.info(f"   PLOTTING {config.get('icesheet', '')} TS: {data_var['title']}")
         _obs_in = {}
 
         aavg_config = data_var.get("aavg", None)
@@ -114,7 +116,9 @@ def main(args, config):
                 lxc.area_avg(
                     _obs_in[_vers],
                     {},
-                    area_file=config["masks"][_vers],
+                    area_file=config["masks"][_vers].format(
+                        icesheet=config["icesheet"]
+                    ),
                     area_var="area",
                     mask_var="Icemask",
                     sum_out=_do_sum,
@@ -124,7 +128,9 @@ def main(args, config):
         model_aavg[data_var["title"]], _, _, _ = lxc.area_avg(
             _model_plt,
             {},
-            area_file=config["masks"]["model_native"],
+            area_file=config["masks"]["model_native"].format(
+                icesheet=config["icesheet"]
+            ),
             area_var="area",
             mask_var="Icemask",
             sum_out=_do_sum,
@@ -259,7 +265,9 @@ def main(args, config):
             relative_to="",
         )
         img_elem.append(_img_elem)
-
+        logger.info(
+            f"   DONE - PLOTTING {config.get('icesheet', '')} TS: {data_var['title']}"
+        )
     # assemble_outdata(args, config, "model", model_aavg, ts_data, _aavg_units)
     # assemble_outdata(args, config, "dset_a", obs_aavg, ts_data, _aavg_units)
 

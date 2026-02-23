@@ -14,8 +14,8 @@ from cartopy import feature as cfeature
 from livvkit import elements as el
 from numpy import ma
 
-from lex import common as lxc
-from lex import utils as lxu
+from livvext import common as lxc
+from livvext import utils as lxu
 
 # from collections import namedtuple
 
@@ -48,6 +48,11 @@ def add_colorbar(color_field, fig, axis, cblabel, cbar_span=False, ndsets=3):
             _ = fig.colorbar(
                 color_field, cax=cbar_ax, orientation="horizontal", label=cblabel
             )
+    elif ndsets == 1:
+        _ = fig.colorbar(
+            color_field, location="right", shrink=0.85, pad=0.01, label=cblabel
+        )
+
     else:
         raise NotImplementedError(
             f"THIS NUMBER OF PLOTS ({ndsets}) NOT IMPLEMENTED (yet)"
@@ -74,11 +79,22 @@ def annotate_plot(
     xlabel=None,
     cblabel=None,
     cnrtxt=None,
+    gridline_args=None,
     icesheet="gis",
 ):
     """Add land / ocean, gridlines, colourbar."""
     axis.coastlines(linewidth=0.1)
-    axis.gridlines(linestyle="--", linewidth=0.1)
+    gridline_args_def = {"linestyle": "--", "linewidth": 0.1}
+
+    if gridline_args is None:
+        gridline_args = gridline_args_def
+    else:
+        for _arg, _value in gridline_args_def.items():
+            if _arg not in gridline_args:
+                gridline_args[_arg] = _value
+
+    axis.gridlines(**gridline_args)
+
     if icesheet.lower() == "gis":
         axis.set_extent([-60, -27, 59, 84], ccrs.PlateCarree())
     elif icesheet.lower() == "ais":
@@ -116,12 +132,22 @@ def annotate_plot(
         )
 
 
-def get_figure(n_dsets, proj, icesheet="gis"):
+def get_figure(n_dsets, proj=None, icesheet="gis"):
     """Set up figure based on number of datasets to be plotted."""
     fig_size = {
-        "gis": {3: (10, 10), 2: (10, 8)},
-        "ais": {3: (10, 10), 2: (16, 7)},
+        "gis": {3: (10, 10), 2: (10, 8), 1: (7, 10)},
+        "ais": {3: (10, 10), 2: (16, 7), 1: (8, 8)},
     }
+    if proj is None:
+        if icesheet == "gis":
+            lon_0 = -45
+            lat_0 = 70
+            proj = ccrs.LambertConformal(
+                central_longitude=lon_0, central_latitude=lat_0
+            )
+        elif icesheet == "ais":
+            proj = ccrs.SouthPolarStereo(central_longitude=0)
+
     fig = plt.figure(figsize=fig_size[icesheet][n_dsets], dpi=90)
 
     if n_dsets == 3:
@@ -131,8 +157,10 @@ def get_figure(n_dsets, proj, icesheet="gis"):
         )
     elif n_dsets == 2:
         axes = [fig.add_subplot(1, 3, i + 1, projection=proj) for i in range(3)]
+    elif n_dsets == 1:
+        axes = [fig.add_subplot(1, 1, 1, projection=proj)]
 
-    return fig, axes
+    return fig, axes, proj
 
 
 def main(args, config, sea="ANN"):
@@ -159,13 +187,15 @@ def main(args, config, sea="ANN"):
 
     if "model_native" in config["dataset_names"]:
         all_data = {
-            "model_remap": xr.open_dataset(config["climo_remap"].format(clim=sea)),
-            "model_native": xr.open_dataset(config["climo"].format(clim=sea)),
+            "model_remap": xr.open_dataset(
+                lxc.proc_climo_file(config, "climo_remap", sea)
+            ),
+            "model_native": xr.open_dataset(lxc.proc_climo_file(config, "climo", sea)),
             **lxc.load_obs(config, sea, mode=mode),
         }
     else:
         all_data = {
-            "model": xr.open_dataset(config["climo_remap"].format(clim=sea)),
+            "model": xr.open_dataset(lxc.proc_climo_file(config, "climo_remap", sea)),
             **lxc.load_obs(config, sea, mode=mode),
         }
     for _vers in all_data:
@@ -258,7 +288,7 @@ def main(args, config, sea="ANN"):
             all_aavg[_vers], mask_r[_vers], area_r[_vers], _ = lxc.area_avg(
                 _plt_data[_vers],
                 config,
-                area_file=config["masks"][_vers],
+                area_file=config["masks"][_vers].format(icesheet=config["icesheet"]),
                 area_var="area",
                 mask_var="Icemask",
                 sum_out=_do_sum,
@@ -274,7 +304,7 @@ def main(args, config, sea="ANN"):
             diffs_aavg[_diffname], _, _, _ = lxc.area_avg(
                 diffs[_diffname],
                 config,
-                area_file=config["masks"][_ds2],
+                area_file=config["masks"][_ds2].format(icesheet=config["icesheet"]),
                 area_var="area",
                 mask_var="Icemask",
                 sum_out=_do_sum,
@@ -303,7 +333,7 @@ def main(args, config, sea="ANN"):
         else:
             raise NotImplementedError(f"ICESHEET {icesheet} NOT FOUND USE ais / gis")
 
-        fig, axes = get_figure(n_dsets_to_plot, proj, icesheet=icesheet)
+        fig, axes, _ = get_figure(n_dsets_to_plot, proj, icesheet=icesheet)
 
         for _vers in _plt_data:
             try:

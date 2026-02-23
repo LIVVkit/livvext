@@ -8,8 +8,22 @@
 conda_activate_script=/global/common/software/e3sm/anaconda_envs/base/etc/profile.d/conda.sh
 echo $conda_activate_script
 source $conda_activate_script
-conda activate lex
 
+if [ -n ${LEX_ENV} ]; then
+    conda activate ${LEX_ENV}
+else if [ -d ${HOME}/.conda/envs/lex_env ]; then
+    conda activate ${HOME}/.conda/envs/lex_env
+else if [ -d ${HOME}/anaconda/envs/lex_env ]; then
+    conda activate ${HOME}/anaconda/envs/lex_env
+else
+    echo "LEX ENV NOT FOUND AT EITHER $HOME/.conda or $HOME/anaconda "
+    echo "SET LEX_ENV variable to point to \$CONDA_PREFIX for lex_env"
+    exit 1
+fi
+fi
+fi
+
+LEXDIR=$HOME/livvext
 INDIR=/global/cfs/projectdirs/e3sm/zender/livvkit
 LIVVPROJ=/global/cfs/cdirs/e3sm/livvkit
 
@@ -50,7 +64,7 @@ export OUTCASE=v3.LR.piControl-deepfirn-mec2_0100_0175
 export RES=r05
 
 export INFILE=${INDIR}/${OUTCASE}.nc
-export OUTDIR=${PSCRATCH}/lex/data/e3sm/${OUTCASE}
+export OUTDIR=${PSCRATCH}/livvext/data/e3sm/${OUTCASE}
 
 if [[ ! -d ${OUTDIR}/remap ]]
 then
@@ -86,30 +100,34 @@ ANN_MEAN_FILE=${OUTDIR}/${OUTCASE}.ANN_mean.nc
 ncra $INFILE ${ANN_MEAN_FILE}
 for var in topo landfrac
 do
-    ncks -m -v ${var} ${INFILE} > /dev/null || ncks -A -C -v ${var} ${INFILE_REF} ${ANN_MEAN_FILE}
+    ncks -m -v ${var} ${INFILE} > /dev/null 2>&1 || ncks -A -C -v ${var} ${INFILE_REF} ${ANN_MEAN_FILE}
 done
 
-srun parallel --jobs 12 ./split_files.sh ::: {0..11}
+srun parallel --jobs 12 ${LEXDIR}/livvext/postproc/e3sm/split_files.sh ::: {0..11}
 
 ncra \
+    -O \
     ${OUTDIR}/${OUTCASE}.01.nc \
     ${OUTDIR}/${OUTCASE}.02.nc \
     ${OUTDIR}/${OUTCASE}.12.nc \
     ${OUTDIR}/${OUTCASE}.DJF_mean.nc &
 
 ncra \
+    -O \
     ${OUTDIR}/${OUTCASE}.03.nc \
     ${OUTDIR}/${OUTCASE}.04.nc \
     ${OUTDIR}/${OUTCASE}.05.nc \
     ${OUTDIR}/${OUTCASE}.MAM_mean.nc &
 
 ncra \
+    -O \
     ${OUTDIR}/${OUTCASE}.06.nc \
     ${OUTDIR}/${OUTCASE}.07.nc \
     ${OUTDIR}/${OUTCASE}.08.nc \
     ${OUTDIR}/${OUTCASE}.JJA_mean.nc &
 
 ncra \
+    -O \
     ${OUTDIR}/${OUTCASE}.09.nc \
     ${OUTDIR}/${OUTCASE}.10.nc \
     ${OUTDIR}/${OUTCASE}.11.nc \
@@ -122,7 +140,7 @@ do
     do
         # Check if the mean output file has ${var} (topography or landfrac) if it
         # doesn't, then get that field from a reference file (set by the resolution)
-        ncks -m -v ${var} ${MEAN_FILE} > /dev/null || ncks -A -C -v ${var} ${INFILE_REF} ${MEAN_FILE}
+        ncks -m -v ${var} ${MEAN_FILE} > /dev/null 2>&1 || ncks -A -C -v ${var} ${INFILE_REF} ${MEAN_FILE}
     done
 
     ncremap \
@@ -163,7 +181,7 @@ echo "#########################"
 echo "POST PROCESSING COMPLETE"
 echo "#########################"
 
-pushd $HOME/lex
+pushd ${LEXDIR}
 if [ ! -d config/${OUTCASE} ]; then
     echo "CREATING CONFIG DIRECTORY FOR ${OUTCASE}"
     cp -R config/template_${RES} config/${OUTCASE}

@@ -1,5 +1,5 @@
 Energy_Balance_CERES_GIS:
-  module: lex/energy/energy.py
+  module: livvext/energy/energy.py
   references: [/global/cfs/cdirs/e3sm/livvkit/data/racmo/Noel2015.bib,/global/cfs/cdirs/e3sm/livvkit/data/cism/glissade/cism-glissade.bib,/global/cfs/cdirs/e3sm/livvkit/data/e3sm/Evans2019.bib,
    /global/cfs/cdirs/e3sm/livvkit/data/livvkit.bib]
   meta:
@@ -7,13 +7,13 @@ Energy_Balance_CERES_GIS:
     Climatology years: [1980-2020]
     Model: [E3SM-ELM]
   img_height: 300
-  climo: /pscratch/sd/m/mek/lex/data/e3sm/v3.LR.piControl.I.hex_eqm_0101_0200/v3.LR.piControl.I.hex_eqm_0101_0200.{clim}_mean.nc
-  climo_remap: /pscratch/sd/m/mek/lex/data/e3sm/v3.LR.piControl.I.hex_eqm_0101_0200/remap/v3.LR.piControl.I.hex_eqm_0101_0200.{clim}_mean_cmip6.nc
-  lnd_climo: /pscratch/sd/m/mek/lex/data/e3sm/v3.LR.piControl.I.hex_eqm_0101_0200/v3.LR.piControl.I.hex_eqm_0101_0200.ANN_mean.nc
-  glc_surf: /pscratch/sd/m/mek/lex/data/e3sm/v3.LR.piControl.I.hex_eqm_0101_0200/v3.LR.piControl.I.hex_eqm_0101_0200.ANN_mean.nc
+  climo: /pscratch/sd/m/mek/livvext/data/e3sm/v3.LR.piControl.I.hex_eqm_0101_0200/v3.LR.piControl.I.hex_eqm_0101_0200.{clim}_mean.nc
+  climo_remap: /pscratch/sd/m/mek/livvext/data/e3sm/v3.LR.piControl.I.hex_eqm_0101_0200/remap/v3.LR.piControl.I.hex_eqm_0101_0200.{clim}_mean_cmip6.nc
+  lnd_climo: /pscratch/sd/m/mek/livvext/data/e3sm/v3.LR.piControl.I.hex_eqm_0101_0200/v3.LR.piControl.I.hex_eqm_0101_0200.ANN_mean.nc
+  glc_surf: /pscratch/sd/m/mek/livvext/data/e3sm/v3.LR.piControl.I.hex_eqm_0101_0200/v3.LR.piControl.I.hex_eqm_0101_0200.ANN_mean.nc
 
-  latlon: /pscratch/sd/m/mek/lex/data/e3sm/v3.LR.piControl.I.hex_eqm_0101_0200/v3.LR.piControl.I.hex_eqm_0101_0200.ANN_mean.nc
-  elevation: /pscratch/sd/m/mek/lex/data/e3sm/v3.LR.piControl.I.hex_eqm_0101_0200/v3.LR.piControl.I.hex_eqm_0101_0200.ANN_mean.nc
+  latlon: /pscratch/sd/m/mek/livvext/data/e3sm/v3.LR.piControl.I.hex_eqm_0101_0200/v3.LR.piControl.I.hex_eqm_0101_0200.ANN_mean.nc
+  elevation: /pscratch/sd/m/mek/livvext/data/e3sm/v3.LR.piControl.I.hex_eqm_0101_0200/v3.LR.piControl.I.hex_eqm_0101_0200.ANN_mean.nc
   latv: lat
   lonv: lon
   topov: topo
@@ -63,10 +63,10 @@ Energy_Balance_CERES_GIS:
     sign: 1
     scales: {dset_a: 1, model: 1}
     units: W m^-2
-  in_dirs: {dset_a: /pscratch/sd/m/mek/lex/data/ceres_ebaf_surface_v4.1}
+  in_dirs: {dset_a: /pscratch/sd/m/mek/livvext/data/ceres_ebaf_surface_v4.1}
   file_patterns: {dset_a: 'ceres_ebaf_surface_v4.1_{season}_climo.nc'}
-  masks: {dset_a: /pscratch/sd/m/mek/lex/data/grids/msk_gis_r025_remap_cmip6.traave.20250124.nc,
-    model_native: /global/cfs/cdirs/e3sm/zender/grids/msk_gis_rcm_r05.nc, model_remap: /pscratch/sd/m/mek/lex/data/grids/msk_gis_r025_remap_cmip6.traave.20250124.nc}
+  masks: {dset_a: /pscratch/sd/m/mek/livvext/data/grids/msk_gis_r025_remap_cmip6.traave.20250124.nc,
+    model_native: /global/cfs/cdirs/e3sm/zender/grids/msk_gis_rcm_r05.nc, model_remap: /pscratch/sd/m/mek/livvext/data/grids/msk_gis_r025_remap_cmip6.traave.20250124.nc}
   desc: Surface energy balance component {component}{comment} from {data_var_names}
   cmap: plasma
   cmap_diff: RdBu_r

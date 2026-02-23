@@ -1,5 +1,5 @@
 Energy_Balance_CERES_GIS:
-  module: lex/energy/energy.py
+  module: livvext/energy/energy.py
   references: [/global/cfs/cdirs/e3sm/livvkit/data/racmo/Noel2015.bib,/global/cfs/cdirs/e3sm/livvkit/data/cism/glissade/cism-glissade.bib,/global/cfs/cdirs/e3sm/livvkit/data/e3sm/Evans2019.bib,
    /global/cfs/cdirs/e3sm/livvkit/data/livvkit.bib]
   meta:
@@ -68,8 +68,8 @@ Energy_Balance_CERES_GIS:
   in_dirs: {dset_a: /global/cfs/cdirs/e3sm/e3sm_diags/obs_for_e3sm_diags/climatology/ceres_ebaf_surface_v4.1
   }
   file_patterns: {dset_a: 'ceres_ebaf_surface_v4.1_{season}_{sea_s}_{sea_e}_climo.nc'}
-  masks: {dset_a: SCRATCH_DIR/lex/data/grids/msk_gis_r025_remap_cmip6.traave.20250124.nc,
-    model_native: /global/cfs/cdirs/e3sm/zender/grids/msk_gis_rcm_r025.nc, model_remap: SCRATCH_DIR/lex/data/grids/msk_gis_r025_remap_cmip6.traave.20250124.nc}
+  masks: {dset_a: SCRATCH_DIR/livvext/data/grids/msk_gis_r025_remap_cmip6.traave.20250124.nc,
+    model_native: /global/cfs/cdirs/e3sm/zender/grids/msk_gis_rcm_r025.nc, model_remap: SCRATCH_DIR/livvext/data/grids/msk_gis_r025_remap_cmip6.traave.20250124.nc}
   desc: Surface energy balance component {component}{comment} from {data_var_names}
   cmap: plasma
   cmap_diff: RdBu_r

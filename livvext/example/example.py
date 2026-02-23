@@ -35,7 +35,7 @@ from livvkit import elements as el
 
 # Don't remove summarize_result...this is used by livvkit.components.validation
 # to have the summaries appear on the main LIVVkit output page
-from lex.common import summarize_result as sum_common
+from livvext.common import summarize_result as sum_common
 
 
 def run(name, config):

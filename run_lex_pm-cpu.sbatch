@@ -4,14 +4,9 @@
 #SBATCH --nodes=1
 #SBATCH --constraint=cpu
 
-conda_activate_script=/global/common/software/e3sm/anaconda_envs/base/etc/profile.d/conda.sh
-echo $conda_activate_script
-source $conda_activate_script
-
 # NERSC Portal project location
 export WEBDIR=/global/cfs/projectdirs/e3sm/www/${USER}
 
-conda activate lex
 CASES=(
     "v2.1.r025.IGERA5ELM_MLI-deep_firn_1980_2020"
     "v3.LR.piControl-deepfirn_0001_0100"

@@ -1,5 +1,5 @@
 Climatic_Mass_Balance_AIS:
-  module: lex/smb/smb_icecores.py
+  module: livvext/smb/smb_icecores.py
   References: [/global/cfs/cdirs/e3sm/livvkit/data/smb/smb_icecores.bib,/global/cfs/cdirs/e3sm/livvkit/data/livvkit.bib]
   meta:
     Case ID: [CASE_ID]
@@ -24,8 +24,8 @@ Climatic_Mass_Balance_AIS:
   ib_year_s: 2014-2004
   preprocess: []
   preproc_dir: /global/cfs/cdirs/e3sm/livvkit/data/smb/processed
-  racmo_dir: SCRATCH_DIR/lex/data/racmo_2p4p1/remapped/climo
-  racmo_dir_native: SCRATCH_DIR/lex/data/racmo_2p4p1/climo
+  racmo_dir: SCRATCH_DIR/livvext/data/racmo_2p4p1/remapped/climo
+  racmo_dir_native: SCRATCH_DIR/livvext/data/racmo_2p4p1/climo
   racmo_ver: "2.4"
   dataset_names: { model: ELM, dset_a: RACMO 2.4 }
   clim_years:
@@ -62,7 +62,7 @@ Climatic_Mass_Balance_AIS:
     {
       dset_a: /global/cfs/cdirs/e3sm/zender/grids/msk_ais_r025_rcm.nc,
       model: /global/cfs/cdirs/e3sm/zender/grids/msk_ais_r025_rcm.nc,
-      model_native: SCRATCH_DIR/lex/data/grids/msk_ais_rcm_r025.nc,
+      model_native: SCRATCH_DIR/livvext/data/grids/msk_ais_rcm_r025.nc,
     }
   desc: "{component} component of CMB from {data_var_names}"
   cmap: BrBG

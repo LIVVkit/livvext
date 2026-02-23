@@ -7,16 +7,20 @@ Module containing routines to create map plots of Surface Mass Balance data.
 import os
 from pathlib import Path
 
+import cartopy.crs as ccrs
 import matplotlib.pyplot as plt
 import numpy as np
 import numpy.ma as ma
 import pandas as pd
 import smb.preproc as preproc
 from livvkit import elements as el
+from loguru import logger
 from matplotlib import colors as c
-from mpl_toolkits.basemap import Basemap
 from netCDF4 import Dataset
 from scipy.interpolate import griddata
+
+import livvext.common as lxc
+import livvext.compare_gridded as lxcg
 
 DESCRIBE_CORE = """
 Filled contour of modeled annual surface mass balance of the Greenland ice
@@ -57,6 +61,13 @@ larger points indicating annual estimates were taken from a greater number of ye
 
 IMG_GROUP = "Spatial"
 
+GRIDLINE_ARGS = {
+    "draw_labels": ["top", "bottom", "left"],
+    "x_inline": False,
+    "y_inline": False,
+    "linewidth": 1.0,
+}
+
 
 def mali_to_contour(lon_cell, lat_cell, data_cell):
     """Convert MALI unstructured to gridded data."""
@@ -75,27 +86,35 @@ def mali_to_contour(lon_cell, lat_cell, data_cell):
     return x_grid, y_grid, z_grid
 
 
-def load_model_data(args, config, regrid=True):
+def load_model_data(config, regrid=True):
     """Load Model data."""
-    nc1 = Dataset(config["climo"].format(m_s=1, m_e=12, clim="ANN"), mode="r")
-    nc2 = Dataset(args.latlon, mode="r")
-    nc3 = Dataset(args.elevation, mode="r")
+    sea_s, sea_e = lxc.get_season_bounds(
+        "ANN", config.get("year_s", 0), config.get("year_e", 1)
+    )
+    _climfile = config["climo"].format(sea_s=sea_s, sea_e=sea_e, clim="ANN")
+    _elevfile = config["elevation"].format(sea_s=sea_s, sea_e=sea_e, clim="ANN")
+    _gridfile = config["latlon"].format(sea_s=sea_s, sea_e=sea_e, clim="ANN")
+    logger.info(f"LOADING CLIMO FILE: {_climfile}")
+    clim_nc = Dataset(_climfile, mode="r")
+    grid_nc = Dataset(_gridfile, mode="r")
+    elev_nc = Dataset(_elevfile, mode="r")
 
-    lats_model = nc1.variables[config["latv"]][:]
-    lons_model = nc1.variables[config["lonv"]][:]
-    if nc2.variables[args.lonv].units == "radians":
+    lats_model = clim_nc.variables[config["latv"]][:]
+    lons_model = clim_nc.variables[config["lonv"]][:]
+    if grid_nc.variables[config["lonv"]].units == "radians":
         lats_model = np.degrees(lats_model)
         lons_model = np.degrees(lons_model)
 
-    smb_model = nc1.variables[args.smbv][:]
+    smb_model = clim_nc.variables[config["smbv"]][:]
 
-    thk_model = nc1.variables[args.topov][:]
-    if args.landfracv in nc1.variables:
-        smb_model *= nc1.variables[args.landfracv][:]
-    smb_model *= args.smbscale
-    nc1.close()
-    nc2.close()
-    nc3.close()
+    thk_model = clim_nc.variables[config["topov"]][:]
+    if config["landfracv"] in clim_nc.variables:
+        smb_model *= clim_nc.variables[config["landfracv"]][:]
+    smb_model *= config["smbscale"]
+
+    clim_nc.close()
+    grid_nc.close()
+    elev_nc.close()
 
     mask = thk_model.flatten() < 0.0001
     smb_flat = smb_model.flatten()
@@ -112,110 +131,58 @@ def load_model_data(args, config, regrid=True):
     return lons_model, lats_model, msmb
 
 
-def gen_map(lon_0, lat_0):
-    """
-    Create Basemap on which to plot.
-
-    Parameters
-    ----------
-    lon_0, lat_0 : float
-        Center location of map to be drawn
-
-    Returns
-    -------
-    pmap : basemap.Basemap
-        Lambert conformal conic `Basemap` centered on Greenland
-        (future: do a stereographic for Antarctica)
-
-    """
-    pmap = Basemap(
-        width=2000000,
-        height=3000000,
-        rsphere=(6378137.00, 6356752.3142),
-        resolution="l",
-        projection="lcc",
-        lat_0=lat_0,
-        lon_0=lon_0,
-    )
-    return pmap
-
-
-def annotate_map(pmap, axis=None):
-    """
-    Add common details to basemap.
-
-    Draw grid and coastlines, and fill the continents with colour.
-
-    Parameters
-    ----------
-    pmap : basemap.Basemap
-        Basemap on which to draw annotations
-
-    axis : matplotlib.pyplot.Axis, optional
-        Axis where Basemap is drawn, default is None
-
-    """
-    pmap.drawcoastlines(ax=axis)
-    pmap.drawcountries(ax=axis)
-    pmap.fillcontinents(color="gainsboro", lake_color="aqua", zorder=1)
-    pmap.drawparallels(
-        np.arange(-80.0, 81.0, 5.0),
-        labels=[1, 0, 0, 0],
-        fontsize=10,
-        color="lightgrey",
-        zorder=1,
-        ax=axis,
-    )
-    pmap.drawmeridians(
-        np.arange(-180.0, 181.0, 10.0),
-        labels=[0, 0, 0, 1],
-        fontsize=10,
-        color="lightgrey",
-        zorder=1,
-        ax=axis,
-    )
-
-
 def plot_core(args, config):
     """Plot Ice Core data on map with model data."""
     img_list = []
     _, _, _, core_file = preproc.core_file(config)
     smb_avg = pd.read_csv(core_file)
 
-    plt.figure(figsize=(12, 12))
+    tform = ccrs.PlateCarree()
+    lons_model, lats_model, msmb = load_model_data(config)
+    fig, axes, proj = lxcg.get_figure(1, icesheet="gis")
 
-    # lon_0 = lons_model.mean()
-    # lat_0 = lats_model.mean()
-    lon_0 = -40.591
-    lat_0 = 71.308
-
-    lons_model, lats_model, msmb = load_model_data(args, config)
-    pmap = gen_map(lon_0, lat_0)
-    annotate_map(pmap)
-    xi, yi = pmap(lons_model.squeeze(), lats_model.squeeze())
     vabsmax = 2000
-    # smb = pmap.scatter(xi, yi, c=msmb.squeeze(), vmin=-1500, vmax=1500,
-    #                 cmap='Spectral', zorder=2)
-    smb = pmap.pcolormesh(
-        xi, yi, msmb.squeeze(), vmin=-vabsmax, vmax=vabsmax, cmap="Spectral", zorder=2
+    cf_smb_model = axes[0].pcolormesh(
+        lons_model,
+        lats_model,
+        msmb.squeeze(),
+        vmin=-vabsmax,
+        vmax=vabsmax,
+        cmap="Spectral",
+        zorder=2,
+        transform=tform,
     )
-    cbar = pmap.colorbar(smb, location="bottom", pad="5%")
-    cbar.set_label("Surface mass balance (kg m$^{-2}$ a$^{-1}$)")
+
+    lxcg.annotate_plot(
+        axes[0],
+        icesheet="gis",
+        gridline_args=GRIDLINE_ARGS,
+    )
+
+    lxcg.add_colorbar(
+        cf_smb_model,
+        fig,
+        axes[0],
+        "Surface mass balance (kg m$^{-2}$ a$^{-1}$)",
+        cbar_span=False,
+        ndsets=1,
+    )
 
     lat_obs = smb_avg["Y"].values
     lon_obs = smb_avg["X"].values
-    xobs, yobs = pmap(lon_obs, lat_obs)
     smbobs = smb_avg.b
-    _ = pmap.scatter(
-        xobs,
-        yobs,
+
+    _ = axes[0].scatter(
+        lon_obs,
+        lat_obs,
         c=smbobs,
-        vmin=-1500,
-        vmax=1500,
+        vmin=-vabsmax,
+        vmax=vabsmax,
         marker="o",
         edgecolor="black",
         cmap="Spectral",
         zorder=3,
+        transform=tform,
     )
 
     plt.tight_layout()
@@ -244,34 +211,36 @@ def plot_ib_spatial(args, config):
     img_list = []
     _, _, ib_file = preproc.ib_outfile(config)
     ice_bridge = pd.read_csv(ib_file)
-    # lons_model, lats_model, msmb = load_model_data(args, config)
-    fig = plt.figure(figsize=(12, 12))
-    axis = fig.add_subplot(1, 1, 1)
 
-    # lon_0 = lons_model.mean()
-    # lat_0 = lats_model.mean()
-    lon_0 = -40.591
-    lat_0 = 71.30
-
-    # print(f"LON0: {lon_0} LAT0: {lat_0}")
-    pmap = gen_map(lon_0, lat_0)
-    annotate_map(pmap, axis)
+    # Plot the IceBridge data
+    tform = ccrs.PlateCarree()
+    _, _, ib_file = preproc.ib_outfile(config)
+    ice_bridge = pd.read_csv(ib_file)
+    fig, axes, proj = lxcg.get_figure(1, icesheet="gis")
 
     lat_obs = ice_bridge["Y"].values
     lon_obs = ice_bridge["X"].values
-    xobs, yobs = pmap(lon_obs, lat_obs)
-    # xmod, ymod = m(lons_model, lats_model)
 
     smbobs = ice_bridge["b"].values
-    obs = pmap.scatter(
-        xobs, yobs, c=smbobs, marker="o", cmap="viridis", zorder=3, lw=0, ax=axis
+    cf_obs = axes[0].scatter(
+        lon_obs,
+        lat_obs,
+        c=smbobs,
+        marker="o",
+        cmap="Spectral",
+        zorder=3,
+        lw=0,
+        transform=tform,
     )
-    # _map = pmap.contour(xmod, ymod, climo_data[0], colors="k")
-    # _map = pmap.contour(xmod, ymod, climo_data, color="k")
-
-    cbar = pmap.colorbar(obs, location="bottom", pad="5%", ax=axis)
-    cbar.set_label("Surface mass balance (kg m$^-2$ a$^{-1}$)")
-
+    lxcg.annotate_plot(axes[0], icesheet="gis", gridline_args=GRIDLINE_ARGS)
+    lxcg.add_colorbar(
+        cf_obs,
+        fig,
+        axes[0],
+        "Surface mass balance (kg m$^{-2}$ a$^{-1}$)",
+        cbar_span=False,
+        ndsets=1,
+    )
     plt.tight_layout()
     img_file = os.path.join(args.out, "IB_spatial.png")
     plt.savefig(img_file)
@@ -290,30 +259,33 @@ def plot_ib_spatial(args, config):
     )
     img_list.append(img_elem)
 
-    fig = plt.figure(figsize=(12, 12))
-    axis = fig.add_subplot(1, 1, 1)
-    annotate_map(pmap, axis)
-
-    lat_obs = ice_bridge["Y"].values
-    lon_obs = ice_bridge["X"].values
-    xobs, yobs = pmap(lon_obs, lat_obs)
-    smbobs = ice_bridge["mod_b"].values - ice_bridge["b"].values
-    obs = pmap.scatter(
-        xobs,
-        yobs,
-        c=smbobs,
+    # Plot IB - Model difference
+    fig, axes, proj = lxcg.get_figure(1, icesheet="gis")
+    smbobs_diff = ice_bridge["mod_b"].values - ice_bridge["b"].values
+    cf_diff = axes[0].scatter(
+        lon_obs,
+        lat_obs,
+        c=smbobs_diff,
         marker="o",
         cmap="RdBu",
         zorder=3,
         vmin=-200,
         vmax=200,
         lw=0,
-        ax=axis,
+        transform=tform,
     )
-
-    cbar = pmap.colorbar(obs, location="bottom", pad="5%")
-    cbar.set_label(
-        "Difference in surface mass balance \n (Model - IceBridge) (kg m$^-2$ a$^{-1}$)"
+    lxcg.annotate_plot(
+        axes[0],
+        icesheet="gis",
+        gridline_args=GRIDLINE_ARGS,
+    )
+    lxcg.add_colorbar(
+        cf_diff,
+        fig,
+        axes[0],
+        "Surface mass balance difference (kg m$^{-2}$ a$^{-1}$)",
+        cbar_span=False,
+        ndsets=1,
     )
 
     plt.tight_layout()
@@ -340,6 +312,8 @@ def plot_metadata(args, config):
     """
     Create plot of basin locations, ice bridge transects, and core locations.
     """
+    tform = ccrs.PlateCarree()
+
     img_list = []
     _, _, ib_file = preproc.ib_outfile(config)
     _, _, _, core_file = preproc.core_file(config)
@@ -348,11 +322,11 @@ def plot_metadata(args, config):
     except pd.errors.EmptyDataError:
         print(ib_file)
         raise
+
     smb_avg = pd.read_csv(core_file)
     zwally_data = pd.read_csv(Path(config["preproc_dir"], config["zwally_file"]))
 
-    lons_model, lats_model, smb_model = load_model_data(args, config, regrid=False)
-    plt.figure(figsize=(12, 12))
+    lons_model, lats_model, smb_model = load_model_data(config, regrid=False)
 
     forcolors = c.ListedColormap(
         [
@@ -368,13 +342,7 @@ def plot_metadata(args, config):
         ]
     )
 
-    # This will be the center of our map
-    # lon_0 = lons_model.mean()
-    # lat_0 = lats_model.mean()
-    lon_0 = -40.591
-    lat_0 = 71.308
-    pmap = gen_map(lon_0, lat_0)
-    annotate_map(pmap)
+    fig, axes, proj = lxcg.get_figure(1, icesheet="gis")
 
     # Read in the zwally basins and mask out model cells that are missing a basin designation
     basins = np.floor(zwally_data.zwally_basin.values)
@@ -384,15 +352,15 @@ def plot_metadata(args, config):
     mbasins = ma.masked_invalid(basins)
 
     # Plotting the basins pseudocolor
-    if lons_model.ndim == 1 and lons_model.shape[0] < 1441:
+    if lons_model.ndim == 1 and "elm" in config["meta"]["Model"][0].lower():
         lons_model, lats_model = np.meshgrid(lons_model, lats_model)
-    elif lons_model.shape[0] >= 1441:
+    elif "mali" in config["meta"]["Model"][0].lower():
         lons_model, lats_model, mbasins = mali_to_contour(
             lons_model, lats_model, mbasins
         )
-
-    xi, yi = pmap(lons_model.squeeze(), lats_model.squeeze())
-    _ = pmap.pcolormesh(xi, yi, mbasins, cmap=forcolors, zorder=2)
+    _ = axes[0].pcolormesh(
+        lons_model, lats_model, mbasins, cmap=forcolors, zorder=2, transform=tform
+    )
 
     basin_labels = {
         "1": (-48, 80.5),
@@ -405,43 +373,76 @@ def plot_metadata(args, config):
         "8": (-55, 75),
     }
     for lbl, loc in basin_labels.items():
-        xi, yi = pmap(loc[0], loc[1])
-        plt.text(xi, yi, lbl, fontsize=16, fontweight="bold", color="#FF7900")
+        # xi, yi = pmap(loc[0], loc[1])
+        plt.text(
+            loc[0],
+            loc[1],
+            lbl,
+            fontsize=16,
+            fontweight="bold",
+            color="#FF7900",
+            transform=tform,
+        )
 
     # Adding in firn/core measurement locations. Size by the number of years in the record
     lat_obs = smb_avg["Y"].values
     lon_obs = smb_avg["X"].values
-    xobs, yobs = pmap(lon_obs, lat_obs)
-    smb_avg.loc[smb_avg["nyears"] > 50] = 50
-    smb_avg.loc[smb_avg["nyears"] < 5] = 5
-    _ = pmap.scatter(
-        xobs, yobs, marker="o", edgecolor="black", s=4 * smb_avg["nyears"], zorder=4
+    # xobs, yobs = pmap(lon_obs, lat_obs)
+    smb_avg[smb_avg["nyears"] > 50].loc[:, "nyears"] = 50
+    smb_avg[smb_avg["nyears"] < 5].loc[:, "nyears"] = 5
+
+    _ = axes[0].scatter(
+        lon_obs,
+        lat_obs,
+        marker="o",
+        edgecolor="black",
+        s=4 * smb_avg["nyears"],
+        zorder=4,
+        transform=tform,
     )
 
     # Color the ablation zone (PROMICE) measurements yellow
     smb_promice = smb_avg[smb_avg.source == "promice"].copy()
     lat_obs = smb_promice["Y"].values
     lon_obs = smb_promice["X"].values
-    xobs, yobs = pmap(lon_obs, lat_obs)
-    smb_promice.loc[smb_promice["nyears"] > 50] = 50
-    smb_promice.loc[smb_promice["nyears"] < 5] = 5
-    _ = pmap.scatter(
-        xobs,
-        yobs,
+
+    smb_promice[smb_promice["nyears"] > 50].loc[:, "nyears"] = 50
+    smb_promice[smb_promice["nyears"] < 5].loc[:, "nyears"] = 5
+
+    _ = axes[0].scatter(
+        lon_obs,
+        lat_obs,
         marker="^",
         color="yellow",
         edgecolor="black",
         s=4 * smb_promice["nyears"],
         zorder=4,
+        transform=tform,
     )
 
     # Add IceBridge transects
+    _, _, ib_file = preproc.ib_outfile(config)
+    ice_bridge = pd.read_csv(ib_file)
     lat_obs = ice_bridge["Y"].values
     lon_obs = ice_bridge["X"].values
-    xobs, yobs = pmap(lon_obs, lat_obs)
-    _ = pmap.scatter(xobs, yobs, marker="o", lw=0, zorder=3, s=3, color="white")
+    _ = axes[0].scatter(
+        lon_obs,
+        lat_obs,
+        marker="o",
+        lw=0,
+        zorder=3,
+        s=2,
+        color="white",
+        transform=tform,
+    )
 
+    lxcg.annotate_plot(
+        axes[0],
+        icesheet="gis",
+        gridline_args=GRIDLINE_ARGS,
+    )
     plt.tight_layout()
+
     img_file = os.path.join(args.out, "plot_meta_old.png")
     plt.savefig(img_file)
     plt.close()

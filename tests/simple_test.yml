@@ -1,4 +1,9 @@
 ---
+common:
+    meta: &meta
+        Case ID: TestCaseId
+        Clim Years: 1890-1906
 ExtensionTest:
     module: tests/extension_simple.py
     description: A minimal LIVVkit extensions test.
+    meta: *meta

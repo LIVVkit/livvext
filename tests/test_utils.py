@@ -1,6 +1,6 @@
 import numpy as np
 
-import lex.utils as lxu
+import livvext.utils as lxu
 
 ### DEFINE FORMULAS
 seb_merra = [

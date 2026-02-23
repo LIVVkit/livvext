@@ -6,8 +6,9 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 from livvkit import elements as el
+from loguru import logger
 
-import lex.common as lxc
+import livvext.common as lxc
 
 DAYS_PER_MONTH = np.array([31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31])
 IMG_GROUP = "components"
@@ -18,8 +19,9 @@ Sign of component based on its contribution to total.
 
 
 def main(args, config):
+    _files = [lxc.proc_climo_file(config, "climo_remap", mon) for mon in range(1, 13)]
     model_data = xr.open_mfdataset(
-        [config["climo_remap"].format(clim=f"{mon:02d}") for mon in range(1, 13)],
+        _files,
         combine="nested",
         concat_dim="time",
     )
@@ -40,6 +42,7 @@ def main(args, config):
     model_data_out = {}
 
     for idx, data_var in enumerate(config["data_vars"]):
+        logger.info(f"WORKING ON {data_var['title']}")
         _obs_in = {}
 
         aavg_config = data_var.get("aavg", None)
@@ -64,7 +67,7 @@ def main(args, config):
                 / 365
             )
         except KeyError:
-            print(f"MODEL DATA NOT FOUND FOR {data_var['model']}")
+            logger.error(f"MODEL DATA NOT FOUND FOR {data_var['model']}")
             continue
 
         obs_aavg[data_var["title"]] = {}
@@ -77,7 +80,9 @@ def main(args, config):
                 lxc.area_avg(
                     _obs_in[_vers],
                     {},
-                    area_file=config["masks"][_vers],
+                    area_file=config["masks"][_vers].format(
+                        icesheet=config["icesheet"]
+                    ),
                     area_var="area",
                     mask_var="Icemask",
                     sum_out=_do_sum,
@@ -86,7 +91,7 @@ def main(args, config):
         model_aavg[data_var["title"]], _, _, _ = lxc.area_avg(
             _model_plt,
             {},
-            area_file=config["masks"]["model"],
+            area_file=config["masks"]["model"].format(icesheet=config["icesheet"]),
             area_var="area",
             mask_var="Icemask",
             sum_out=_do_sum,
@@ -125,6 +130,7 @@ def main(args, config):
             marker=".",
             lw=lw,
         )
+        logger.info(f"DONE - WORKING ON {data_var['title']}")
 
     obs_data_out["month"] = np.arange(1, 12 + 1)
     model_data_out["month"] = np.arange(1, 12 + 1)

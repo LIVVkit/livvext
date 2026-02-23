@@ -1,5 +1,5 @@
 Climatic_Mass_Balance_GIS:
-  module: lex/smb/smb_icecores.py
+  module: livvext/smb/smb_icecores.py
   References: [/global/cfs/cdirs/e3sm/livvkit/data/smb/smb_icecores.bib,/global/cfs/cdirs/e3sm/livvkit/data/livvkit.bib]
   meta:
     Case ID: [CASE_ID]

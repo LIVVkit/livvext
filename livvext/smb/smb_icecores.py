@@ -34,9 +34,9 @@ import pandas as pd
 from livvkit import elements as el
 from livvkit.util import functions as fn
 
-from lex import annual_cycle, compare_gridded, time_series_plot
-from lex.common import SEASON_NAME
-from lex.common import summarize_result as sum_res
+from livvext import annual_cycle, compare_gridded, time_series_plot
+from livvext.common import SEASON_NAME
+from livvext.common import summarize_result as sum_res
 
 with fn.TempSysPath(os.path.dirname(__file__)):
     import smb.plot_core_hists as c_hists
@@ -46,6 +46,8 @@ with fn.TempSysPath(os.path.dirname(__file__)):
     import smb.plot_spatial as plt_spatial
     import smb.preproc as preproc
     import smb.utils as utils
+
+from loguru import logger
 
 PAGE_DOCS = {
     "gis": """Validation of the Greenland Ice Sheet (GrIS) surface mass balance by
@@ -84,8 +86,8 @@ def run(name, config):
     Returns:
        A LIVVkit page element containing the LIVVkit elements to display on a webpage
     """
-
     img_dir = os.path.join(livvkit.output_dir, "validation", "imgs", name)
+    logger.info(f"Starting SMB_ICECORES OUTPUT TO {img_dir}")
     fn.mkdir_p(img_dir)
     config_arg_list = []
     for key, val in config.items():
@@ -93,31 +95,41 @@ def run(name, config):
 
     config_arg_list.extend(["--out", img_dir])
     args = parse_args(config_arg_list)
-    if config["preprocess"]:
+    if config.get("preprocess", False):
         preproc.main(args, config)
 
     spatial_img = []
     statistic_img = []
     timeseries_img = []
     if "smb_cf_file" in config and "smb_mo_file" in config and "ib_file" in config:
+        logger.info("PLOT SPATIAL METADATA")
         spatial_img.extend(plt_spatial.plot_metadata(args, config))
+        logger.info("DONE - PLOT SPATIAL METADATA")
 
     if "smb_cf_file" in config and "smb_mo_file" in config:
+        logger.info("PLOT SPATIAL CORE DATA")
         spatial_img.extend(plt_spatial.plot_core(args, config))
         transects = c_transects.main(args, config)
         statistic_img.extend(transects[3:])
         statistic_img.extend(IB_scatter.main(args, config))
         statistic_img.extend(c_hists.main(args, config))
+        logger.info("DONE - PLOT SPATIAL CORE DATA")
 
     if "ib_file" in config:
+        logger.info("PLOT SPATIAL IB DATA")
         spatial_img.extend(plt_spatial.plot_ib_spatial(args, config))
         statistic_img.extend(IB_hist.main(args, config))
+        logger.info("DONE - PLOT SPATIAL IB DATA")
 
     if "smb_cf_file" in config and "smb_mo_file" in config:
+        logger.info("PLOT STATSTICAL DATA")
         statistic_img.extend(transects[:3])
+        logger.info("DONE - PLOT STATSTICAL DATA")
 
     if "timeseries_dirs" in config:
+        logger.info("PLOT TIMESERIES DATA")
         timeseries_img.extend(time_series_plot.main(args, config))
+        logger.info("DONE - PLOT TIMESERIES DATA")
 
     seasons = ["ANN", "DJF", "MAM", "JJA", "SON"]
     seasonal_components = {}
@@ -129,12 +141,16 @@ def run(name, config):
             return pd.Series([f"{xi:.2f}" for xi in x], index=x.index)
 
         for season in seasons:
+            logger.info(f"COMPARE GRIDDED {season} DATA")
             _img, _aavg = compare_gridded.main(args, config, sea=season)
+            logger.info(f"DONE - COMPARE GRIDDED {season} DATA")
 
             seasonal_components[season] = []
 
             if season == "ANN":
+                logger.info("PLOT ANNUAL CYCLE DATA")
                 seasonal_components[season].extend(annual_cycle.main(args, config))
+                logger.info("DONE - PLOT ANNUAL CYCLE DATA")
 
             seasonal_components[season].extend(_img)
             seasonal_tables[season] = el.Table(
@@ -178,6 +194,7 @@ def run(name, config):
 
     tabs["References"] = [refs]
 
+    logger.info(f"FINISHED SMB_ICECORES WITH OUTPUT TO {img_dir}")
     return el.Page(
         name,
         PAGE_DOCS[config.get("icesheet", "gis")],
@@ -194,7 +211,7 @@ def print_summary(summary):
 
 
 def summarize_result(result):
-    """Use the summarize_result from lex.common to summarize."""
+    """Use the summarize_result from livvext.common to summarize."""
     return sum_res(result)
 
 

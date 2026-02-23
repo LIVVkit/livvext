@@ -38,10 +38,11 @@ from pathlib import Path
 import livvkit
 import pandas as pd
 from livvkit import elements as el
+from loguru import logger
 
-from lex import compare_gridded, time_series_plot, utils
-from lex.common import SEASON_NAME
-from lex.common import summarize_result as sum_res
+from livvext import compare_gridded, time_series_plot, utils
+from livvext.common import SEASON_NAME
+from livvext.common import summarize_result as sum_res
 
 PAGE_DOCS = {
     "gis": "An analysis of the Models's energy balance over Greenland.",
@@ -64,6 +65,7 @@ def run(name, config):
 
     """
     img_dir = Path(livvkit.output_dir, "validation", "imgs", name)
+    logger.info(f"Starting ENERGY BALANCE WITH OUTPUT TO {img_dir}")
     if not img_dir.exists():
         img_dir.mkdir(parents=True)
 
@@ -86,6 +88,9 @@ def run(name, config):
     tables = {}
 
     for season in ["ANN", "DJF", "MAM", "JJA", "SON"]:
+        logger.info(
+            f"PLOTTING COMPARE GRIDDED FOR {config.get('icesheet', '')} {season}"
+        )
         _plots, aavgs = compare_gridded.main(args, config, sea=season)
         images[season] = _plots
 
@@ -99,10 +104,16 @@ def run(name, config):
             transpose=True,
         )
         tables[season] = table_el
+        logger.info(
+            "FINISHED PLOTTING COMPARE GRIDDED FOR "
+            f"{config.get('icesheet', '')} {season}"
+        )
 
     timeseries_img = []
     if "timeseries_dirs" in config:
+        logger.info(f"PLOTTING TIMESERIES FOR {config.get('icesheet', '')}")
         timeseries_img.extend(time_series_plot.main(args, config))
+        logger.info(f"FINISHED PLOTTING TIMESERIES FOR {config.get('icesheet', '')}")
 
     tabs = {}
 
@@ -132,6 +143,7 @@ def run(name, config):
     tabs["References"] = [ref_ele]
     elements = [run_summary, el.Tabs(tabs)]
 
+    logger.info(f"FINISHED ENERGY BALANCE WITH OUTPUT TO {img_dir}")
     return el.Page(name, PAGE_DOCS[config.get("icesheet", "gis")], elements)
 
 
@@ -144,7 +156,7 @@ def print_summary(summary):
 
 
 def summarize_result(result):
-    """Use the summarize_result from lex.common to summarize."""
+    """Use the summarize_result from livvext.common to summarize."""
     return sum_res(result)
 
 

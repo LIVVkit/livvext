@@ -36,11 +36,32 @@ authors = [
     { name = "Michael Kelleher", email = "kelleherme@ornl.gov" },
     { name = "Joseph H. Kennedy", email = "kennedyjh@ornl.gov" },
 ]
-name = "lex"
-requires-python = ">=3.9"
+name = "LIVVext"
+requires-python = ">=3.10"
 description = "Extensions for the land ice verification and validation toolkit (Livvkit EXtensions)"
 readme = { file = "README.rst", content-type = "text/x-rst" }
 license = { text = "BSD-3-Clause" }
+
+dependencies = [
+    "numpy>=2.2.6",
+    "scipy>=1.15.3",
+    "xarray>=2025.6.1",
+    "dask>=2026.1.2",
+    "seaborn>=0.13.2",
+    "cftime>=1.6.5",
+    "nc-time-axis>=1.4.1",
+    "scikit-learn>=1.7.2",
+    "ruamel.yaml>=0.19.1",
+    "jinja2>=3.1.6",
+    "matplotlib>=3.10.8",
+    "netcdf4>=1.7.4",
+    "pandas>=2.2.3",
+    "cartopy>=0.25.0",
+    "pybtex>=0.25.1",
+    "f90nml>=1.5",
+    "loguru>=0.7.3",
+    "livvkit>=3.3.0",
+]
 
 classifiers = [
     "Development Status :: 5 - Production/Stable",
@@ -51,25 +72,67 @@ classifiers = [
     "Natural Language :: English",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
 ]
-
-dynamic = ["version", "dependencies", "optional-dependencies"]
+dynamic = ["version"]
 
 [tool.setuptools]
-packages = ["lex", "lex.smb", "lex.energy"]
+packages = ["livvext", "livvext.smb", "livvext.energy"]
 
 [tool.setuptools.dynamic]
-dependencies = { file = ["requirements.txt"] }
-version = { attr = "lex.__version__" }
-
-[tool.setuptools.dynamic.optional-dependencies]
-dev = { file = ["requirements-dev.txt"] }
-
+version = { attr = "livvext.__version__" }
 
 [project.urls]
-Homepage = "https://code.ornl.gov/LIVVkit/lex"
+Homepage = "https://github.com/LIVVkit/livvext"
+
+[project.scripts]
+lex-cfg = "livvext.generate_cfg:main"
+
+[tool.pixi.workspace]
+channels = ["conda-forge"]
+platforms = ["linux-64"]
+
+[tool.pixi.pypi-dependencies]
+livvext = { path = ".", editable = true }
+
+[tool.pixi.tasks]
+
+[tool.pixi.dependencies]
+mache = ">=2.1.0"
+nco = ">=5.3.6"
+
+# Development tools
+[tool.pixi.feature.dev.dependencies]
+isort = "*"
+pytest = "*"
+ruff = "*"
+pre-commit = "*"
+
+# Different Python versions for CI testing
+[tool.pixi.feature.py310dev.dependencies]
+python = "3.10.*"
+
+[tool.pixi.feature.py311dev.dependencies]
+python = "3.11.*"
+
+[tool.pixi.feature.py312dev.dependencies]
+python = "3.12.*"
+
+[tool.pixi.feature.py313dev.dependencies]
+python = "3.13.*"
+
+[tool.pixi.feature.py314dev.dependencies]
+python = "3.14.*"
+
+[tool.pixi.environments]
+default = { solve-group = "default" }
+dev = ["dev"]
+py310dev = ["py310dev", "dev"]
+py311dev = ["py311dev", "dev"]
+py312dev = ["py312dev", "dev"]
+py313dev = ["py313dev", "dev"]
+py314dev = ["py314dev", "dev"]

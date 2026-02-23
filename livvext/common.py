@@ -18,9 +18,10 @@ from cartopy import crs as ccrs
 from cartopy import feature as cfeature
 from livvkit import elements as el
 from livvkit.util.LIVVDict import LIVVDict
+from loguru import logger
 from numpy import ma
 
-import lex.utils as lxu
+import livvext.utils as lxu
 
 TFORM = ccrs.PlateCarree()
 SEASON_NAME = {
@@ -79,26 +80,79 @@ def check_longitude(data, lon_coord="lon"):
     return _data
 
 
-def get_season_bounds(season, year_s, year_e, sep="_"):
+def get_season_bounds(season, year_s, year_e):
     """Determine season bounds for climatology files."""
-    _seasons = {"DJF": (1, 12), "MAM": (3, 5), "JJA": (6, 8), "SON": (9, 11)}
-    _annual = (1, 12)
+    _seasons = {
+        "DJF": (1, 12),
+        "MAM": (3, 5),
+        "JJA": (6, 8),
+        "SON": (9, 11),
+        "ANN": (1, 12),
+    }
+
     if season in _seasons:
         _lb, _ub = _seasons[season]
-        bound_l = f"{year_s:04d}{_lb:02d}"
-        bound_u = f"{year_e:04d}{_ub:02d}"
-    elif season.upper() == "ANN":
-        bound_l = f"{year_s:04d}01"
-        bound_u = f"{year_e:04d}12"
+        _lb = f"{_lb:02d}"
+        _ub = f"{_ub:02d}"
     else:
-        # Months
+        # Assume "season" is a month
         if isinstance(season, str):
-            bound_l = f"{year_s:04d}{season}"
-            bound_u = f"{year_e:04d}{season}"
+            if len(season) == 1:
+                try:
+                    _lb = f"{int(season):02d}"
+                    _ub = f"{int(season):02d}"
+                except (ValueError, TypeError) as _err:
+                    logger.error(f"UNKNOWN SEASON TYPE: {season}")
+                    raise (_err)
+            else:
+                _lb = season
+                _ub = season
         elif isinstance(season, int):
-            bound_l = f"{year_s:04d}{season:02d}"
-            bound_u = f"{year_e:04d}{season:02d}"
+            _lb = f"{int(season):02d}"
+            _ub = f"{int(season):02d}"
+        else:
+            logger.error(f"UNKNOWN SEASON TYPE: {season}")
+
+    bound_l = f"{year_s:04d}{_lb}"
+    bound_u = f"{year_e:04d}{_ub}"
+
     return bound_l, bound_u
+
+
+def proc_climo_file(config, file_tag, sea):
+    """
+    Process the climatology file to maintain backward compatibility with standalone LEX.
+
+    Parameters
+    ----------
+    config : dict
+        LIVVkit /LEX configuration dict
+    file_tag : str
+        Configuration item which points to climatology filename to be formatted, usually
+        `climo` or `climo_remap`
+    sea : str
+        Season identifier
+
+    Returns
+    -------
+    climo_file : str
+        Formatted name of climatology file
+
+    """
+    _filename = config[file_tag]
+    if "{sea_s}" in _filename:
+        sea_s, sea_e = get_season_bounds(
+            sea, config.get("year_s", None), config.get("year_e", None)
+        )
+        if isinstance(sea, int):
+            sea = f"{sea:02d}"
+        climo_file = _filename.format(clim=sea, sea_s=sea_s, sea_e=sea_e)
+    else:
+        if isinstance(sea, int):
+            sea = f"{sea:02d}"
+        climo_file = _filename.format(clim=sea)
+
+    return climo_file
 
 
 def get_cycle(sea):
@@ -201,11 +255,15 @@ def gen_file_list_old(
 
 
 def var_filename_format(file_pattern, _var, isheet, _sea, year_s, year_e, sep="_"):
-    sea_s, sea_e = get_season_bounds(_sea, year_s, year_e, sep)
+    sea_s, sea_e = get_season_bounds(_sea, year_s, year_e)
+    if isinstance(_sea, int):
+        season = f"{_sea:02d}"
+    else:
+        season = _sea
     return file_pattern.format(
         _var=_var,
         icesheet=isheet,
-        season=_sea,
+        season=season,
         sea_s=sea_s,
         sea_e=sea_e,
     )
@@ -343,7 +401,10 @@ def gen_file_list_timeseries(
 
     clim_years = config.get("clim_years", None)
 
-    clim_years_default = {"year_s": None, "year_e": None}
+    clim_years_default = {
+        "year_s": config.get("year_s", None),
+        "year_e": config.get("year_e", None),
+    }
     if clim_years:
         clim_years = clim_years.get(overs, clim_years_default)
     else:
@@ -377,6 +438,7 @@ def gen_file_list_timeseries(
     return var_files
 
 
+@logger.catch
 def load_timeseries_data(config):
     """Load data for timeseries."""
     files = {}
@@ -391,17 +453,28 @@ def load_timeseries_data(config):
 
         if len(set(files[overs])) == 1:
             files[overs] = files[overs][0]
-
+            _nfiles = 1
+        else:
+            _nfiles = len(set(files[overs]))
+        _dsname = config["dataset_names"].get(
+            overs, config["dataset_names"].get("model_native")
+        )
+        logger.info(f"LOAD TIMESERIES DATA FOR {overs}: {_dsname} NFILES: {_nfiles}")
         try:
-            obs_data[overs] = xr.open_mfdataset(files[overs]).squeeze()
+            obs_data[overs] = xr.open_mfdataset(files[overs]).squeeze().load()
         except (xr.MergeError, ValueError):
             if isinstance(files[overs], Path):
-                obs_data[overs] = xr.open_dataset(files[overs]).squeeze()
+                obs_data[overs] = xr.open_dataset(files[overs]).squeeze().load()
             else:
-                obs_data[overs] = xr.open_mfdataset(
-                    files[overs],
-                    combine="nested",
-                ).squeeze()
+                obs_data[overs] = (
+                    xr.open_mfdataset(
+                        files[overs],
+                        combine="nested",
+                    )
+                    .squeeze()
+                    .load()
+                )
+        logger.info(f"DONE - LOAD TIMESERIES DATA FOR {overs}: {_dsname}")
 
     return obs_data
 
@@ -468,7 +541,12 @@ def area_avg(
         Input `data` masked by `isheet_mask`
 
     """
-    area_data = xr.open_dataset(area_file)
+    try:
+        area_data = xr.open_dataset(area_file)
+    except ValueError:
+        logger.error(f"INCOMPATABLE FILE {area_file}")
+        raise
+
     area_data = check_longitude(area_data)
     if mask_file is None:
         mask_data = area_data
@@ -555,7 +633,13 @@ def closest_points(model_x, model_y, obs_x, obs_y):
     _, closests = kdtree.query(obs_points)
     obs_ij = np.zeros((len(obs_points), 3), dtype=int)
     for i in range(0, len(closests)):
-        obs_ij[i, :] = np.unravel_index(closests[i], lat2d.flatten().shape)
+        _index = np.unravel_index(closests[i], lat2d.flatten().shape)
+        if len(_index) == 3:
+            obs_ij[i, :] = _index
+        elif isinstance(_index, tuple):
+            obs_ij[i, :] = np.array(_index * 3).T
+        else:
+            obs_ij[i, :] = np.array([_index] * 3).T
 
     return closests, obs_ij
 

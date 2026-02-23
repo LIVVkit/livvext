@@ -1,5 +1,5 @@
 Energy_Balance_CERES_AIS:
-  module: lex/energy/energy.py
+  module: livvext/energy/energy.py
   references:
     [
      /global/cfs/cdirs/e3sm/livvkit/data/racmo/Noel2015.bib,
@@ -68,13 +68,13 @@ Energy_Balance_CERES_AIS:
       sign: 1
       scales: { dset_a: 1, model: 1 }
       units: W m^-2
-  in_dirs: { dset_a: SCRATCH_DIR/lex/data/ceres_ebaf_surface_v4.1 }
+  in_dirs: { dset_a: SCRATCH_DIR/livvext/data/ceres_ebaf_surface_v4.1 }
   file_patterns: { dset_a: "ceres_ebaf_surface_v4.1_{season}_climo.nc" }
   masks:
     {
-      dset_a: SCRATCH_DIR/lex/data/grids/msk_ais_rcm_r025_regrid_cmip6_traave_20250310.nc,
+      dset_a: SCRATCH_DIR/livvext/data/grids/msk_ais_rcm_r025_regrid_cmip6_traave_20250310.nc,
       model_native: /global/cfs/cdirs/e3sm/zender/grids/msk_ais_rcm_r025.nc,
-      model_remap: SCRATCH_DIR/lex/data/grids/msk_ais_rcm_r025_regrid_cmip6_traave_20250310.nc,
+      model_remap: SCRATCH_DIR/livvext/data/grids/msk_ais_rcm_r025_regrid_cmip6_traave_20250310.nc,
     }
   desc: Surface energy balance component {component}{comment} from {data_var_names}
   cmap: plasma
