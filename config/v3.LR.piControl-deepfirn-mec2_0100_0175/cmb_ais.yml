@@ -1,16 +1,16 @@
 Climatic_Mass_Balance_AIS:
-  module: lex/smb/smb_icecores.py
+  module: livvext/smb/smb_icecores.py
   References: [/global/cfs/cdirs/e3sm/livvkit/data/smb/smb_icecores.bib,/global/cfs/cdirs/e3sm/livvkit/data/livvkit.bib]
   meta:
     Case ID: [v3.LR.piControl-deepfirn-mec2_0100_0175]
     Climatology years: [1980-2020]
     Model: [E3SM-ELM]
-  climo: /pscratch/sd/m/mek/lex/data/e3sm/v3.LR.piControl-deepfirn-mec2_0100_0175/v3.LR.piControl-deepfirn-mec2_0100_0175.{clim}_mean.nc
-  climo_remap: /pscratch/sd/m/mek/lex/data/e3sm/v3.LR.piControl-deepfirn-mec2_0100_0175/remap/v3.LR.piControl-deepfirn-mec2_0100_0175.{clim}_mean_rcmais.nc
+  climo: /pscratch/sd/m/mek/livvext/data/e3sm/v3.LR.piControl-deepfirn-mec2_0100_0175/v3.LR.piControl-deepfirn-mec2_0100_0175.{clim}_mean.nc
+  climo_remap: /pscratch/sd/m/mek/livvext/data/e3sm/v3.LR.piControl-deepfirn-mec2_0100_0175/remap/v3.LR.piControl-deepfirn-mec2_0100_0175.{clim}_mean_rcmais.nc
 
-  latlon: /pscratch/sd/m/mek/lex/data/e3sm/v3.LR.piControl-deepfirn-mec2_0100_0175/v3.LR.piControl-deepfirn-mec2_0100_0175.ANN_mean.nc
-  elevation: /pscratch/sd/m/mek/lex/data/e3sm/v3.LR.piControl-deepfirn-mec2_0100_0175/v3.LR.piControl-deepfirn-mec2_0100_0175.ANN_mean.nc
-  topo: /pscratch/sd/m/mek/lex/data/e3sm/v3.LR.piControl-deepfirn-mec2_0100_0175/v3.LR.piControl-deepfirn-mec2_0100_0175.ANN_mean.nc
+  latlon: /pscratch/sd/m/mek/livvext/data/e3sm/v3.LR.piControl-deepfirn-mec2_0100_0175/v3.LR.piControl-deepfirn-mec2_0100_0175.ANN_mean.nc
+  elevation: /pscratch/sd/m/mek/livvext/data/e3sm/v3.LR.piControl-deepfirn-mec2_0100_0175/v3.LR.piControl-deepfirn-mec2_0100_0175.ANN_mean.nc
+  topo: /pscratch/sd/m/mek/livvext/data/e3sm/v3.LR.piControl-deepfirn-mec2_0100_0175/v3.LR.piControl-deepfirn-mec2_0100_0175.ANN_mean.nc
   latv: lat
   lonv: lon
   smbv: QICE

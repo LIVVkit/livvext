@@ -1,5 +1,5 @@
 Energy_Balance_CERES_AIS:
-  module: lex/energy/energy.py
+  module: livvext/energy/energy.py
   references:
     [
      /global/cfs/cdirs/e3sm/livvkit/data/racmo/Noel2015.bib,

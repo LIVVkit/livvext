@@ -14,8 +14,8 @@ from cartopy import feature as cfeature
 from livvkit import elements as el
 from numpy import ma
 
-from lex import common as lxc
-from lex import utils as lxu
+from livvext import common as lxc
+from livvext import utils as lxu
 
 # from collections import namedtuple
 

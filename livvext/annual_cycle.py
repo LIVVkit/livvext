@@ -8,7 +8,7 @@ import xarray as xr
 from livvkit import elements as el
 from loguru import logger
 
-import lex.common as lxc
+import livvext.common as lxc
 
 DAYS_PER_MONTH = np.array([31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31])
 IMG_GROUP = "components"

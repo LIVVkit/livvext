@@ -1,7 +1,7 @@
 Surface_Mass_Balance_AIS:
   # This is the Python module file which will be called by LIVVkit, relative to the path
   # where livvkit is invoked (in this case livv is run from $HOME/lex, where smb is a subdirectory of this)
-  module: lex/smb/smb_icecores.py
+  module: livvext/smb/smb_icecores.py
 
   # Include these references as part of references tab
   References: [/global/cfs/cdirs/e3sm/livvkit/data/smb/smb_icecores.bib,/global/cfs/cdirs/e3sm/livvkit/data/livvkit.bib]
@@ -56,7 +56,7 @@ Surface_Mass_Balance_AIS:
 
   # Definition of the data variables for this comparison, for the !include to work,
   # the file is relative to the `livv` execution (e.g. running livv from $HOME/lex)
-  # then the file is in ${HOME}/lex/config/smb_vars.yml
+  # then the file is in ${HOME}/livvext/config/smb_vars.yml
   data_vars: !include config/smb_vars.yml
 
   # TODO: remove these, probably not used, but needs to be tested
@@ -95,7 +95,7 @@ Surface_Mass_Balance_AIS:
     {
       dset_a: /global/cfs/cdirs/e3sm/zender/grids/msk_ais_r025_rcm.nc,
       model: /global/cfs/cdirs/e3sm/zender/grids/msk_ais_r025_rcm.nc,
-      model_native: SCRATCH_DIR/lex/data/grids/msk_ais_rcm_r025.nc,
+      model_native: SCRATCH_DIR/livvext/data/grids/msk_ais_rcm_r025.nc,
     }
 
   # Appears in the image caption on output website

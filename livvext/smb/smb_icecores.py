@@ -34,9 +34,9 @@ import pandas as pd
 from livvkit import elements as el
 from livvkit.util import functions as fn
 
-from lex import annual_cycle, compare_gridded, time_series_plot
-from lex.common import SEASON_NAME
-from lex.common import summarize_result as sum_res
+from livvext import annual_cycle, compare_gridded, time_series_plot
+from livvext.common import SEASON_NAME
+from livvext.common import summarize_result as sum_res
 
 with fn.TempSysPath(os.path.dirname(__file__)):
     import smb.plot_core_hists as c_hists
@@ -211,7 +211,7 @@ def print_summary(summary):
 
 
 def summarize_result(result):
-    """Use the summarize_result from lex.common to summarize."""
+    """Use the summarize_result from livvext.common to summarize."""
     return sum_res(result)
 
 

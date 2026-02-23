@@ -1,13 +1,13 @@
 ![](https://raw.githubusercontent.com/wiki/LIVVkit/LIVVkit/imgs/livvkit.png)
 
-# LIVVkit Extensions (LivvEX)
+# LIVVkit Extensions (LIVVext)
 
 This repository holds a collection of extensions to
 [LIVVkit](https://livvkit.github.io/Docs/index.html) for validation and
 custom analyses of ice sheet models and their associated Earth system
 models.
 
-LEX was first described in Evans, et al., 2019[^1]
+LIVVext (LEX) was first described in Evans, et al., 2019[^1]
 
 ## Dependencies
 
@@ -19,24 +19,26 @@ machines, including Perlmutter at NERSC, and Chrysalis at ANL\'s LCRC.
 The Python package itself is described in `pyproject.toml`, which is used by
 `pip` to install this package
 
-Currently, LEX is designed to run on NERSC's Perlmutter, and ANL-LCRC's Chrysalis,
+Currently, LIVVext is designed to run on NERSC's Perlmutter, and ANL-LCRC's Chrysalis,
 but future work is planned to support other machines where E3SM runs.
 
 ## Environment setup
 
-For setting up an environment to which lex and dependencies will be
+For setting up an environment to which LIVVext and dependencies will be
 installed, Pixi and conda are documented here. **NB** this
 will only currently work on Perlmutter and Chrysalis, the environment should be
 created there.
 
 ### Pixi environment
 [pixi](https://pixi.sh/latest/) is a package management tool, and the primary
-environment management tool for LEX.
-First, it must be [installed](https://pixi.prefix.dev/latest/installation/) locally.
-Then an enviornment for lex development can be created:
+environment management tool for LIVVext.
+
+
+First, pixi must be installed locally following [these instructions](https://pixi.prefix.dev/latest/installation/),
+then an enviornment for LIVVext development can be created:
 ```bash
-$ git clone https://github.com/LIVVkit/lex.git
-$ cd lex
+$ git clone https://github.com/LIVVkit/LIVVext.git
+$ cd LIVVext
 $ pixi install          # This will install the default environment
 $ pixi shell -e default # To activate the default (runtime) environment
 ```
@@ -50,16 +52,16 @@ $ pixi shell -e dev     # Activates the dev environment (for code testing and ch
 
 ### Conda environment
 ```bash
-$ git clone https://github.com/LIVVkit/lex.git
-$ cd lex
+$ git clone https://github.com/LIVVkit/LIVVext.git
+$ cd LIVVext
 $ {conda, mamba} env create -n lex_env python --file env.yml
 $ {conda, mamba} activate lex_env
-$ pip install -e .    # Installs the lex module as an editable Python package to the lex_env environment.
+$ pip install -e .    # Installs the LIVVext module as an editable Python package to the lex_env environment.
 ```
 
 ## Basic usage
 
-Within the `lex/config` directory there are templates for
+Within the `LIVVext/config` directory there are templates for
 ELM r05 and r025 resolutions, as well as pre-existing configurations for
 several current runs.
 
@@ -79,7 +81,7 @@ spawn an HTTP server, which should only be used for testing purposes.
 (This works best if the output is in the current directory)
 
 *Note:* All the extension configurations files assume you are working
-from the top level `lex` directory. You *can* run any of these
+from the top level `LIVVext` directory. You *can* run any of these
 extensions from any directory, but you will need to edit the paths in
 the YAML configuration files so that `livv` can find the required files.
 
@@ -88,10 +90,10 @@ adjusting the paths to point to your model run.
 
 ## Running existing cases on PM-CPU
 
-The `lex/run_livv.sh` script will run all the currently
+The `LIVVext/run_livv.sh` script will run all the currently
 available analyses on pm-cpu for a particular case, e.g.:
 ```bash
-$ cd $HOME/lex
+$ cd $HOME/LIVVext
 $ ./run_livv.sh v2.1.r025.IGERA5ELM_MLI-deep_firn_1980_2020
 ```
 Will create a web output at `/global/cfs/projectdirs/e3sm/www/${USER}/v2.1.r025.IGERA5ELM_MLI-deep_firn_1980_2020`,
@@ -100,7 +102,7 @@ viewable at https://portal.nersc.gov/project/e3sm/${USER}/v2.1.r025.IGERA5ELM_ML
 The batch script provided will run all current cases on Perlmutter on a
 compute node in parallel
 ```bash
-$ cd lex
+$ cd LIVVext
 $ sbatch run_lex_pm-cpu.sbatch
 ```
 
@@ -111,7 +113,7 @@ $ sbatch run_lex_pm-cpu.sbatch
 - `ncrcat -v topo,landfrac,QSNOFRZ,FSRND,FSRVD,FSDSVD,FSDSND,EFLX_LH_TOT,FIRA,FLDS,FSA,FSDS,FSH,QICE,QRUNOFF,QSNOMELT,QSOIL,RAIN,SNOW,TSA,SNOWICE,SNOWLIQ,H2OSNO ${CASE}.elm.h0*.nc -o ${CASE}.nc`
 
 ### Perform post-processing on a single time series ELM h0 output
-- Edit the `lex/lex/postproc/e3sm/postproc.sbatch` batch file to mach the new run
+- Edit the `LIVVext/LIVVext/postproc/e3sm/postproc.sbatch` batch file to mach the new run
 
     Key variables:
     - `INDIR`: Path which contains single output time series file
@@ -119,16 +121,16 @@ $ sbatch run_lex_pm-cpu.sbatch
         extension (e.g. `v2.1.r025.IGERA5ELM_MLI-deep_firn_1980_2020`)
     - `RES`: ELM output resolution (currently accepts `R05` and `R025`)
     - `OUTDIR`: Scratch directory into which climatology files will be written,
-        defaults to `${SCRATCH}/lex/data/e3sm/${OUTCASE}`
+        defaults to `${SCRATCH}/LIVVext/data/e3sm/${OUTCASE}`
 - Run the post-processing script:
-  - `cd lex/lex/postproc/e3sm; sbatch postproc.sbatch`
+  - `cd LIVVext/LIVVext/postproc/e3sm; sbatch postproc.sbatch`
 
 **NB**: the `postproc.sbatch` script will create the configuration for your case
-(based on `OUTCASE` and `OUTDIR`), then run LIVVkit on it with `lex/run_livv.sh`
+(based on `OUTCASE` and `OUTDIR`), then run LIVVkit on it with `LIVVext/run_livv.sh`
 
 ## Developing a custom extension
 
-See the [LIVVkit documentation](https://livvkit.github.io/Docs/lex.html)
+See the [LIVVkit documentation](https://livvkit.github.io/Docs/LIVVext.html)
 for details on how to develop an extension. Briefly, a absolute minimum
 working example is provided by the `example/` extension, which should
 be copied to provide the basis for your new extension. All extensions
@@ -145,8 +147,8 @@ data as well as either a small set of processed data or a set of
 If you would like to suggest features, request tests, discuss
 contributions, report bugs, ask questions, or contact us for any reason,
 use the [LIVVkit issue
-tracker](https://github.com/LIVVkit/LIVVkit/issues). [LEX issue
-tracker](https://github.com/LIVVkit/lex/issues).
+tracker](https://github.com/LIVVkit/LIVVkit/issues). [LIVVext issue
+tracker](https://github.com/LIVVkit/livvext/issues).
 
 Want to send us a private message?
 
@@ -167,5 +169,5 @@ Want to send us a private message?
     similar CISM-Albany simulation, but likely would *not* be able to
     analyze output from the PISM ice sheet model without \"massaging\"
     the PISM files into a CISM-Albany like structure, or adjusting the
-    extension. *This is a problem we are working on for future LEX
+    extension. *This is a problem we are working on for future LIVVext 
     releases.*

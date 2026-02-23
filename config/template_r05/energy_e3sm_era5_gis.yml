@@ -1,5 +1,5 @@
 Energy_Balance_ERA5_GIS:
-  module: lex/energy/energy.py
+  module: livvext/energy/energy.py
   references: [/global/cfs/cdirs/e3sm/livvkit/data/racmo/Noel2015.bib,/global/cfs/cdirs/e3sm/livvkit/data/cism/glissade/cism-glissade.bib,/global/cfs/cdirs/e3sm/livvkit/data/e3sm/Evans2019.bib,
    /global/cfs/cdirs/e3sm/livvkit/data/livvkit.bib]
   meta:

@@ -21,7 +21,7 @@ from livvkit.util.LIVVDict import LIVVDict
 from loguru import logger
 from numpy import ma
 
-import lex.utils as lxu
+import livvext.utils as lxu
 
 TFORM = ccrs.PlateCarree()
 SEASON_NAME = {

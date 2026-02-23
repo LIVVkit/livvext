@@ -1,5 +1,5 @@
 Energy_Balance_ERA5_AIS:
-  module: lex/energy/energy.py
+  module: livvext/energy/energy.py
   references: [/global/cfs/cdirs/e3sm/livvkit/data/racmo/Noel2015.bib,/global/cfs/cdirs/e3sm/livvkit/data/cism/glissade/cism-glissade.bib,/global/cfs/cdirs/e3sm/livvkit/data/e3sm/Evans2019.bib,
    /global/cfs/cdirs/e3sm/livvkit/data/livvkit.bib]
   meta:
@@ -7,13 +7,13 @@ Energy_Balance_ERA5_AIS:
     Climatology years: [1980-2020]
     Model: [E3SM-ELM]
   img_height: 300
-  climo: /pscratch/sd/m/mek/lex/data/e3sm/v3.LR.piControl-shallowfirn_0001_0050/v3.LR.piControl-shallowfirn_0001_0050.{clim}_mean.nc
-  climo_remap: /pscratch/sd/m/mek/lex/data/e3sm/v3.LR.piControl-shallowfirn_0001_0050/remap/v3.LR.piControl-shallowfirn_0001_0050.{clim}_mean_era5.nc
-  lnd_climo: /pscratch/sd/m/mek/lex/data/e3sm/v3.LR.piControl-shallowfirn_0001_0050/remap/v3.LR.piControl-shallowfirn_0001_0050.ANN_mean_era5.nc
-  glc_surf: /pscratch/sd/m/mek/lex/data/e3sm/v3.LR.piControl-shallowfirn_0001_0050/remap/v3.LR.piControl-shallowfirn_0001_0050.ANN_mean_era5.nc
+  climo: /pscratch/sd/m/mek/livvext/data/e3sm/v3.LR.piControl-shallowfirn_0001_0050/v3.LR.piControl-shallowfirn_0001_0050.{clim}_mean.nc
+  climo_remap: /pscratch/sd/m/mek/livvext/data/e3sm/v3.LR.piControl-shallowfirn_0001_0050/remap/v3.LR.piControl-shallowfirn_0001_0050.{clim}_mean_era5.nc
+  lnd_climo: /pscratch/sd/m/mek/livvext/data/e3sm/v3.LR.piControl-shallowfirn_0001_0050/remap/v3.LR.piControl-shallowfirn_0001_0050.ANN_mean_era5.nc
+  glc_surf: /pscratch/sd/m/mek/livvext/data/e3sm/v3.LR.piControl-shallowfirn_0001_0050/remap/v3.LR.piControl-shallowfirn_0001_0050.ANN_mean_era5.nc
   aavg: /global/cfs/cdirs/e3sm/livvkit/data/e3sm/lnd/20240524.IGELM_MLI.ne30pg2_r05_IcoswISC30E3r5_gis1to10r02.pm-cpu.gnu.1k_spin_1990_2022_{clim}_1990{m_s:02d}_2021{m_e:02d}_climo_gis_mask2_aavg.nc
-  latlon: /pscratch/sd/m/mek/lex/data/e3sm/v3.LR.piControl-shallowfirn_0001_0050/remap/v3.LR.piControl-shallowfirn_0001_0050.ANN_mean_era5.nc
-  elevation: /pscratch/sd/m/mek/lex/data/e3sm/v3.LR.piControl-shallowfirn_0001_0050/remap/v3.LR.piControl-shallowfirn_0001_0050.ANN_mean_era5.nc
+  latlon: /pscratch/sd/m/mek/livvext/data/e3sm/v3.LR.piControl-shallowfirn_0001_0050/remap/v3.LR.piControl-shallowfirn_0001_0050.ANN_mean_era5.nc
+  elevation: /pscratch/sd/m/mek/livvext/data/e3sm/v3.LR.piControl-shallowfirn_0001_0050/remap/v3.LR.piControl-shallowfirn_0001_0050.ANN_mean_era5.nc
   latv: lat
   lonv: lon
   topov: topo
@@ -102,11 +102,11 @@ Energy_Balance_ERA5_AIS:
     cmin: -10
     cmax: 10
     cmap: RdBu_r
-  in_dirs: {dset_a: /pscratch/sd/m/mek/lex/data/ERA5}
+  in_dirs: {dset_a: /pscratch/sd/m/mek/livvext/data/ERA5}
   file_patterns: {dset_a: 'ERA5_{season}_climo.nc'}
-  masks: {dset_a: /pscratch/sd/m/mek/lex/data/grids/msk_ais_rcm_r025_regrid_era5_traave_20250310.nc,
-    model_remap: /pscratch/sd/m/mek/lex/data/grids/msk_ais_rcm_r025_regrid_era5_traave_20250310.nc,
-    model_native: /pscratch/sd/m/mek/lex/data/grids/msk_ais_rcm_r05.nc}
+  masks: {dset_a: /pscratch/sd/m/mek/livvext/data/grids/msk_ais_rcm_r025_regrid_era5_traave_20250310.nc,
+    model_remap: /pscratch/sd/m/mek/livvext/data/grids/msk_ais_rcm_r025_regrid_era5_traave_20250310.nc,
+    model_native: /pscratch/sd/m/mek/livvext/data/grids/msk_ais_rcm_r05.nc}
   desc: Surface energy balance component {component}{comment} from {data_var_names}
   cmap: plasma
   cmap_diff: RdBu_r

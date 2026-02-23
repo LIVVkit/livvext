@@ -40,9 +40,9 @@ import pandas as pd
 from livvkit import elements as el
 from loguru import logger
 
-from lex import compare_gridded, time_series_plot, utils
-from lex.common import SEASON_NAME
-from lex.common import summarize_result as sum_res
+from livvext import compare_gridded, time_series_plot, utils
+from livvext.common import SEASON_NAME
+from livvext.common import summarize_result as sum_res
 
 PAGE_DOCS = {
     "gis": "An analysis of the Models's energy balance over Greenland.",
@@ -156,7 +156,7 @@ def print_summary(summary):
 
 
 def summarize_result(result):
-    """Use the summarize_result from lex.common to summarize."""
+    """Use the summarize_result from livvext.common to summarize."""
     return sum_res(result)
 
 

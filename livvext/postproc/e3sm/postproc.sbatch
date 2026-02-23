@@ -23,7 +23,7 @@ fi
 fi
 fi
 
-LEXDIR=$HOME/lex
+LEXDIR=$HOME/livvext
 INDIR=/global/cfs/projectdirs/e3sm/zender/livvkit
 LIVVPROJ=/global/cfs/cdirs/e3sm/livvkit
 
@@ -64,7 +64,7 @@ export OUTCASE=v3.LR.piControl-deepfirn-mec2_0100_0175
 export RES=r05
 
 export INFILE=${INDIR}/${OUTCASE}.nc
-export OUTDIR=${PSCRATCH}/lex/data/e3sm/${OUTCASE}
+export OUTDIR=${PSCRATCH}/livvext/data/e3sm/${OUTCASE}
 
 if [[ ! -d ${OUTDIR}/remap ]]
 then
@@ -103,7 +103,7 @@ do
     ncks -m -v ${var} ${INFILE} > /dev/null 2>&1 || ncks -A -C -v ${var} ${INFILE_REF} ${ANN_MEAN_FILE}
 done
 
-srun parallel --jobs 12 ${LEXDIR}/lex/postproc/e3sm/split_files.sh ::: {0..11}
+srun parallel --jobs 12 ${LEXDIR}/livvext/postproc/e3sm/split_files.sh ::: {0..11}
 
 ncra \
     -O \

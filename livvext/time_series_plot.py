@@ -14,8 +14,8 @@ import xarray as xr
 from livvkit import elements as el
 from loguru import logger
 
-import lex.common as lxc
-import lex.utils as lxu
+import livvext.common as lxc
+import livvext.utils as lxu
 
 IMG_GROUP = "Timeseries"
 

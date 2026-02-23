@@ -1,9 +1,9 @@
-"""Test lex.common methods."""
+"""Test livvext.common methods."""
 
 import os
 import numpy as np
 import xarray as xr
-import lex.common as lxc
+import livvext.common as lxc
 
 
 def test_img_file_prefix():

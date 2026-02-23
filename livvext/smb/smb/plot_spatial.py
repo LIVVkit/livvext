@@ -19,8 +19,8 @@ from matplotlib import colors as c
 from netCDF4 import Dataset
 from scipy.interpolate import griddata
 
-import lex.common as lxc
-import lex.compare_gridded as lxcg
+import livvext.common as lxc
+import livvext.compare_gridded as lxcg
 
 DESCRIBE_CORE = """
 Filled contour of modeled annual surface mass balance of the Greenland ice
