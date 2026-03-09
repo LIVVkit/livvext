@@ -516,7 +516,7 @@ def area_avg(
     data : array_like
         Array of data to be averaged
     config : dict
-        LIVVkit configuration dictionary, at least contains the `maskv` variable
+        LIVVkit configuration dictionary, at least contains the variable `maskv`
         if `mask_var` is not set
     area_file : Path
         Path to a netCDF file containing the grid cell area which matches `data`
@@ -746,9 +746,6 @@ def compute_clevs(
     ----------
     data : dictionary
         Masked array of data for which to compute contour levels
-    data_1, data_2 : array_like, optional
-        Masked arrays of data, to use in computation of contour levels if needed
-        (default: None)
     bnds : tuple, optional
         Upper / lower percentiles to use for bounds (default: (5%, 95%))
     even : bool, optional

@@ -113,16 +113,16 @@ def _bib2html_bibdata(bib, style=None, backend=None):
 
 
 def eval_expr(expr):
-    """
+    r"""
     Evaluate a mathematical expression stored as a string in a JSON file.
 
     Parameters
     ----------
     expr : str
         Mathematical expression, stored as a single string: e.g.
-        "1 + 1 * 3", "24 * 3600 * 365", etc.
+        "1 + 1 \* 3", "24 \* 3600 \* 365", etc.
         Will be checked to contain _only_ numbers and mathematical symbols:
-        [0-9], +, -, *, /, ^, (, and )
+        [0-9], +, -, \*, /, ^, (, and )
     Returns
     -------
     result : float
@@ -212,6 +212,26 @@ def extract_vars(expr):
 
 
 def apply_operator(operands, operator, name=False):
+    r"""
+    Recursively apply mathematical operator(s).
+
+    Parameters
+    ----------
+    operands : list
+        List of operands, either two field names, or a field name and another list
+        of field names (e.g. [U, V], or [T, [U, V]], or [T, [U, [V, X]]])
+    operator : str
+        Operator to apply recursively to the pairs of operands (one of +, -, \*, /, or ^)
+    name : bool
+        If true, return a string of the applied operation, if false, return the value.
+
+    Returns
+    -------
+    output : (type(operands), str)
+        Returns the result of the mathematical expression, with the same type as
+        `operands[0]` or a string representation of the expression
+
+    """
     ops = {
         "+": op.add,
         "-": op.sub,
@@ -245,19 +265,31 @@ def extract_name(expr):
         two elements are operands, either numeric values, fields within `dset`,
         or an expression of this kind.
         (e.g. ["^", ["+", ["*", "U", "U"], ["*", "V", "V"]], "0.5"] for the wind velocity)
-    dset : xarray.Dataset
-        Dataset which contains the fields described in `expr`
 
     Returns
     -------
-    output : xarray.DataArray
-        Evaluated expression
+    output : str
+        Human redable text of evaluated expression
 
     """
     return extract_ds(expr, {}, name=True)
 
 
 def will_it_float(test_str: str) -> bool:
+    """
+    Test a string to determine if it will convert to a float.
+
+    Parameters
+    ----------
+    test_str : str
+        String to be tested
+
+    Returns
+    -------
+    _will : float, bool
+        If the string converts to a float, return the float, if not return False
+
+    """
     try:
         _will = float(test_str)
     except ValueError:

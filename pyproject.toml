@@ -134,11 +134,26 @@ python = "3.14.*"
 [tool.pixi.environments]
 default = { solve-group = "default" }
 dev = ["dev"]
+docs = ["docs"]
 py311dev = ["py311dev", "dev"]
 py312dev = ["py312dev", "dev"]
 py313dev = ["py313dev", "dev"]
 py314dev = ["py314dev", "dev"]
-buildenv = ["py314dev", "buildenv"]
+buildenv = ["buildenv"]
 
 [dependency-groups]
 buildenv = ["build>=1.4.0,<2"]
+docs = ["pydoctor", "docutils"]
+
+[tool.pydoctor]
+project-name = "LIVVext"
+make-html = true
+html-output = "./docs"
+docformat = "numpy"
+intersphinx = [
+    "https://docs.python.org/3/objects.inv",
+     "http://xarray.pydata.org/en/latest/objects.inv"
+]
+theme = "readthedocs"
+privacy = ["PRIVATE:**.__*__", "PUBLIC:**.__init__", "PRIVATE:**.ipynb_checkpoints"]
+add-package = ["./livvext", "./livvext/smb", "./livvext/energy"]
