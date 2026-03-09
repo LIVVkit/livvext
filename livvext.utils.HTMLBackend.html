@@ -1,0 +1,654 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+          "DTD/xhtml1-strict.dtd">
+<html>
+  
+
+  <head>
+    
+    <title>livvext.utils.HTMLBackend</title>
+    <meta name="generator" content="pydoctor 25.10.1"> 
+        
+    </meta>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1 maximum-scale=1" />
+    <link rel="stylesheet" type="text/css" href="apidocs.css" />
+    <link rel="stylesheet" type="text/css" href="readthedocstheme.css" />
+    <link rel="stylesheet" type="text/css" href="extra.css" />
+    
+</head>
+
+  <body>
+
+    
+
+    <nav class="navbar navbar-default mainnavbar">
+      
+  
+  <div class="container-fluid">
+
+
+    <div class="navbar-header">
+      
+      <div class="navlinks">
+        <span class="navbar-brand">
+          <a href="https://github.com/LIVVkit/livvext" class="projecthome">LIVVext</a> <a href="index.html">API Documentation</a>
+        </span>
+
+        <a href="moduleIndex.html">
+          Modules
+        </a>
+
+        <a href="classIndex.html">
+          Classes
+        </a>
+
+        <a href="nameIndex.html">
+          Names
+        </a>
+
+        <div id="search-box-container">
+          <div class="input-group">
+            <input id="search-box" type="search" name="search-query" placeholder="Search..." aria-label="Search" minlength="2" class="form-control" autocomplete="off" />
+            
+            <span class="input-group-btn">
+              <a style="display: none;" class="btn btn-default" id="search-clear-button" title="Clear" onclick="clearSearch()"><img src="fonts/x-circle.svg" alt="Clear" /></a>
+              <a class="btn btn-default" id="apidocs-help-button" title="Help" href="apidocs-help.html"><img src="fonts/info.svg" alt="Help" /></a>
+            </span>
+          </div>
+        </div>
+
+      </div>
+
+      <div id="search-results-container" style="display: none;">
+        
+        <div id="search-buttons">
+          <span class="label label-default" id="search-docstrings-button">
+          <label class="checkbox-inline">
+            <input type="checkbox" id="toggle-search-in-docstrings-checkbox" value="false" onclick="toggleSearchInDocstrings()">
+              search in docstrings
+            </input>
+          </label>
+          </span>
+          
+        </div>
+        
+        <noscript>
+            <h1>Cannot search: JavaScript is not supported/enabled in your browser.</h1>
+        </noscript>
+
+        <div id="search-status"> </div>
+
+        <div class="warning" id="search-warn-box" style="display: none;">
+          <p class="rst-last"><span id="search-warn"></span></p>
+        </div>
+
+        <table id="search-results">
+          <!-- Filled dynamically by JS -->
+        </table>
+        
+        <div style="margin-top: 10px;">
+          <p>For more information on the search, visit the <a href="apidocs-help.html#rst-search">help page</a>.</p>
+        </div>
+      </div>
+
+    </div>
+
+
+  </div>
+
+    
+        <!-- Side navigation -->
+      <div class="sidebarcontainer">
+        <nav class="sidebar">
+  
+
+  <div>
+
+      <div class="thingTitle">
+        <span>Class</span>
+        <code class="thisobject"><a href="livvext.utils.HTMLBackend.html" class="internal-link" title="This class"><wbr></wbr>HTMLBackend</a></code> 
+      </div>
+      
+      <div>
+        
+
+        
+         
+
+        
+        
+
+        <div class="childrenKindTitle">Methods</div>
+        <ul>
+    
+    <li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#__init__" class="internal-link" title="livvext.utils.HTMLBackend.__init__">__init__</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#format_protected" class="internal-link" title="livvext.utils.HTMLBackend.format_protected">format<wbr></wbr>_protected</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#output" class="internal-link" title="livvext.utils.HTMLBackend.output">output</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#write_epilogue" class="internal-link" title="livvext.utils.HTMLBackend.write_epilogue">write<wbr></wbr>_epilogue</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#write_prologue" class="internal-link" title="livvext.utils.HTMLBackend.write_prologue">write<wbr></wbr>_prologue</a></code>
+            </div>
+        
+
+    </li><li class="private">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#_repr_html" class="internal-link" title="livvext.utils.HTMLBackend._repr_html">_repr<wbr></wbr>_html</a></code>
+            </div>
+        
+
+    </li>
+</ul> 
+
+        
+         
+
+        <div class="childrenKindTitle">Attributes</div>
+        <ul>
+    
+    <li class="private">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#_html" class="internal-link" title="livvext.utils.HTMLBackend._html">_html</a></code>
+            </div>
+        
+
+    </li>
+</ul> 
+
+        
+         
+        
+      </div>
+  </div><div>
+
+      <div class="thingTitle">
+        <span>Module</span>
+        <code><a href="livvext.utils.html" class="internal-link" title="The parent of this class">utils</a></code> 
+      </div>
+      
+      <div>
+        
+
+        
+         
+
+        <div class="childrenKindTitle">Classes</div>
+        <ul>
+    
+    <li class=" thisobject">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="livvext.utils.HTMLBackend.html" class="internal-link" title="livvext.utils.HTMLBackend"><wbr></wbr>HTMLBackend</a></code>
+            </div>
+        
+
+    </li>
+</ul>
+
+        <div class="childrenKindTitle">Functions</div>
+        <ul>
+    
+    <li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="livvext.utils.html#apply_operator" class="internal-link" title="livvext.utils.apply_operator">apply<wbr></wbr>_operator</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="livvext.utils.html#bib2html" class="internal-link" title="livvext.utils.bib2html">bib2html</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="livvext.utils.html#eval_expr" class="internal-link" title="livvext.utils.eval_expr">eval<wbr></wbr>_expr</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="livvext.utils.html#extract_ds" class="internal-link" title="livvext.utils.extract_ds">extract<wbr></wbr>_ds</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="livvext.utils.html#extract_name" class="internal-link" title="livvext.utils.extract_name">extract<wbr></wbr>_name</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="livvext.utils.html#extract_vars" class="internal-link" title="livvext.utils.extract_vars">extract<wbr></wbr>_vars</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="livvext.utils.html#will_it_float" class="internal-link" title="livvext.utils.will_it_float">will<wbr></wbr>_it<wbr></wbr>_float</a></code>
+            </div>
+        
+
+    </li><li class="private">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="livvext.utils.html#_bib2html_bibdata" class="internal-link" title="livvext.utils._bib2html_bibdata">_bib2html<wbr></wbr>_bibdata</a></code>
+            </div>
+        
+
+    </li><li class="private">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="livvext.utils.html#_bib2html_list" class="internal-link" title="livvext.utils._bib2html_list">_bib2html<wbr></wbr>_list</a></code>
+            </div>
+        
+
+    </li><li class="private">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="livvext.utils.html#_bib2html_string" class="internal-link" title="livvext.utils._bib2html_string">_bib2html<wbr></wbr>_string</a></code>
+            </div>
+        
+
+    </li>
+</ul> 
+
+        
+         
+
+        
+         
+
+        
+         
+        
+      </div>
+  </div>
+
+</nav>
+        <!-- No sidebar toggle for read the docs theme, the sidebar is always
+          visible when the screen is width enough.
+        -->
+      </div>
+
+    </nav>
+    
+    <div class="container-fluid">
+
+      <main class="">
+        
+
+        
+
+
+        <div class="page-header">
+          <h1 class="class"><code><code><a href="livvext.html" class="internal-link">livvext</a></code><wbr></wbr>.<code><a href="livvext.utils.html" class="internal-link" title="livvext.utils">utils</a></code><wbr></wbr>.<code><a href="livvext.utils.HTMLBackend.html" class="internal-link" title="livvext.utils.HTMLBackend">HTMLBackend</a></code></code></h1>
+          <div id="show-private">
+            <button class="btn btn-link" onclick="togglePrivate()">Toggle Private API</button>
+          </div>
+        </div>
+
+        <div class="categoryHeader">
+          class documentation
+        </div>
+
+        <div class="extrasDocstring">
+          <p class="class-signature"><code><span class="py-keyword">class</span> <span class="py-defname">HTMLBackend</span>(BaseBackend): <a href="https://github.com/LIVVkit/livvext/tree/b845dd2e4930244c23e4b843d3ee6c16704be37b/livvext/utils.py#L14" class="sourceLink">(source)</a></code></p><p>Constructor: <code><a href="#__init__" class="internal-link" title="livvext.utils.HTMLBackend.__init__">HTMLBackend(*args, **kwargs)</a></code></p><p><a href="classIndex.html#livvext.utils.HTMLBackend">View In Hierarchy</a></p>
+        </div>
+
+        <div class="moduleDocstring">
+          <div><p class="undocumented">Undocumented</p></div>
+        </div>
+
+        <div id="split-tables">
+          <table class="children sortable" id="id15">
+  
+  
+  <tr class="method">
+    
+    <td>Method</td>
+    <td><code><a href="#__init__" class="internal-link" title="livvext.utils.HTMLBackend.__init__">__init__</a></code></td>
+    <td><span class="rst-undocumented">Undocumented</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><code><a href="#format_protected" class="internal-link" title="livvext.utils.HTMLBackend.format_protected">format<wbr></wbr>_protected</a></code></td>
+    <td><span class="rst-undocumented">Undocumented</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><code><a href="#output" class="internal-link" title="livvext.utils.HTMLBackend.output">output</a></code></td>
+    <td><span class="rst-undocumented">Undocumented</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><code><a href="#write_epilogue" class="internal-link" title="livvext.utils.HTMLBackend.write_epilogue">write<wbr></wbr>_epilogue</a></code></td>
+    <td><span class="rst-undocumented">Undocumented</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><code><a href="#write_prologue" class="internal-link" title="livvext.utils.HTMLBackend.write_prologue">write<wbr></wbr>_prologue</a></code></td>
+    <td><span class="rst-undocumented">Undocumented</span></td>
+  </tr><tr class="method private">
+    
+    <td>Method</td>
+    <td><code><a href="#_repr_html" class="internal-link" title="livvext.utils.HTMLBackend._repr_html">_repr<wbr></wbr>_html</a></code></td>
+    <td><span class="rst-undocumented">Undocumented</span></td>
+  </tr><tr class="instancevariable private">
+    
+    <td>Instance Variable</td>
+    <td><code><a href="#_html" class="internal-link" title="livvext.utils.HTMLBackend._html">_html</a></code></td>
+    <td><span class="rst-undocumented">Undocumented</span></td>
+  </tr>
+</table>
+          
+
+            
+        </div>
+
+        <div id="child-list">
+          <div class="basemethod">
+  
+  
+  <a name="livvext.utils.HTMLBackend.__init__">
+    
+  </a>
+  <a name="__init__">
+    
+  </a>
+  <div class="functionHeader">
+    
+    
+    <span class="py-keyword">def</span>&#160;<span class="py-defname">__init__</span><span class="function-signature">(<span class="rst-sig-param"><span class="rst-undocumented">self</span>, </span><span class="rst-sig-param">*args, </span><span class="rst-sig-param">**kwargs</span>):</span>
+    <a class="sourceLink" href="https://github.com/LIVVkit/livvext/tree/b845dd2e4930244c23e4b843d3ee6c16704be37b/livvext/utils.py#L15">
+      
+      (source)
+    </a>
+    <a class="headerLink" href="#__init__" title="livvext.utils.HTMLBackend.__init__">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p class="undocumented">Undocumented</p></div>
+  </div>
+</div><div class="basemethod">
+  
+  
+  <a name="livvext.utils.HTMLBackend.format_protected">
+    
+  </a>
+  <a name="format_protected">
+    
+  </a>
+  <div class="functionHeader">
+    
+    
+    <span class="py-keyword">def</span>&#160;<span class="py-defname">format_protected</span><span class="function-signature">(<span class="rst-sig-param"><span class="rst-undocumented">self</span>, </span><span class="rst-sig-param">text</span>):</span>
+    <a class="sourceLink" href="https://github.com/LIVVkit/livvext/tree/b845dd2e4930244c23e4b843d3ee6c16704be37b/livvext/utils.py#L22">
+      
+      (source)
+    </a>
+    <a class="headerLink" href="#format_protected" title="livvext.utils.HTMLBackend.format_protected">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p class="undocumented">Undocumented</p></div>
+  </div>
+</div><div class="basemethod">
+  
+  
+  <a name="livvext.utils.HTMLBackend.output">
+    
+  </a>
+  <a name="output">
+    
+  </a>
+  <div class="functionHeader">
+    
+    
+    <span class="py-keyword">def</span>&#160;<span class="py-defname">output</span><span class="function-signature">(<span class="rst-sig-param"><span class="rst-undocumented">self</span>, </span><span class="rst-sig-param">html</span>):</span>
+    <a class="sourceLink" href="https://github.com/LIVVkit/livvext/tree/b845dd2e4930244c23e4b843d3ee6c16704be37b/livvext/utils.py#L19">
+      
+      (source)
+    </a>
+    <a class="headerLink" href="#output" title="livvext.utils.HTMLBackend.output">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p class="undocumented">Undocumented</p></div>
+  </div>
+</div><div class="basemethod">
+  
+  
+  <a name="livvext.utils.HTMLBackend.write_epilogue">
+    
+  </a>
+  <a name="write_epilogue">
+    
+  </a>
+  <div class="functionHeader">
+    
+    
+    <span class="py-keyword">def</span>&#160;<span class="py-defname">write_epilogue</span><span class="function-signature">(<span class="rst-sig-param"><span class="rst-undocumented">self</span></span>):</span>
+    <a class="sourceLink" href="https://github.com/LIVVkit/livvext/tree/b845dd2e4930244c23e4b843d3ee6c16704be37b/livvext/utils.py#L31">
+      
+      (source)
+    </a>
+    <a class="headerLink" href="#write_epilogue" title="livvext.utils.HTMLBackend.write_epilogue">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p class="undocumented">Undocumented</p></div>
+  </div>
+</div><div class="basemethod">
+  
+  
+  <a name="livvext.utils.HTMLBackend.write_prologue">
+    
+  </a>
+  <a name="write_prologue">
+    
+  </a>
+  <div class="functionHeader">
+    
+    
+    <span class="py-keyword">def</span>&#160;<span class="py-defname">write_prologue</span><span class="function-signature">(<span class="rst-sig-param"><span class="rst-undocumented">self</span></span>):</span>
+    <a class="sourceLink" href="https://github.com/LIVVkit/livvext/tree/b845dd2e4930244c23e4b843d3ee6c16704be37b/livvext/utils.py#L28">
+      
+      (source)
+    </a>
+    <a class="headerLink" href="#write_prologue" title="livvext.utils.HTMLBackend.write_prologue">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p class="undocumented">Undocumented</p></div>
+  </div>
+</div><div class="basemethod private">
+  
+  
+  <a name="livvext.utils.HTMLBackend._repr_html">
+    
+  </a>
+  <a name="_repr_html">
+    
+  </a>
+  <div class="functionHeader">
+    
+    
+    <span class="py-keyword">def</span>&#160;<span class="py-defname">_repr_html</span><span class="function-signature">(<span class="rst-sig-param"><span class="rst-undocumented">self</span>, </span><span class="rst-sig-param">formatted_bibliography</span>):</span>
+    <a class="sourceLink" href="https://github.com/LIVVkit/livvext/tree/b845dd2e4930244c23e4b843d3ee6c16704be37b/livvext/utils.py#L34">
+      
+      (source)
+    </a>
+    <a class="headerLink" href="#_repr_html" title="livvext.utils.HTMLBackend._repr_html">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p class="undocumented">Undocumented</p></div>
+  </div>
+</div><div class="baseinstancevariable private">
+  
+  
+  <a name="livvext.utils.HTMLBackend._html">
+    
+  </a>
+  <a name="_html">
+    
+  </a>
+  <div class="functionHeader">
+    
+    <span class="py-defname">_html</span>: <code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code> =
+    <a class="sourceLink" href="https://github.com/LIVVkit/livvext/tree/b845dd2e4930244c23e4b843d3ee6c16704be37b/livvext/utils.py#L17">
+      
+      (source)
+    </a>
+    <a class="headerLink" href="#_html" title="livvext.utils.HTMLBackend._html">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="functionBody">
+    
+    <div><p class="undocumented">Undocumented</p></div>
+    
+  </div>
+</div>
+        </div>
+      
+      </main>
+    </div>
+
+    <footer class="navbar navbar-default">
+    <hr />
+    
+    
+    <div class="container-fluid">
+      <a href="index.html">API Documentation</a> for <a href="https://github.com/LIVVkit/livvext" class="projecthome">LIVVext</a>,
+    generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a>
+      25.10.1 at 2026-03-09 21:16:44.
+    </div>
+    
+    <script src="ajax.js" type="text/javascript"></script>
+    <script src="searchlib.js" type="text/javascript"></script>
+    <script src="search.js" type="text/javascript"></script>
+  
+  </footer>
+  
+    <script src="pydoctor.js" type="text/javascript"></script>
+
+  </body>
+</html>
