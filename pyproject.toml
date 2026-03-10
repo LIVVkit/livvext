@@ -46,17 +46,17 @@ dependencies = [
     "numpy>=2.2.6",
     "scipy>=1.17.0",
     "xarray>=2025.6.1",
-    "dask>=2026.1.2",
+    "dask>=2025.9.1",
     "seaborn>=0.13.2",
     "cftime>=1.6.5",
-    "nc-time-axis>=1.4.1",
+    "nc-time-axis",
     "scikit-learn>=1.7.2",
     "ruamel.yaml>=0.19.1",
     "jinja2>=3.1.6",
-    "matplotlib>=3.10.8",
-    "netcdf4>=1.7.4",
+    "matplotlib>=3.10.6",
+    "netcdf4>=1.7.2",
     "pandas>=2.2.3",
-    "cartopy>=0.25.0",
+    "cartopy>=0.17.0",
     "pybtex>=0.25.1",
     "f90nml>=1.5",
     "loguru>=0.7.3",
@@ -134,11 +134,26 @@ python = "3.14.*"
 [tool.pixi.environments]
 default = { solve-group = "default" }
 dev = ["dev"]
+docs = ["docs"]
 py311dev = ["py311dev", "dev"]
 py312dev = ["py312dev", "dev"]
 py313dev = ["py313dev", "dev"]
 py314dev = ["py314dev", "dev"]
-buildenv = ["py314dev", "buildenv"]
+buildenv = ["buildenv"]
 
 [dependency-groups]
 buildenv = ["build>=1.4.0,<2"]
+docs = ["pydoctor", "docutils"]
+
+[tool.pydoctor]
+project-name = "LIVVext"
+make-html = true
+html-output = "./docs"
+docformat = "numpy"
+intersphinx = [
+    "https://docs.python.org/3/objects.inv",
+     "http://xarray.pydata.org/en/latest/objects.inv"
+]
+theme = "readthedocs"
+privacy = ["PRIVATE:**.__*__", "PUBLIC:**.__init__", "PRIVATE:**.ipynb_checkpoints"]
+add-package = ["./livvext", "./livvext/smb", "./livvext/energy"]

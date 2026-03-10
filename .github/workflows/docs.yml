@@ -1,0 +1,40 @@
+name: Docs
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: 3.14
+
+    - name: Set up Pixi ${{ matrix.python-version }}
+      uses: prefix-dev/setup-pixi@v0.9.4
+      with:
+        pixi-version: v0.62.2
+        # Project environment caching uses pixi.lock as the cache key input.
+        # If you don't commit a lockfile, disable caching to avoid ENOENT.
+        # cache: ${{ hashFiles('pixi.lock') != '' }}
+        environments: docs
+
+    - name: Generate API documentation with pydoctor
+      run: |
+
+        # Run pydoctor build
+        pixi run -e docs pydoctor \
+            --project-url=https://github.com/$GITHUB_REPOSITORY \
+            --html-viewsource-base=https://github.com/$GITHUB_REPOSITORY/tree/$GITHUB_SHA \
+            --config pyproject.toml
+
+    - name: Push API documentation to Github Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./docs
+        commit_message: "Generate API documentation"
