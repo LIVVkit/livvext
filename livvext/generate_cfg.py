@@ -125,12 +125,11 @@ def main():
 
     defaults = {
         "chrysalis": {
-            "livvproj_dir": Path("/lcrc/group/e3sm/livvkit"),
             "model_ts_dir": Path("/lcrc/group/e3sm/ac.zender/scratch/livvkit"),
             "grid_dir": Path("/lcrc/group/e3sm/zender/grids"),
+            "racmo_root_dir": Path("/lcrc/group/e3sm/livvkit/racmo/2.4.1"),
         },
         "pm-cpu": {
-            "livvproj_dir": Path("/global/cfs/cdirs/e3sm/livvkit"),
             "model_ts_dir": Path("/global/cfs/projectdirs/e3sm/zender/livvkit"),
             "grid_dir": Path("/global/cfs/cdirs/e3sm/zender/grids"),
             "racmo_root_dir": Path("/global/cfs/cdirs/fanssie/racmo/2.4.1"),
@@ -156,6 +155,9 @@ def main():
     _mach_defaults = defaults[mach]
     _mach_defaults["e3sm_diags_data_dir"] = Path(
         mach_info.config.get("diagnostics", "base_path")
+    )
+    _mach_defaults["livvproj_dir"] = Path(
+        mach_info.config.get("diagnostics", "base_path"), "livvkit_data",
     )
     params = {
         **_mach_defaults,
