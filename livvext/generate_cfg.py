@@ -127,12 +127,10 @@ def main():
         "chrysalis": {
             "model_ts_dir": Path("/lcrc/group/e3sm/ac.zender/scratch/livvkit"),
             "grid_dir": Path("/lcrc/group/e3sm/zender/grids"),
-            "racmo_root_dir": Path("/lcrc/group/e3sm/livvkit/racmo/2.4.1"),
         },
         "pm-cpu": {
             "model_ts_dir": Path("/global/cfs/projectdirs/e3sm/zender/livvkit"),
             "grid_dir": Path("/global/cfs/cdirs/e3sm/zender/grids"),
-            "racmo_root_dir": Path("/global/cfs/cdirs/fanssie/racmo/2.4.1"),
         },
     }
     climo_dirs = {}
@@ -157,8 +155,17 @@ def main():
         mach_info.config.get("diagnostics", "base_path")
     )
     _mach_defaults["livvproj_dir"] = Path(
-        mach_info.config.get("diagnostics", "base_path"), "livvkit_data",
+        mach_info.config.get("diagnostics", "base_path"),
+        "livvkit_data",
     )
+    _mach_defaults["racmo_root_dir"] = Path(
+        mach_info.config.get("diagnostics", "base_path"),
+        "observations",
+        "Land",
+        "racmo",
+        "2.4.1",
+    )
+
     params = {
         **_mach_defaults,
         "case_id": cl_args.case,
