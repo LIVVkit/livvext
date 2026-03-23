@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
-"""Compare three gridded datasets. Typically one "Model" and two "Observations" """
+"""Compare up to three gridded datasets. Typically one "Model" and 1 or 2 "Observations" """
 
 import os
 

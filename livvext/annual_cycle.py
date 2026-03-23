@@ -1,3 +1,5 @@
+"""Produce climatology figures of area averaged data by month."""
+
 import os
 from pathlib import Path
 
@@ -19,6 +21,7 @@ Sign of component based on its contribution to total.
 
 
 def main(args, config):
+    """Load climatology for model and "observational" data sets, create plots."""
     _files = [lxc.proc_climo_file(config, "climo_remap", mon) for mon in range(1, 13)]
     model_data = xr.open_mfdataset(
         _files,

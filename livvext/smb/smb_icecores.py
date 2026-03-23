@@ -37,6 +37,7 @@ from livvkit.util import functions as fn
 from livvext import annual_cycle, compare_gridded, time_series_plot
 from livvext.common import SEASON_NAME
 from livvext.common import summarize_result as sum_res
+import livvext.utils as utils
 
 with fn.TempSysPath(os.path.dirname(__file__)):
     import smb.plot_core_hists as c_hists
@@ -45,7 +46,6 @@ with fn.TempSysPath(os.path.dirname(__file__)):
     import smb.plot_IB_scatter as IB_scatter
     import smb.plot_spatial as plt_spatial
     import smb.preproc as preproc
-    import smb.utils as utils
 
 from loguru import logger
 

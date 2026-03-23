@@ -1,5 +1,6 @@
 # coding=utf-8
-
+"""Utilities for generating LIVVkit reports of LIVVext results.
+"""
 from __future__ import absolute_import, print_function, unicode_literals
 
 import operator as op
@@ -12,6 +13,7 @@ from pybtex.style.formatting.plain import Style as PlainStyle
 
 
 class HTMLBackend(BaseBackend):
+    """Extends ``pybtex.backends.html.Backend``"""
     def __init__(self, *args, **kwargs):
         super(HTMLBackend, self).__init__(*args, **kwargs)
         self._html = ""
@@ -49,6 +51,8 @@ class HTMLBackend(BaseBackend):
 # def bib2html(bib, style=None, backend=None):
 #     raise NotImplementedError('I do not now how to convert a {} type to a bibliography'.format(type(bib)))
 def bib2html(bib, style=None, backend=None):
+    """Convert a bibtex bibliography to HTML.
+    """
     if isinstance(bib, six.string_types):
         return _bib2html_string(bib, style=style, backend=backend)
     if isinstance(bib, (list, set, tuple)):
@@ -150,11 +154,11 @@ def extract_ds(expr, dset, name=False):
     ----------
     expr : list
         List of expressions where first element is operator, subsequent
-        two elements are operands, either numeric values, fields within `dset`,
+        two elements are operands, either numeric values, fields within ``dset``,
         or an expression of this kind.
         (e.g. ["^", ["+", ["*", "U", "U"], ["*", "V", "V"]], "0.5"] for the wind velocity)
     dset : xarray.Dataset
-        Dataset which contains the fields described in `expr`
+        Dataset which contains the fields described in ``expr``
     name : bool, optional
         If true, output the string of the interpreterd expression rather than its result
 
@@ -227,9 +231,9 @@ def apply_operator(operands, operator, name=False):
 
     Returns
     -------
-    output : (type(operands), str)
+    output : (type(``operands``), str)
         Returns the result of the mathematical expression, with the same type as
-        `operands[0]` or a string representation of the expression
+        ``operands[0]`` or a string representation of the expression
 
     """
     ops = {
@@ -262,7 +266,7 @@ def extract_name(expr):
     ----------
     expr : list
         List of expressions where first element is operator, subsequent
-        two elements are operands, either numeric values, fields within `dset`,
+        two elements are operands, either numeric values, fields within ``dset``,
         or an expression of this kind.
         (e.g. ["^", ["+", ["*", "U", "U"], ["*", "V", "V"]], "0.5"] for the wind velocity)
 

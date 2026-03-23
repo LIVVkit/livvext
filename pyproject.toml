@@ -152,7 +152,8 @@ html-output = "./docs"
 docformat = "numpy"
 intersphinx = [
     "https://docs.python.org/3/objects.inv",
-     "http://xarray.pydata.org/en/latest/objects.inv"
+    "http://xarray.pydata.org/en/latest/objects.inv",
+    "https://docs.pybtex.org/objects.inv",
 ]
 theme = "readthedocs"
 privacy = ["PRIVATE:**.__*__", "PUBLIC:**.__init__", "PRIVATE:**.ipynb_checkpoints"]

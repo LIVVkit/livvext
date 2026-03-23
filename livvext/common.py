@@ -129,7 +129,7 @@ def proc_climo_file(config, file_tag, sea):
         LIVVkit /LEX configuration dict
     file_tag : str
         Configuration item which points to climatology filename to be formatted, usually
-        `climo` or `climo_remap`
+        ``climo`` or ``climo_remap``
     sea : str
         Season identifier
 
@@ -516,29 +516,29 @@ def area_avg(
     data : array_like
         Array of data to be averaged
     config : dict
-        LIVVkit configuration dictionary, at least contains the variable `maskv`
-        if `mask_var` is not set
+        LIVVkit configuration dictionary, at least contains the variable ``maskv``
+        if ``mask_var`` is not set
     area_file : Path
-        Path to a netCDF file containing the grid cell area which matches `data`
+        Path to a netCDF file containing the grid cell area which matches ``data``
     area_var : str
         Name of the netCDF variable which contains the area data
     mask_file : Path, optional
-        Path to a netCDF file containing the ice sheet mask whose shape matches `data`.
-        If not set, the mask is assumed to be in the `area_file` file
+        Path to a netCDF file containing the ice sheet mask whose shape matches ``data``.
+        If not set, the mask is assumed to be in the ``area_file`` file
     mask_var : str, optional
         Name of the netCDF variable which contains the ice sheet mask data, if not
-        set, then use `maskv` from `config`
+        set, then use ``maskv`` from ``config``
 
     Returns
     -------
     avg : float
-        Masked and area-weighted average of `data`
-    isheet_mask : array_like
-        Mask of ice sheet used in generating `avg`
-    area_maskice : array_like
-        Masked area used in generating `avg`
-    _data : array_like
-        Input `data` masked by `isheet_mask`
+        Masked and area-weighted average of ``data``
+    isheet_mask : ``array_like``
+        Mask of ice sheet used in generating ``avg``
+    area_maskice : ``array_like``
+        Masked area used in generating ``avg``
+    _data : ``array_like``
+        Input ``data`` masked by ``isheet_mask``
 
     """
     try:
@@ -744,15 +744,15 @@ def compute_clevs(
 
     Parameters
     ----------
-    data : dictionary
+    data : dict
         Masked array of data for which to compute contour levels
     bnds : tuple, optional
         Upper / lower percentiles to use for bounds (default: (5%, 95%))
     even : bool, optional
         Use an even interval about 0 (default: False)
     keys : list, optional
-        List of keys within `data` for which bounds will be computed, default is all
-        keys in `data`
+        List of keys within ``data`` for which bounds will be computed, default is all
+        keys in ``data``
 
     Returns
     -------
