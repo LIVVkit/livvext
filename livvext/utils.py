@@ -1,31 +1,31 @@
 # coding=utf-8
-"""Utilities for generating LIVVkit reports of LIVVext results.
-"""
-from __future__ import absolute_import, print_function, unicode_literals
+"""Utilities for generating LIVVkit reports of LIVVext results."""
 
 import operator as op
+from collections.abc import Iterable
+from functools import singledispatch
 
 import pybtex.database
 import pybtex.io
-import six
 from pybtex.backends.html import Backend as BaseBackend
 from pybtex.style.formatting.plain import Style as PlainStyle
 
 
 class HTMLBackend(BaseBackend):
     """Extends ``pybtex.backends.html.Backend``"""
+
     def __init__(self, *args, **kwargs):
-        super(HTMLBackend, self).__init__(*args, **kwargs)
+        super().__init__()
         self._html = ""
 
     def output(self, html):
+        """Append HTML to the _html attribute."""
         self._html += html
 
     def format_protected(self, text):
         if text[:4] == "http":
             return self.format_href(text, text)
-        else:
-            return r'<span class="bibtex-protected">{}</span>'.format(text)
+        return f'<span class="bibtex-protected">{text}</span>'
 
     def write_prologue(self):
         self.output('<div class="bibliography"><dl>')
@@ -42,33 +42,41 @@ class HTMLBackend(BaseBackend):
         return self._html.replace("\n", " ").replace("\\url <a", "<a")
 
 
-# FIXME: For python 3.7+ only...
-# from functools import singledispatch
-# from collections.abc import Iterable
-#
-# # noinspection PyUnusedLocal
-# @singledispatch
-# def bib2html(bib, style=None, backend=None):
-#     raise NotImplementedError('I do not now how to convert a {} type to a bibliography'.format(type(bib)))
+@singledispatch
 def bib2html(bib, style=None, backend=None):
-    """Convert a bibtex bibliography to HTML.
     """
-    if isinstance(bib, six.string_types):
-        return _bib2html_string(bib, style=style, backend=backend)
-    if isinstance(bib, (list, set, tuple)):
-        return _bib2html_list(bib, style=style, backend=backend)
-    if isinstance(bib, pybtex.database.BibliographyData):
-        return _bib2html_bibdata(bib, style=style, backend=backend)
-    else:
-        raise NotImplementedError(
-            "I do not now how to convert a {} type to a bibliography".format(type(bib))
-        )
+    Convert a BibTeX bibliography to HTML.
+
+    Parameters
+    ----------
+    bib : `str`, `Iterable`, ``pybtex.database.BibliographyData``
+        Location of bibliograph(y, ies), or a ``pybtex.database.BibliographyData``
+    style : _type_, optional
+        Bibliography style to output, by default None, which uses
+        ``pybtex.style.formatting.plain.Style``
+    backend : , optional
+        HTML backend to format HTML output, by default None, which uses
+        ``pybtex.backends.html.Backend``
+
+    Returns
+    -------
+    bib_html : str
+        Bibliography in HTML format as a string
+
+    Raises
+    ------
+    NotImplementedError
+        If ``bib`` is not a `str`, `Iterable`, or ``pybtex.database.BibliographyData``,
+        raise `NotImplementedError`
+
+    """
+    raise NotImplementedError(
+        f"I do not now how to convert a {type(bib)} type to a bibliography"
+    )
 
 
-# FIXME: For python 3.7+ only...
-# @bib2html.register
-# def _bib2html_string(bib: str, style=None, backend=None):
-def _bib2html_string(bib, style=None, backend=None):
+@bib2html.register
+def _bib2html_string(bib: str, style=None, backend=None):
     if style is None:
         style = PlainStyle()
     if backend is None:
@@ -79,10 +87,8 @@ def _bib2html_string(bib, style=None, backend=None):
     return backend._repr_html(formatted_bib)
 
 
-# FIXME: For python 3.7+ only...
-# @bib2html.register
-# def _bib2html_list(bib: Iterable, style=None, backend=None):
-def _bib2html_list(bib, style=None, backend=None):
+@bib2html.register
+def _bib2html_list(bib: Iterable, style=None, backend=None):
     if style is None:
         style = PlainStyle()
     if backend is None:
@@ -102,10 +108,8 @@ def _bib2html_list(bib, style=None, backend=None):
     return backend._repr_html(formatted_bib)
 
 
-# FIXME: For python 3.7+ only...
-# @bib2html.register
-# def _bib2html_bibdata(bib: pybtex.database.BibliographyData, style=None, backend=None):
-def _bib2html_bibdata(bib, style=None, backend=None):
+@bib2html.register
+def _bib2html_bibdata(bib: pybtex.database.BibliographyData, style=None, backend=None):
     if style is None:
         style = PlainStyle()
     if backend is None:
@@ -139,10 +143,13 @@ def eval_expr(expr):
             raise ValueError(
                 f"EXPRESSION {expr} MUST ONLY CONTAIN MATHEMATICAL EXPRESSION"
             )
-        else:
-            _expr_out = eval(_code, {"__builtins__": {}})
+        _expr_out = eval(_code, {"__builtins__": {}})
     elif isinstance(expr, (int, float)):
         _expr_out = expr
+    else:
+        raise NotImplementedError(
+            f"EXPRESSION OF TYPE ({type(expr)}) COULD NOT BE PARSED"
+        )
     return _expr_out
 
 
@@ -198,9 +205,9 @@ def extract_vars(expr):
 
     """
     if len(expr) >= 3:
-        operator, *operands = expr
+        _, *operands = expr
     else:
-        operator, operands = expr
+        _, operands = expr
 
     operand_queue = []
     for _operand in operands:
