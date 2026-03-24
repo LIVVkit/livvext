@@ -50,7 +50,9 @@ with fn.TempSysPath(os.path.dirname(__file__)):
 from loguru import logger
 
 PAGE_DOCS = {
-    "gis": """Validation of the Greenland Ice Sheet (GrIS) surface mass balance by
+    # Documentation summary for SMB analysis
+    "smbgl": {
+        "gis": """Validation of the Greenland Ice Sheet (GrIS) surface mass balance by
 comparing modeled surface mass balance to estimates from in situ measurements
 and airborne radar.
 
@@ -67,9 +69,19 @@ the 2013 and 2014 season are used (Lewis et al., 2017).
 Some figures below are delineated by drainage basins, which are based on Zwally
 et al. (2012).
 """,
-    "ais": """Validation of the Antarctic Ice Sheet (AIS) surface mass balance by
-comparison to RACMO reanalysis.
+        "ais": """Validation of the Antarctic Ice Sheet (AIS) surface mass balance by
+comparison to gridded RACMO reanalysis.
 """,
+    },
+    # Documentation summary for CMB analysis
+    "Climatic Mass Balance": {
+        "gis": """Validation of the Greenland Ice Sheet (GrIS) climatic mass balance by
+comparison to gridded RACMO reanalysis. [CMB = (Precip - (Runoff + Sublimation)]
+""",
+        "ais": """Validation of the Antarctic Ice Sheet (AIS) climatic mass balance by
+comparison to gridded RACMO reanalysis. [CMB = (Precip - (Runoff + Sublimation)]
+""",
+    },
 }
 
 base_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
@@ -197,7 +209,7 @@ def run(name, config):
     logger.info(f"FINISHED SMB_ICECORES WITH OUTPUT TO {img_dir}")
     return el.Page(
         name,
-        PAGE_DOCS[config.get("icesheet", "gis")],
+        PAGE_DOCS[config.get("primary_var", "smbgl")][config.get("icesheet", "gis")],
         elements=[run_summary, el.Tabs(tabs)],
     )
 
