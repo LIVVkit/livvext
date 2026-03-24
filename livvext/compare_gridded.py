@@ -164,6 +164,29 @@ def get_figure(n_dsets, proj=None, icesheet="gis"):
 
 
 def main(args, config, sea="ANN"):
+    """
+    Generate comparison plots for a particular season.
+
+    Parameters
+    ----------
+    args : `argparse.Namespace`
+        Command line arguments
+    config : dict
+        LIVVkit configuration dictionary
+    sea : str, optional
+        "Season" identifier, either DJF, MAM, JJA, SON, ANN, or 1--12 for monthly data,
+        by default "ANN"
+
+    Returns
+    -------
+    list, dict
+        Returns the list of `livvkit.elements`
+
+    Raises
+    ------
+    NotImplementedError
+        _description_
+    """
     units = config.get("units", "UNITS UNKNOWN")
     icesheet = config.get("icesheet", "gis").lower()
     # List of fields (by their common name) which are averaged ann/seasonally/monthly

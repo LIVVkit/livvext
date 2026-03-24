@@ -50,11 +50,11 @@ def bib2html(bib, style=None, backend=None):
     Parameters
     ----------
     bib : `str`, `Iterable`, ``pybtex.database.BibliographyData``
-        Location of bibliograph(y, ies), or a ``pybtex.database.BibliographyData``
-    style : _type_, optional
+        Location of bibliograph(y, ies), or a `pybtex.database.BibliographyData`
+    style : `pybtex.style.formatting.BaseStyle`, optional
         Bibliography style to output, by default None, which uses
         ``pybtex.style.formatting.plain.Style``
-    backend : , optional
+    backend : `pybtex.backends.BaseBackend`, optional
         HTML backend to format HTML output, by default None, which uses
         ``pybtex.backends.html.Backend``
 
@@ -66,7 +66,7 @@ def bib2html(bib, style=None, backend=None):
     Raises
     ------
     NotImplementedError
-        If ``bib`` is not a `str`, `Iterable`, or ``pybtex.database.BibliographyData``,
+        If ``bib`` is not a `str`, `Iterable`, or `pybtex.database.BibliographyData`,
         raise `NotImplementedError`
 
     """
