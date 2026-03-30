@@ -22,6 +22,17 @@ The Python package itself is described in `pyproject.toml`, which is used by
 Currently, LIVVext is designed to run on NERSC's Perlmutter, and ANL-LCRC's Chrysalis,
 but future work is planned to support other machines where E3SM runs.
 
+## Zppy
+For post-processing E3SM runs, the [zppy](https://docs.e3sm.org/zppy/_build/html/main/index.html) tool is
+recommended, as it now includes a LIVVkit task, which allows for the creation of the required
+climatology and timeseries files on which LIVVext depends.
+
+See the [zppy tutorial](https://docs.e3sm.org/zppy/_build/html/main/tutorial.html) and
+[the LIVVkit example](https://github.com/E3SM-Project/zppy/blob/main/examples/post.v3.livvkit.cfg) configuration
+file for further details.
+
+# LIVVext stand-alone workflow
+
 ## Environment setup
 
 For setting up an environment to which LIVVext and dependencies will be
@@ -35,7 +46,7 @@ environment management tool for LIVVext.
 
 
 First, pixi must be installed locally following [these instructions](https://pixi.prefix.dev/latest/installation/),
-then an enviornment for LIVVext development can be created:
+then an environment for LIVVext development can be created:
 ```bash
 $ git clone https://github.com/LIVVkit/LIVVext.git
 $ cd LIVVext
