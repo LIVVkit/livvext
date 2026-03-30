@@ -144,8 +144,8 @@ def test_bib2html():
         '<a href="https://doi.org/https://doi.org/10.1016/j.procs.2017.05.259">'
         "doi:https://doi.org/10.1016/j.procs.2017.05.259</a>.</dd> </dl></div>"
     )
-    example_str = "example.bib"
-    example_list = ["example.bib", "example2.bib"]
+    example_str = "tests/example.bib"
+    example_list = ["tests/example.bib", "tests/example2.bib"]
     example_bibliography = pybtex.database.parse_file(example_str)
 
     assert lxu.bib2html(example_str) == expected
