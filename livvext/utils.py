@@ -1,29 +1,31 @@
 # coding=utf-8
-
-from __future__ import absolute_import, print_function, unicode_literals
+"""Utilities for generating LIVVkit reports of LIVVext results."""
 
 import operator as op
+from collections.abc import Iterable
+from functools import singledispatch
 
 import pybtex.database
 import pybtex.io
-import six
 from pybtex.backends.html import Backend as BaseBackend
 from pybtex.style.formatting.plain import Style as PlainStyle
 
 
 class HTMLBackend(BaseBackend):
+    """Extends ``pybtex.backends.html.Backend``"""
+
     def __init__(self, *args, **kwargs):
-        super(HTMLBackend, self).__init__(*args, **kwargs)
+        super().__init__()
         self._html = ""
 
     def output(self, html):
+        """Append HTML to the _html attribute."""
         self._html += html
 
     def format_protected(self, text):
         if text[:4] == "http":
             return self.format_href(text, text)
-        else:
-            return r'<span class="bibtex-protected">{}</span>'.format(text)
+        return f'<span class="bibtex-protected">{text}</span>'
 
     def write_prologue(self):
         self.output('<div class="bibliography"><dl>')
@@ -40,31 +42,41 @@ class HTMLBackend(BaseBackend):
         return self._html.replace("\n", " ").replace("\\url <a", "<a")
 
 
-# FIXME: For python 3.7+ only...
-# from functools import singledispatch
-# from collections.abc import Iterable
-#
-# # noinspection PyUnusedLocal
-# @singledispatch
-# def bib2html(bib, style=None, backend=None):
-#     raise NotImplementedError('I do not now how to convert a {} type to a bibliography'.format(type(bib)))
+@singledispatch
 def bib2html(bib, style=None, backend=None):
-    if isinstance(bib, six.string_types):
-        return _bib2html_string(bib, style=style, backend=backend)
-    if isinstance(bib, (list, set, tuple)):
-        return _bib2html_list(bib, style=style, backend=backend)
-    if isinstance(bib, pybtex.database.BibliographyData):
-        return _bib2html_bibdata(bib, style=style, backend=backend)
-    else:
-        raise NotImplementedError(
-            "I do not now how to convert a {} type to a bibliography".format(type(bib))
-        )
+    """
+    Convert a BibTeX bibliography to HTML.
+
+    Parameters
+    ----------
+    bib : `str`, `Iterable`, ``pybtex.database.BibliographyData``
+        Location of bibliograph(y, ies), or a `pybtex.database.BibliographyData`
+    style : `pybtex.style.formatting.BaseStyle`, optional
+        Bibliography style to output, by default None, which uses
+        ``pybtex.style.formatting.plain.Style``
+    backend : `pybtex.backends.BaseBackend`, optional
+        HTML backend to format HTML output, by default None, which uses
+        ``pybtex.backends.html.Backend``
+
+    Returns
+    -------
+    bib_html : str
+        Bibliography in HTML format as a string
+
+    Raises
+    ------
+    NotImplementedError
+        If ``bib`` is not a `str`, `Iterable`, or `pybtex.database.BibliographyData`,
+        raise `NotImplementedError`
+
+    """
+    raise NotImplementedError(
+        f"I do not now how to convert a {type(bib)} type to a bibliography"
+    )
 
 
-# FIXME: For python 3.7+ only...
-# @bib2html.register
-# def _bib2html_string(bib: str, style=None, backend=None):
-def _bib2html_string(bib, style=None, backend=None):
+@bib2html.register
+def _bib2html_string(bib: str, style=None, backend=None):
     if style is None:
         style = PlainStyle()
     if backend is None:
@@ -75,10 +87,8 @@ def _bib2html_string(bib, style=None, backend=None):
     return backend._repr_html(formatted_bib)
 
 
-# FIXME: For python 3.7+ only...
-# @bib2html.register
-# def _bib2html_list(bib: Iterable, style=None, backend=None):
-def _bib2html_list(bib, style=None, backend=None):
+@bib2html.register
+def _bib2html_list(bib: Iterable, style=None, backend=None):
     if style is None:
         style = PlainStyle()
     if backend is None:
@@ -98,10 +108,8 @@ def _bib2html_list(bib, style=None, backend=None):
     return backend._repr_html(formatted_bib)
 
 
-# FIXME: For python 3.7+ only...
-# @bib2html.register
-# def _bib2html_bibdata(bib: pybtex.database.BibliographyData, style=None, backend=None):
-def _bib2html_bibdata(bib, style=None, backend=None):
+@bib2html.register
+def _bib2html_bibdata(bib: pybtex.database.BibliographyData, style=None, backend=None):
     if style is None:
         style = PlainStyle()
     if backend is None:
@@ -135,10 +143,13 @@ def eval_expr(expr):
             raise ValueError(
                 f"EXPRESSION {expr} MUST ONLY CONTAIN MATHEMATICAL EXPRESSION"
             )
-        else:
-            _expr_out = eval(_code, {"__builtins__": {}})
+        _expr_out = eval(_code, {"__builtins__": {}})
     elif isinstance(expr, (int, float)):
         _expr_out = expr
+    else:
+        raise NotImplementedError(
+            f"EXPRESSION OF TYPE ({type(expr)}) COULD NOT BE PARSED"
+        )
     return _expr_out
 
 
@@ -150,11 +161,11 @@ def extract_ds(expr, dset, name=False):
     ----------
     expr : list
         List of expressions where first element is operator, subsequent
-        two elements are operands, either numeric values, fields within `dset`,
+        two elements are operands, either numeric values, fields within ``dset``,
         or an expression of this kind.
         (e.g. ["^", ["+", ["*", "U", "U"], ["*", "V", "V"]], "0.5"] for the wind velocity)
     dset : xarray.Dataset
-        Dataset which contains the fields described in `expr`
+        Dataset which contains the fields described in ``expr``
     name : bool, optional
         If true, output the string of the interpreterd expression rather than its result
 
@@ -194,9 +205,9 @@ def extract_vars(expr):
 
     """
     if len(expr) >= 3:
-        operator, *operands = expr
+        _, *operands = expr
     else:
-        operator, operands = expr
+        _, operands = expr
 
     operand_queue = []
     for _operand in operands:
@@ -227,9 +238,9 @@ def apply_operator(operands, operator, name=False):
 
     Returns
     -------
-    output : (type(operands), str)
+    output : (type(``operands``), str)
         Returns the result of the mathematical expression, with the same type as
-        `operands[0]` or a string representation of the expression
+        ``operands[0]`` or a string representation of the expression
 
     """
     ops = {
@@ -262,7 +273,7 @@ def extract_name(expr):
     ----------
     expr : list
         List of expressions where first element is operator, subsequent
-        two elements are operands, either numeric values, fields within `dset`,
+        two elements are operands, either numeric values, fields within ``dset``,
         or an expression of this kind.
         (e.g. ["^", ["+", ["*", "U", "U"], ["*", "V", "V"]], "0.5"] for the wind velocity)
 

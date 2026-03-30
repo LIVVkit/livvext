@@ -13,6 +13,15 @@ ALL_SETS = "cmb,smb,energy_racmo,energy_era5,energy_merra2,energy_ceres"
 
 
 def args():
+    """
+    Parse command line arguments.
+
+    Returns
+    -------
+    args : `argparse.Namespace`
+        Parsed command line arguments
+
+    """
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
@@ -76,10 +85,35 @@ def args():
         help="Flag to be called from zppy, makes grid parsed",
     )
 
+    parser.add_argument(
+        "--version",
+        action="version",
+        version=f"LIVVext v{livvext.__version__}",
+        help="Show LIVVext's version number and exit",
+    )
+
     return parser.parse_args()
 
 
 def gen_cfg(cfg_template, params, cfg_out):
+    """
+    Generate and write LIVVext configuration file from template and parameters.
+
+    Parameters
+    ----------
+    cfg_template : `pathlib.Path`
+        Path to input Jinja2 template
+    params : `dict`
+        Parameters which are passed to the template
+    cfg_out : `pathlib.Path`
+        Path to which the completed template is written
+
+    Returns
+    -------
+    cfg_out : `pathlib.Path`
+        Path to which the completed template is written
+
+    """
     jenv = jinja2.Environment(
         loader=jinja2.FileSystemLoader(cfg_template.resolve().parent)
     )
@@ -119,21 +153,19 @@ def parse_sets(sheets, sets):
 
 
 def main():
+    """Load machine defaults, determine analyses to be written, fill in LIVVext template."""
     cl_args = args()
     mach = mache.discover_machine()
     mach_info = mache.MachineInfo()
 
     defaults = {
         "chrysalis": {
-            "livvproj_dir": Path("/lcrc/group/e3sm/livvkit"),
             "model_ts_dir": Path("/lcrc/group/e3sm/ac.zender/scratch/livvkit"),
             "grid_dir": Path("/lcrc/group/e3sm/zender/grids"),
         },
         "pm-cpu": {
-            "livvproj_dir": Path("/global/cfs/cdirs/e3sm/livvkit"),
             "model_ts_dir": Path("/global/cfs/projectdirs/e3sm/zender/livvkit"),
             "grid_dir": Path("/global/cfs/cdirs/e3sm/zender/grids"),
-            "racmo_root_dir": Path("/global/cfs/cdirs/fanssie/racmo/2.4.1"),
         },
     }
     climo_dirs = {}
@@ -157,6 +189,18 @@ def main():
     _mach_defaults["e3sm_diags_data_dir"] = Path(
         mach_info.config.get("diagnostics", "base_path")
     )
+    _mach_defaults["livvproj_dir"] = Path(
+        mach_info.config.get("diagnostics", "base_path"),
+        "livvkit_data",
+    )
+    _mach_defaults["racmo_root_dir"] = Path(
+        mach_info.config.get("diagnostics", "base_path"),
+        "observations",
+        "Land",
+        "racmo",
+        "2.4.1",
+    )
+
     params = {
         **_mach_defaults,
         "case_id": cl_args.case,

@@ -1,0 +1,23 @@
+common: &common
+    meta: &meta
+      Case ID: [{{ case_id }}]
+      Climatology years: [1980-2020]
+      Model: [E3SM-ELM]
+    climo: {{ case_out_dir }}/{{ case_id }}.{clim}_mean.nc
+    topo: {{ case_out_dir }}/{{ case_id }}.ANN_mean.nc
+    latv: lat
+    lonv: lon
+    topov: topo
+
+{% if run_gis %}
+# Greenland
+{% if set_cmb %}
+Climatic_Mass_Balance_GIS:
+  module: livvext/smb/smb_icecores.py
+  <<: [*common]
+  scales:
+    { model: 365 * 24 * 3600, dset_a: 365 * 24 * 3600 }
+  primary_var: Climatic Mass Balance
+  desc: "{component} component of CMB from {data_var_names}"
+{% endif %}
+{% endif %}

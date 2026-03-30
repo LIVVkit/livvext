@@ -1,5 +1,5 @@
 import numpy as np
-
+import pybtex
 import livvext.utils as lxu
 
 ### DEFINE FORMULAS
@@ -114,3 +114,46 @@ def test_vars():
     assert sorted(lxu.extract_vars(seb_merra)) == sorted(
         ["rsds", "rsus", "rlus", "rlds", "hfss", "hfls"]
     )
+
+
+def test_bib2html():
+    expected = (
+        '<div class="bibliography"><dl><dt>1</dt> <dd>M.&nbsp;E. Kelleher and '
+        "S.&nbsp;Mahajan. Enhanced climate reproducibility testing with false "
+        "discovery rate correction. <em>Earth System Dynamics</em>, 17(1):23–39, "
+        '2026. URL: <a href="https://esd.copernicus.org/articles/17/23/2026/">'
+        "https://esd.copernicus.org/articles/17/23/2026/</a>, "
+        '<a href="https://doi.org/10.5194/esd-17-23-2026">doi:10.5194/esd-17-23-2026'
+        "</a>.</dd> </dl></div>"
+    )
+    expected_two = (
+        '<div class="bibliography"><dl><dt>1</dt> <dd>M.&nbsp;E. Kelleher and S.&nbsp;'
+        "Mahajan. Enhanced climate reproducibility testing with false discovery rate "
+        "correction. <em>Earth System Dynamics</em>, 17(1):23–39, 2026. URL: "
+        '<a href="https://esd.copernicus.org/articles/17/23/2026/">'
+        "https://esd.copernicus.org/articles/17/23/2026/</a>, "
+        '<a href="https://doi.org/10.5194/esd-17-23-2026">doi:10.5194/esd-17-23-2026'
+        "</a>.</dd> <dt>2</dt> <dd>Salil Mahajan, Abigail&nbsp;L. Gaddis, "
+        "Katherine&nbsp;J. Evans, and Matthew&nbsp;R. Norman. Exploring an "
+        "ensemble-based approach to atmospheric climate modeling and testing at scale. "
+        "<em>Procedia Computer Science</em>, 108:735 &ndash; 744, 2017. International"
+        " Conference on Computational Science, ICCS 2017, 12-14 June 2017, Zurich, "
+        "Switzerland. URL: "
+        '<a href="http://www.sciencedirect.com/science/article/pii/S1877050917308906">'
+        "http://www.sciencedirect.com/science/article/pii/S1877050917308906</a>, "
+        '<a href="https://doi.org/https://doi.org/10.1016/j.procs.2017.05.259">'
+        "doi:https://doi.org/10.1016/j.procs.2017.05.259</a>.</dd> </dl></div>"
+    )
+    example_str = "tests/example.bib"
+    example_list = ["tests/example.bib", "tests/example2.bib"]
+    example_bibliography = pybtex.database.parse_file(example_str)
+
+    assert lxu.bib2html(example_str) == expected
+    assert lxu.bib2html(example_list) == expected_two
+    assert lxu.bib2html(example_bibliography) == expected
+
+    # Single-dispatch for <int> is not implemented, so an exception should be raised
+    try:
+        lxu.bib2html(5)
+    except NotImplementedError:
+        pass
