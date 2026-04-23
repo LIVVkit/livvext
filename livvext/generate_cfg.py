@@ -61,6 +61,7 @@ def args():
         "--sets",
         "-s",
         type=str,
+        default="all",
         help=(
             "Analysis sets to run: cmb, smb, energy_racmo, energy_era5, "
             "energy_merra2, energy_ceres, or all to run all available"
@@ -70,6 +71,7 @@ def args():
     parser.add_argument(
         "--icesheets",
         "-i",
+        default="all",
         type=str,
         help=(
             "Comma separated icesheets to analyse (ais for Antarctica,"
@@ -185,7 +187,7 @@ def main():
 
     case_dir = Path(cl_args.casedir)
 
-    _mach_defaults = defaults[mach]
+    _mach_defaults = defaults.get(mach, {})
     _mach_defaults["e3sm_diags_data_dir"] = Path(
         mach_info.config.get("diagnostics", "base_path")
     )
