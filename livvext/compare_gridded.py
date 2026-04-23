@@ -217,10 +217,23 @@ def main(args, config, sea="ANN"):
             **lxc.load_obs(config, sea, mode=mode),
         }
     else:
-        all_data = {
-            "model": xr.open_dataset(lxc.proc_climo_file(config, "climo_remap", sea)),
-            **lxc.load_obs(config, sea, mode=mode),
-        }
+        try:
+            all_data = {
+                **lxc.load_obs(config, sea, mode=mode),
+            }
+        except KeyError:
+            # Means there's no obs data, so just move on to model data
+            all_data = {}
+
+        if "climo_remap" in config:
+            all_data["model"] = xr.open_dataset(
+                lxc.proc_climo_file(config, "climo_remap", sea)
+            )
+        else:
+            all_data["model"] = xr.open_dataset(
+                lxc.proc_climo_file(config, "climo", sea)
+            )
+
     for _vers in all_data:
         all_data[_vers] = lxc.check_longitude(all_data[_vers])
 
@@ -396,7 +409,7 @@ def main(args, config, sea="ANN"):
 
         _cmin_d = data_var.get("cmin_d", None)
         _cmax_d = data_var.get("cmax_d", None)
-        if _cmin_d is None or _cmax_d is None:
+        if (_cmin_d is None or _cmax_d is None) and diffs:
             cmin_d, cmax_d = lxc.compute_clevs(
                 data=diffs,
                 even=True,
@@ -479,13 +492,15 @@ def main(args, config, sea="ANN"):
                 cnrtxt=cnrtxt,
                 icesheet=icesheet,
             )
-        if n_dsets_to_plot == 3:
-            add_colorbar(_cfd, fig, axes[2 + n_dsets_to_plot], _units, ndsets)
-        else:
-            add_colorbar(
-                _cfd, fig, axes[-1], _units, ndsets=n_dsets_to_plot, cbar_span=False
-            )
-            plt.tight_layout()
+        if diff_names:
+            # Only add the difference colourbar when there's a diff field
+            if n_dsets_to_plot == 3:
+                add_colorbar(_cfd, fig, axes[2 + n_dsets_to_plot], _units, ndsets)
+            else:
+                add_colorbar(
+                    _cfd, fig, axes[-1], _units, ndsets=n_dsets_to_plot, cbar_span=False
+                )
+        plt.tight_layout()
 
         img_file = os.path.join(
             args.out,

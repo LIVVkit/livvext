@@ -22,7 +22,11 @@ Sign of component based on its contribution to total.
 
 def main(args, config):
     """Load climatology for model and "observational" data sets, create plots."""
-    _files = [lxc.proc_climo_file(config, "climo_remap", mon) for mon in range(1, 13)]
+    if "climo_remap" in config:
+        _clim_key = "climo_remap"
+    else:
+        _clim_key = "climo"
+    _files = [lxc.proc_climo_file(config, _clim_key, mon) for mon in range(1, 13)]
     model_data = xr.open_mfdataset(
         _files,
         combine="nested",
@@ -30,16 +34,32 @@ def main(args, config):
     )
 
     mons = [f"{mon:02d}" for mon in np.arange(0, 12) + 1]
-    obs_data = lxc.load_obs(
-        config, sea=mons, mode="_monthlyPSR_", single_ds="dset_a", expect_one_time=False
-    )
+
+    if "dset_a" in config:
+        obs_data = lxc.load_obs(
+            config,
+            sea=mons,
+            mode="_monthlyPSR_",
+            single_ds="dset_a",
+            expect_one_time=False,
+        )
+    else:
+        obs_data = {}
+
     obs_aavg = {}
     model_aavg = {}
     diffs_aavg = {}
     mask_r = {}
     area_r = {}
 
-    fig, axes = plt.subplots(1, 2, figsize=(12, 5), sharey=True)
+    # Going to be Model + number of obs datasets
+    nplts = len(obs_data) + 1
+    if nplts == 2:
+        fig, axes = plt.subplots(1, 2, figsize=(12, 5), sharey=True)
+    else:
+        fig, axes = plt.subplots(1, 1, figsize=(12, 12))
+        axes = [axes]
+
     mons = np.arange(1, 12 + 1)
     obs_data_out = {}
     model_data_out = {}
@@ -78,7 +98,7 @@ def main(args, config):
         mask_r[data_var["title"]] = {}
         area_r[data_var["title"]] = {}
 
-        for _vers in ["dset_a"]:
+        for _vers in _obs_in:
             obs_aavg[data_var["title"]][_vers], mask_r[_vers], area_r[_vers], _ = (
                 lxc.area_avg(
                     _obs_in[_vers],
@@ -91,6 +111,7 @@ def main(args, config):
                     sum_out=_do_sum,
                 )
             )
+
         model_aavg[data_var["title"]], _, _, _ = lxc.area_avg(
             _model_plt,
             {},
@@ -106,48 +127,40 @@ def main(args, config):
             color = f"C{idx}"
             lw = 1.1
 
-        _obs_plt = (
-            obs_aavg[data_var["title"]]["dset_a"]
-            * data_var["ac_contrib_sign"]["dset_a"]
-            * _aavg_scale
-        )
+        _obs_plt = None
+        if obs_aavg[data_var["title"]].get("dset_a", None) is not None:
+            _obs_plt = (
+                obs_aavg[data_var["title"]]["dset_a"]
+                * data_var["ac_contrib_sign"]["dset_a"]
+                * _aavg_scale
+            )
+            obs_data_out[data_var["title"]] = _obs_plt
         # if isinstance(_obs_plt, np.ma.masked_array):
         #     _obs_plt = _obs_plt.compressed().squeeze()
 
         _model_plt = (
             model_aavg[data_var["title"]]
-            * data_var["ac_contrib_sign"]["model"]
+            * data_var.get("ac_contrib_sign", {}).get("model", 1)
             * 365
             * _aavg_scale
         )
-        obs_data_out[data_var["title"]] = _obs_plt
+
         model_data_out[data_var["title"]] = _model_plt
 
         var_label = f" {data_var['title']}"
         axes[0].plot(mons, _model_plt, label=var_label, color=color, marker=".", lw=lw)
-        axes[1].plot(
-            mons,
-            _obs_plt.squeeze(),
-            label=var_label,
-            color=color,
-            marker=".",
-            lw=lw,
-        )
+        if _obs_plt:
+            axes[1].plot(
+                mons,
+                _obs_plt.squeeze(),
+                label=var_label,
+                color=color,
+                marker=".",
+                lw=lw,
+            )
         logger.info(f"DONE - WORKING ON {data_var['title']}")
 
-    obs_data_out["month"] = np.arange(1, 12 + 1)
     model_data_out["month"] = np.arange(1, 12 + 1)
-
-    obs_data_out = pd.DataFrame(obs_data_out)
-    obs_data_out.index = obs_data_out["month"]
-
-    obs_data_out.to_csv(
-        Path(
-            args.out,
-            f"annual_cycle_{lxc.img_file_prefix(config)}"
-            f"{config['dataset_names']['dset_a'].replace(' ', '_').replace('.', '_')}.csv",
-        )
-    )
     model_data_out = pd.DataFrame(model_data_out)
     model_data_out.index = model_data_out["month"]
     model_data_out.to_csv(
@@ -157,6 +170,18 @@ def main(args, config):
             f"{config['dataset_names']['model']}.csv",
         )
     )
+    if "dset_a" in config:
+        obs_data_out["month"] = np.arange(1, 12 + 1)
+        obs_data_out = pd.DataFrame(obs_data_out)
+        obs_data_out.index = obs_data_out["month"]
+
+        obs_data_out.to_csv(
+            Path(
+                args.out,
+                f"annual_cycle_{lxc.img_file_prefix(config)}"
+                f"{config['dataset_names']['dset_a'].replace(' ', '_').replace('.', '_')}.csv",
+            )
+        )
 
     if _aavg_units == "":
         axes[0].set_ylabel(f"[{config['units']}]")
@@ -170,7 +195,8 @@ def main(args, config):
         axis.legend(fontsize=8)
 
     _ = axes[0].set_title(config["dataset_names"]["model"])
-    _ = axes[1].set_title(config["dataset_names"]["dset_a"])
+    if len(axes) > 1:
+        _ = axes[1].set_title(config["dataset_names"]["dset_a"])
 
     plt.tight_layout()
 
@@ -181,9 +207,13 @@ def main(args, config):
     img_link = os.path.join(
         "imgs", os.path.basename(args.out), os.path.basename(img_file)
     )
+    _names = {**config["dataset_names"]}
+    if "dset_a" not in _names:
+        _names["dset_a"] = ""
+
     img_elem = el.Image(
         "SMB component annual cycles",
-        " ".join(DESCRIBE_COMPONENTS.split()).format(**config["dataset_names"]),
+        " ".join(DESCRIBE_COMPONENTS.split()).format(**_names),
         img_link,
         height=args.img_height,
         group=f"{IMG_GROUP}_ANN",

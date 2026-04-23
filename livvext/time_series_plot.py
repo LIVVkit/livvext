@@ -100,6 +100,7 @@ def main(args, config):
             _obs_in[rvers] = lxc.parse_var(
                 data_var[rvers], obs_data[rvers], _scale[rvers]
             )
+
         try:
             _model_plt = lxc.parse_var(data_var["model"], model_data, _scale["model"])
         except KeyError:
@@ -111,7 +112,8 @@ def main(args, config):
         mask_r[data_var["title"]] = {}
         area_r[data_var["title"]] = {}
 
-        for _vers in ["dset_a"]:
+        # for _vers in ["dset_a"]:
+        for _vers in obs_data:
             obs_aavg[data_var["title"]][_vers], mask_r[_vers], area_r[_vers], _ = (
                 lxc.area_avg(
                     _obs_in[_vers],
@@ -124,13 +126,13 @@ def main(args, config):
                     sum_out=_do_sum,
                 )
             )
-
+        _model_area_file = config["masks"].get(
+            "model_native", config["masks"].get("model")
+        )
         model_aavg[data_var["title"]], _, _, _ = lxc.area_avg(
             _model_plt,
             {},
-            area_file=config["masks"]["model_native"].format(
-                icesheet=config["icesheet"]
-            ),
+            area_file=_model_area_file.format(icesheet=config["icesheet"]),
             area_var="area",
             mask_var="Icemask",
             sum_out=_do_sum,
@@ -140,29 +142,53 @@ def main(args, config):
         lw = 1.1
         _contrib_signs = data_var.get("ac_contrib_sign", None)
         if _contrib_signs is not None:
-            obs_contrib_sign = _contrib_signs.get("dset_a", 1)
             model_contrib_sign = _contrib_signs.get("model", 1)
         else:
-            obs_contrib_sign = 1
             model_contrib_sign = 1
 
-        _obs_plt = (
-            obs_aavg[data_var["title"]]["dset_a"] * obs_contrib_sign * _aavg_scale
-        ).squeeze()
-        try:
-            _model_plt = (
-                model_aavg[data_var["title"]]
-                * model_contrib_sign
-                * _aavg_scale
-                * lxu.eval_expr(_scale["model"])
+        # _obs_plt = (
+        #     obs_aavg[data_var["title"]]["dset_a"] * obs_contrib_sign * _aavg_scale
+        # ).squeeze()
+        _obs_plt = {}
+        for _dset in obs_aavg[data_var["title"]]:
+            if _contrib_signs is not None:
+                obs_contrib_sign = _contrib_signs.get(_dset, 1)
+            else:
+                obs_contrib_sign = 1
+            _obs_plt[_dset] = (
+                obs_aavg[data_var["title"]][_dset] * obs_contrib_sign * _aavg_scale
             )
-        except TypeError:
-            raise
+
+        _model_plt = (
+            model_aavg[data_var["title"]]
+            * model_contrib_sign
+            * _aavg_scale
+            * lxu.eval_expr(_scale["model"])
+        )
 
         model_m, model_b, model_t = compute_trend(ts_data["model"].time, _model_plt)
-        obs_m, obs_b, obs_t = compute_trend(ts_data["dset_a"].time, _obs_plt)
+        obs_trends = {}
+        for _dset in ts_data:
+            if "model" not in _dset:
+                obs_trends[_dset] = compute_trend(ts_data[_dset].time, _obs_plt)
 
-        fig, axes = plt.subplots(1, 2, figsize=(12, 5), sharey=True)
+        nplts = len(_obs_plt) + 1
+        _ncols = np.ceil(np.sqrt(nplts))
+        _nrows = np.ceil(nplts / _ncols)
+        if _ncols == _nrows:
+            figsize = (12, 12)
+        else:
+            figsize = (12, 5)
+
+        fig, axes = plt.subplots(
+            nrows=int(_nrows), ncols=int(_ncols), figsize=figsize, sharey=True
+        )
+
+        if nplts > 1:
+            axes = axes.flatten()
+        else:
+            axes = [axes]
+
         var_label = f" {data_var['title']}"
 
         # Plot model time series
@@ -185,25 +211,29 @@ def main(args, config):
 
         axes[0].set_xlabel("Model Time")
 
-        # Plot obs time series
-        axes[1].plot(
-            ts_data["dset_a"].time,
-            _obs_plt.squeeze(),
-            label=var_label,
-            color=color,
-            lw=lw,
-        )
-        # Plot obs trend line
-        axes[1].plot(
-            ts_data["dset_a"].time,
-            obs_m * obs_t + obs_b,
-            label=f"{obs_m:.3e} * t + {obs_b:.3e}",
-            color="k",
-            lw=lw * 0.9,
-            ls="--",
-        )
+        for obix, _dset in enumerate(_obs_plt):
+            # Plot obs time series
+            axes[obix + 1].plot(
+                ts_data[_dset].time,
+                _obs_plt.squeeze(),
+                label=var_label,
+                color=color,
+                lw=lw,
+            )
+            # Plot obs trend line
+            obs_m, obs_b, obs_t = obs_trends[_dset]
+            axes[obix + 1].plot(
+                ts_data[_dset].time,
+                obs_m * obs_t + obs_b,
+                label=f"{obs_m:.3e} * t + {obs_b:.3e}",
+                color="k",
+                lw=lw * 0.9,
+                ls="--",
+            )
 
-        axes[1].set_xlabel(f"Time ({config['dataset_names']['dset_a']})")
+            axes[obix + 1].set_xlabel(f"Time ({config['dataset_names'][_dset]})")
+            _ = axes[obix + 1].set_title(config["dataset_names"][_dset])
+
         for _axis in axes:
             _axis.grid(visible=True, ls="--")
 
@@ -221,7 +251,6 @@ def main(args, config):
             "model", config["dataset_names"].get("model_native")
         )
         _ = axes[0].set_title(_modelname)
-        _ = axes[1].set_title(config["dataset_names"]["dset_a"])
         plt.tight_layout()
         if not Path(args.out).exists():
             Path(args.out).mkdir(parents=True)
