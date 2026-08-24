@@ -248,6 +248,10 @@ def main(args, config):
             axes[0].set_ylabel(f"[{_aavg_units}]")
             _trend_units = f"{_aavg_units}/yr"
 
+        # If units are already a flux per year, make it read per year^2
+        if _trend_units[-8:] == "yr^-1/yr":
+            _trend_units = _trend_units.replace(_trend_units[-8:], "yr^-2")
+
         for axis in axes:
             axis.grid(visible=True, ls="--", lw=0.5)
             axis.legend(fontsize=8)
