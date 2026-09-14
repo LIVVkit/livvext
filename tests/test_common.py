@@ -152,7 +152,9 @@ def test_proc_climo_file():
         "E3SMCASE.F2010.ne4pg2_oQU480_10_190010_202010_climo.nc",
     ]
     for idx, _season in enumerate(test_seasons):
-        assert lxc.proc_climo_file(config_non_jan, "test_1", _season) == truth_non_jan[idx]
+        assert (
+            lxc.proc_climo_file(config_non_jan, "test_1", _season) == truth_non_jan[idx]
+        )
 
 
 def test_get_cycle():
