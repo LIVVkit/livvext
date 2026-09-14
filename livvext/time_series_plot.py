@@ -175,10 +175,15 @@ def main(args, config):
         nplts = len(_obs_plt) + 1
         _ncols = np.ceil(np.sqrt(nplts))
         _nrows = np.ceil(nplts / _ncols)
-        if _ncols == _nrows:
+        if _ncols == _nrows > 1:
             figsize = (12, 12)
+            fontsize_legend = 8
+        elif _ncols == _nrows == 1:
+            figsize = (12, 6)
+            fontsize_legend = 12
         else:
             figsize = (12, 5)
+            fontsize_legend = 8
 
         fig, axes = plt.subplots(
             nrows=int(_nrows),
@@ -213,7 +218,7 @@ def main(args, config):
             ls="--",
         )
 
-        axes[0].set_xlabel("Model Time [year]")
+        axes[0].set_xlabel("Model Time [year]", fontsize=fontsize_legend)
 
         for obix, _dset in enumerate(_obs_plt):
             # Plot obs time series
@@ -235,17 +240,19 @@ def main(args, config):
                 ls="--",
             )
 
-            axes[obix + 1].set_xlabel(f"Time ({config['dataset_names'][_dset]})")
+            axes[obix + 1].set_xlabel(
+                f"Time ({config['dataset_names'][_dset]})", fontsize=fontsize_legend
+            )
             _ = axes[obix + 1].set_title(config["dataset_names"][_dset])
 
         for _axis in axes:
             _axis.grid(visible=True, ls="--")
 
         if _aavg_units == "":
-            axes[0].set_ylabel(f"[{_units}]")
+            axes[0].set_ylabel(f"[{_units}]", fontsize=fontsize_legend)
             _trend_units = f"{_units}/yr"
         else:
-            axes[0].set_ylabel(f"[{_aavg_units}]")
+            axes[0].set_ylabel(f"[{_aavg_units}]", fontsize=fontsize_legend)
             _trend_units = f"{_aavg_units}/yr"
 
         # If units are already a flux per year, make it read per year^2
@@ -254,7 +261,7 @@ def main(args, config):
 
         for axis in axes:
             axis.grid(visible=True, ls="--", lw=0.5)
-            axis.legend(fontsize=8)
+            axis.legend(fontsize=fontsize_legend)
         _modelname = config["dataset_names"].get(
             "model", config["dataset_names"].get("model_native")
         )
