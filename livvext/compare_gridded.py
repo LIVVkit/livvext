@@ -83,6 +83,7 @@ def annotate_plot(
     cnrtxt=None,
     gridline_args=None,
     icesheet="gis",
+    stats=None,
 ):
     """Add land / ocean, gridlines, colourbar."""
     axis.coastlines(linewidth=0.1)
@@ -122,16 +123,27 @@ def annotate_plot(
     if ylabel is not None:
         axis.set_ylabel(ylabel)
 
-    if cnrtxt is not None:
-        plt.figtext(
-            0.98,
-            0.02,
-            s=f"Avg.\n{cnrtxt}",
-            horizontalalignment="right",
-            verticalalignment="bottom",
-            transform=axis.transAxes,
-            bbox={"facecolor": "grey", "alpha": 0.1},
-        )
+    if cnrtxt is not None and stats is None:
+        _text = f"Avg.\n{cnrtxt}"
+    elif stats is not None:
+        _text = ""
+        for _stat in ["min", "max", "avg"]:
+            _text += f"{_stat.capitalize()}: {stats[_stat]:.3g}\n"
+
+        if "units" in stats:
+            _text += stats["units"]
+        else:
+            _text = _text[:-1]
+
+    plt.figtext(
+        0.98,
+        0.02,
+        s=_text,
+        horizontalalignment="right",
+        verticalalignment="bottom",
+        transform=axis.transAxes,
+        bbox={"facecolor": "grey", "alpha": 0.1},
+    )
 
 
 def get_figure(n_dsets, proj=None, icesheet="gis", config={}):
@@ -309,7 +321,9 @@ def main(args: argparse.Namespace, config: dict, sea: str | int = "ANN"):
                 diffs[_diffnm[2]] = _plt_data[_diffnm[0]].values * np.nan
 
         all_aavg = {}
+        all_stats = {}
         diffs_aavg = {}
+        diffs_stats = {}
         mask_r = {}
         area_r = {}
 
@@ -318,6 +332,8 @@ def main(args: argparse.Namespace, config: dict, sea: str | int = "ANN"):
             _aavg_scale = aavg_config["scale"]
             _do_sum = aavg_config["sum"]
             _aavg_units = aavg_config["units"]
+            all_stats["aavg_units"] = aavg_config["units"]
+            diffs_stats["aavg_units"] = aavg_config["units"]
         else:
             _aavg_scale = 1.0
             _do_sum = False
@@ -336,7 +352,18 @@ def main(args: argparse.Namespace, config: dict, sea: str | int = "ANN"):
                 sum_out=_do_sum,
                 land_only=config.get("mask_ocean", {}).get(_vers, False),
             )
+            all_stats[_vers] = {
+                "min": np.nanmin(_plt_data[_vers]),
+                "max": np.nanmax(_plt_data[_vers]),
+                "avg": all_aavg[_vers],
+            }
+
             all_aavg[_vers] *= _aavg_scale
+            for _stat in all_stats[_vers]:
+                all_stats[_vers][_stat] *= _aavg_scale
+
+            if all_stats.get("aavg_units"):
+                all_stats[_vers]["units"] = all_stats.get("aavg_units")
 
         aavg_out[data_var["title"]] = {
             config["dataset_names"][_vers]: all_aavg[_vers] for _vers in all_aavg
@@ -352,7 +379,18 @@ def main(args: argparse.Namespace, config: dict, sea: str | int = "ANN"):
                 sum_out=_do_sum,
                 land_only=config.get("mask_ocean", {}).get(_ds2, False),
             )
+            diffs_stats[_diffname] = {
+                "min": np.nanmin(diffs[_diffname]),
+                "max": np.nanmax(diffs[_diffname]),
+                "avg": diffs_aavg[_diffname],
+            }
             diffs_aavg[_diffname] *= _aavg_scale
+            for _stat in diffs_stats[_diffname]:
+                diffs_stats[_diffname][_stat] *= _aavg_scale
+
+            if diffs_stats.get("aavg_units"):
+                diffs_stats[_diffname]["units"] = diffs_stats.get("aavg_units")
+
             _longname = (
                 f"{config['dataset_names'][_ds1]} - {config['dataset_names'][_ds2]}"
             )
@@ -401,6 +439,7 @@ def main(args: argparse.Namespace, config: dict, sea: str | int = "ANN"):
 
         _cmin = data_var.get("cmin", None)
         _cmax = data_var.get("cmax", None)
+
         if _cmin is None or _cmax is None:
             cmin, cmax = lxc.compute_clevs(
                 data=_plt_data,
@@ -408,6 +447,17 @@ def main(args: argparse.Namespace, config: dict, sea: str | int = "ANN"):
                 bnds=(5, 95),
                 keys=dsets_to_plot,
             )
+            # Repeat this if the cmin and cmax are both 0, until
+            # cmin is min of the data, cmax is max of the data
+            _bnd = 5
+            while cmin == cmax == 0 and _bnd > 0:
+                _bnd -= 1
+                cmin, cmax = lxc.compute_clevs(
+                    data=_plt_data,
+                    even=config.get("clim_even", False),
+                    bnds=(_bnd, 100 - _bnd),
+                    keys=dsets_to_plot,
+                )
 
         # Allows for cmin/cmax to be set indivdually in the config file per field
         if _cmin is not None:
@@ -461,6 +511,7 @@ def main(args: argparse.Namespace, config: dict, sea: str | int = "ANN"):
                 label=config["dataset_names"][_vers],
                 cnrtxt=cnrtxt,
                 icesheet=icesheet,
+                stats=all_stats[_vers],
             )
 
         if n_dsets_to_plot == 3:
@@ -499,6 +550,7 @@ def main(args: argparse.Namespace, config: dict, sea: str | int = "ANN"):
                 ),
                 cnrtxt=cnrtxt,
                 icesheet=icesheet,
+                stats=diffs_stats[_diffnm],
             )
         if diff_names:
             # Only add the difference colourbar when there's a diff field
