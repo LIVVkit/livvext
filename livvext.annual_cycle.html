@@ -132,6 +132,16 @@
             </div>
         
 
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#one_axis" class="internal-link" title="livvext.annual_cycle.one_axis">one<wbr></wbr>_axis</a></code>
+            </div>
+        
+
     </li>
 </ul> 
 
@@ -267,6 +277,16 @@
         
 
         
+            <div class="itemName"><code><a href="livvext.snow.html" class="internal-link" title="livvext.snow">snow</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
             <div class="itemName"><code><a href="livvext.time_series_plot.html" class="internal-link" title="livvext.time_series_plot">time<wbr></wbr>_series<wbr></wbr>_plot</a></code>
             </div>
         
@@ -353,7 +373,7 @@
         </div>
 
         <div class="extrasDocstring">
-          <a href="https://github.com/LIVVkit/livvext/tree/17a004005c330a0a5582e040db9910fe94f1037c/livvext/annual_cycle.py" class="sourceLink">(source)</a>
+          <a href="https://github.com/LIVVkit/livvext/tree/7da772996d4bb709f5feb1fa8fa4370723322685/livvext/annual_cycle.py" class="sourceLink">(source)</a>
         </div>
 
         <div class="moduleDocstring">
@@ -369,6 +389,11 @@
     <td>Function</td>
     <td><code><a href="#main" class="internal-link" title="livvext.annual_cycle.main">main</a></code></td>
     <td>Load climatology for model and "observational" data sets, create plots.</td>
+  </tr><tr class="function">
+    
+    <td>Function</td>
+    <td><code><a href="#one_axis" class="internal-link" title="livvext.annual_cycle.one_axis">one<wbr></wbr>_axis</a></code></td>
+    <td>Given a list of LIVVkit data_vars, check if all annual cycles should be plotted on the same axis.</td>
   </tr><tr class="constant">
     
     <td>Constant</td>
@@ -405,7 +430,7 @@
     
     
     <span class="py-keyword">def</span>&#160;<span class="py-defname">main</span><span class="function-signature">(<span class="rst-sig-param">args, </span><span class="rst-sig-param">config</span>):</span>
-    <a class="sourceLink" href="https://github.com/LIVVkit/livvext/tree/17a004005c330a0a5582e040db9910fe94f1037c/livvext/annual_cycle.py#L23">
+    <a class="sourceLink" href="https://github.com/LIVVkit/livvext/tree/7da772996d4bb709f5feb1fa8fa4370723322685/livvext/annual_cycle.py#L32">
       
       (source)
     </a>
@@ -419,6 +444,34 @@
     
     <div><p>Load climatology for model and "observational" data sets, create plots.</p></div>
   </div>
+</div><div class="basefunction">
+  
+  
+  <a name="livvext.annual_cycle.one_axis">
+    
+  </a>
+  <a name="one_axis">
+    
+  </a>
+  <div class="functionHeader">
+    
+    
+    <span class="py-keyword">def</span>&#160;<span class="py-defname">one_axis</span><span class="function-signature">(<span class="rst-sig-param">data_vars</span>):</span>
+    <a class="sourceLink" href="https://github.com/LIVVkit/livvext/tree/7da772996d4bb709f5feb1fa8fa4370723322685/livvext/annual_cycle.py#L23">
+      
+      (source)
+    </a>
+    <a class="headerLink" href="#one_axis" title="livvext.annual_cycle.one_axis">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p>Given a list of LIVVkit data_vars, check if all annual cycles should be plotted on
+the same axis.</p></div>
+  </div>
 </div><div class="baseconstant">
   
   
@@ -431,7 +484,7 @@
   <div class="functionHeader">
     
     <span class="py-defname">DAYS_PER_MONTH</span> =
-    <a class="sourceLink" href="https://github.com/LIVVkit/livvext/tree/17a004005c330a0a5582e040db9910fe94f1037c/livvext/annual_cycle.py#L15">
+    <a class="sourceLink" href="https://github.com/LIVVkit/livvext/tree/7da772996d4bb709f5feb1fa8fa4370723322685/livvext/annual_cycle.py#L15">
       
       (source)
     </a>
@@ -444,7 +497,7 @@
   <div class="functionBody">
     
     <div><p class="undocumented">Undocumented</p></div>
-    <table class="valueTable"><tr class="fieldStart"><td class="fieldName">Value</td></tr><tr><td><pre class="constant-value"><code>np.array(<wbr></wbr>[<wbr></wbr>31, <wbr></wbr>28, <wbr></wbr>31, <wbr></wbr>30, <wbr></wbr>31, <wbr></wbr>30, <wbr></wbr>31, <wbr></wbr>31, <wbr></wbr>30, <wbr></wbr>31, <wbr></wbr>30, <wbr></wbr>31])</code></pre></td></tr></table>
+    <table class="valueTable"><tr class="fieldStart"><td class="fieldName">Value</td></tr><tr><td><pre class="constant-value"><code><a href="http://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html#numpy.array" class="intersphinx-link">np.array</a>(<wbr></wbr>[<wbr></wbr>31, <wbr></wbr>28, <wbr></wbr>31, <wbr></wbr>30, <wbr></wbr>31, <wbr></wbr>30, <wbr></wbr>31, <wbr></wbr>31, <wbr></wbr>30, <wbr></wbr>31, <wbr></wbr>30, <wbr></wbr>31])</code></pre></td></tr></table>
   </div>
 </div><div class="baseconstant">
   
@@ -457,8 +510,8 @@
   </a>
   <div class="functionHeader">
     
-    <span class="py-defname">DESCRIBE_COMPONENTS</span>: <code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code> =
-    <a class="sourceLink" href="https://github.com/LIVVkit/livvext/tree/17a004005c330a0a5582e040db9910fe94f1037c/livvext/annual_cycle.py#L17">
+    <span class="py-defname">DESCRIBE_COMPONENTS</span>: <code><a href="https://docs.python.org/3/builtins/stdtypes.html#str" class="intersphinx-link">str</a></code> =
+    <a class="sourceLink" href="https://github.com/LIVVkit/livvext/tree/7da772996d4bb709f5feb1fa8fa4370723322685/livvext/annual_cycle.py#L17">
       
       (source)
     </a>
@@ -487,8 +540,8 @@
   </a>
   <div class="functionHeader">
     
-    <span class="py-defname">IMG_GROUP</span>: <code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code> =
-    <a class="sourceLink" href="https://github.com/LIVVkit/livvext/tree/17a004005c330a0a5582e040db9910fe94f1037c/livvext/annual_cycle.py#L16">
+    <span class="py-defname">IMG_GROUP</span>: <code><a href="https://docs.python.org/3/builtins/stdtypes.html#str" class="intersphinx-link">str</a></code> =
+    <a class="sourceLink" href="https://github.com/LIVVkit/livvext/tree/7da772996d4bb709f5feb1fa8fa4370723322685/livvext/annual_cycle.py#L16">
       
       (source)
     </a>
@@ -516,7 +569,7 @@
     <div class="container-fluid">
       <a href="index.html">API Documentation</a> for <a href="https://github.com/LIVVkit/livvext" class="projecthome">LIVVext</a>,
     generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a>
-      25.10.1 at 2026-04-23 16:56:27.
+      25.10.1 at 2026-09-15 18:57:34.
     </div>
     
     <script src="ajax.js" type="text/javascript"></script>
