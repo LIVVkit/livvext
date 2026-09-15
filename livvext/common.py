@@ -24,6 +24,8 @@ from numpy import ma
 import livvext.utils as lxu
 
 TFORM = ccrs.PlateCarree()
+"""Transform for data on a regular lat / lon grid."""
+
 SEASON_NAME = {
     "ANN": "annual",
     "DJF": "winter",
@@ -31,8 +33,14 @@ SEASON_NAME = {
     "MAM": "spring",
     "SON": "autumn",
 }
+"""Map seasonal (MMM) abbreviations to human-readable names for seasons."""
+
 MON_NAMES = [dt.datetime(2000, mon, 1).strftime("%b") for mon in range(1, 12 + 1)]
+"""List of short month names (Jan, Feb, ...)."""
+
 DAYS_PER_MONTH = np.array([31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31])
+"""`np.ndarray` of number of days per month."""
+
 DAYS_PER_SEASON = {
     "DJF": (31 + 31 + 28),
     "MAM": (31 + 30 + 31),
@@ -43,9 +51,10 @@ DAYS_PER_SEASON = {
     "JAS": (31 + 31 + 30),
     "OND": (31 + 30 + 31),
 }
+"""Map seasonal (MMM) abbreviations to number of days per season."""
 
 
-def img_file_prefix(config):
+def img_file_prefix(config: dict) -> str:
     """Convert the module name into a file prefix for the image output."""
     # Just use the filename for the top-level module
     # maybe in the future this is fancier...but not now
@@ -53,7 +62,7 @@ def img_file_prefix(config):
     return mod_name
 
 
-def check_longitude(data, lon_coord="lon"):
+def check_longitude(data: xr.Dataset | xr.DataArray, lon_coord: str = "lon"):
     """Check that longitudes are -180 - +180."""
     lon = data[lon_coord]
     _data = data
@@ -80,46 +89,110 @@ def check_longitude(data, lon_coord="lon"):
     return _data
 
 
-def get_season_bounds(season, year_s, year_e):
+def get_season_bounds(
+    season: str | int | float,
+    year_s: int,
+    year_e: int,
+    mon_s: int = None,
+    mon_e: int = None,
+) -> tuple[str]:
     """Determine season bounds for climatology files."""
     _seasons = {
-        "DJF": (1, 12),
+        "DJF": (12, 2),
         "MAM": (3, 5),
         "JJA": (6, 8),
         "SON": (9, 11),
+        "JFM": (1, 3),
+        "AMJ": (4, 6),
+        "JAS": (7, 9),
+        "OND": (10, 12),
         "ANN": (1, 12),
     }
+    if mon_s is not None and mon_e is None:
+        mon_e = (mon_s + 10) % 12 + 1
+    if mon_e is not None and mon_s is None:
+        mon_s = (mon_e % 12) + 1
+
+    if mon_s is None and mon_e is None:
+        mon_s = 1
+        mon_e = 12
+
+    # Borrowing from Charlie Zender's ncclimo
+    yyyymm_first = -1
+    yyyymm_last = -1
+
+    mth_idx = mon_s
+    yr_idx = year_s
 
     if season in _seasons:
-        _lb, _ub = _seasons[season]
-        _lb = f"{_lb:02d}"
-        _ub = f"{_ub:02d}"
-    else:
-        # Assume "season" is a month
-        if isinstance(season, str):
-            if len(season) == 1:
-                try:
-                    _lb = f"{int(season):02d}"
-                    _ub = f"{int(season):02d}"
-                except (ValueError, TypeError) as _err:
-                    logger.error(f"UNKNOWN SEASON TYPE: {season}")
-                    raise (_err)
+        sea_s, sea_e = _seasons[season]
+        while True:
+            yyyymm_crr = yr_idx * 100 + mth_idx
+            month_in_season = False
+            if sea_s <= sea_e:
+                # season doesn't span years e.g. MAM, OND
+                if (mth_idx >= sea_s) and (mth_idx <= sea_e):
+                    month_in_season = True
             else:
-                _lb = season
-                _ub = season
-        elif isinstance(season, int):
-            _lb = f"{int(season):02d}"
-            _ub = f"{int(season):02d}"
+                # Season spans years (e.g. DJF)
+                if (mth_idx >= sea_s) or (mth_idx <= sea_e):
+                    month_in_season = True
+            if month_in_season:
+                if yyyymm_first < 0:
+                    yyyymm_first = yyyymm_crr
+                yyyymm_last = yyyymm_crr
+
+            if (mth_idx == mon_e) and (yr_idx == year_e):
+                # This is the last month available, break out of the loop and end
+                break
+
+            mth_idx += 1
+            if mth_idx > 12:
+                # start at Jan of the next year
+                mth_idx = 1
+                yr_idx += 1
+
+        year_first = yyyymm_first // 100
+        year_last = yyyymm_last // 100
+
+        month_first = yyyymm_first % 100
+        month_last = yyyymm_last % 100
+
+    else:
+        # Assume this "season" is a month
+        if isinstance(season, str):
+            try:
+                _mon = int(season)
+            except (ValueError, TypeError) as _err:
+                logger.error(f"UNKNOWN SEASON TYPE: {season}")
+                raise (_err)
+
+        elif isinstance(season, int) or isinstance(season, float):
+            _mon = int(season)
         else:
             logger.error(f"UNKNOWN SEASON TYPE: {season}")
 
-    bound_l = f"{year_s:04d}{_lb}"
-    bound_u = f"{year_e:04d}{_ub}"
+        if mon_s != 1 and mon_e != 12:
+            if _mon >= mon_s:
+                year_first = year_s
+                year_last = year_e - 1
+            else:
+                year_first = year_s + 1
+                year_last = year_e
+        else:
+            year_first = year_s
+            year_last = year_e
+
+        month_first = _mon
+        month_last = _mon
+
+    bound_l = f"{year_first:04d}{month_first:02d}"
+    bound_u = f"{year_last:04d}{month_last:02d}"
 
     return bound_l, bound_u
 
 
-def proc_climo_file(config, file_tag, sea):
+def proc_climo_file(config: dict, file_tag: str, sea: str) -> str:
     """
     Process the climatology file to maintain backward compatibility with standalone LEX.
 
@@ -140,9 +213,16 @@ def proc_climo_file(config, file_tag, sea):
 
     """
     _filename = config[file_tag]
+    mon_s = config.get("mon_s", None)
+    mon_e = config.get("mon_e", None)
+
     if "{sea_s}" in _filename:
         sea_s, sea_e = get_season_bounds(
-            sea, config.get("year_s", None), config.get("year_e", None)
+            sea,
+            config.get("year_s", None),
+            config.get("year_e", None),
+            mon_s,
+            mon_e,
         )
         if isinstance(sea, int):
             sea = f"{sea:02d}"
@@ -166,95 +246,33 @@ def get_cycle(sea):
     return cycle
 
 
-def gen_file_list_old(
-    config: dict,
-    var_name: list | tuple | str,
-    overs: str,
-    sea: list | tuple | str,
-    cycle: str,
-    mode: str,
-):
-    var_files = []
-
-    def _fcn_filt(_var):
-        _fcn_names = ["formula", "+", "-", "/", "*", "^", "sum", "diff"]
-        return _var not in _fcn_names
-
-    def var_file(_var, _mode, _sea):
-        return config["file_patterns"][overs].format(
-            _var=_var,
-            season=_sea,
-            mode=_mode,
-        )
-
-    if isinstance(var_name, str) and isinstance(sea, str):
-        var_files = [
-            Path(
-                config["in_dirs"][overs].format(cycle=cycle),
-                var_file(var_name, mode, sea),
-            )
-        ]
-
-    elif isinstance(var_name, str) and isinstance(sea, (list, tuple)):
-        var_files = [
-            Path(
-                config["in_dirs"][overs].format(cycle=cycle),
-                var_file(var_name, mode, _sea),
-            )
-            for _sea in sea
-        ]
-
-    elif isinstance(var_name, (list, tuple)) and isinstance(sea, str):
-        _file_vars = lxu.extract_vars(var_name)
-
-        var_files = [
-            Path(
-                config["in_dirs"][overs].format(cycle=cycle),
-                config["file_patterns"][overs].format(
-                    _var=ivar,
-                    season=sea,
-                    mode=mode,
-                ),
-            )
-            for ivar in _file_vars
-        ]
-
-    elif isinstance(var_name, (list, tuple)) and isinstance(sea, (list, tuple)):
-        var_files = []
-        _file_vars = lxu.extract_vars(var_name)
-
-        for _sea in sea:
-            var_files.extend(
-                [
-                    Path(
-                        config["in_dirs"][overs].format(cycle=cycle),
-                        var_file(ivar, mode, _sea),
-                    )
-                    for ivar in _file_vars
-                ]
-            )
-
-    for idx, _file in enumerate(var_files):
-        if not _file.exists():
-            # First swap climoS_ANN for ANN_climoS:
-            new_name = _file.name.replace("climoS_ANN", "ANN_climoS")
-            _test_file = Path(*var_files[-1].parts[:-1], new_name)
-            if not _test_file.exists():
-                # Now swap climoA for climoS (avg for sum)
-                new_name = new_name.replace("climoS", "climoA")
-                _test_file = Path(*var_files[-1].parts[:-1], new_name)
-                if not _test_file.exists():
-                    new_name = new_name.replace("ANN_climoA", "climoA_ann")
-                    _test_file = Path(*var_files[-1].parts[:-1], new_name)
-                    if not _test_file.exists():
-                        new_name = _file.name.replace("PSR_", "A_")
-
-            var_files[idx] = Path(*var_files[-1].parts[:-1], new_name)
-
-    return var_files
-
-
 def var_filename_format(file_pattern, _var, isheet, _sea, year_s, year_e, sep="_"):
+    """
+    Fill in a LIVVext defined string template for a particular variable, season, and run.
+
+    Parameters
+    ----------
+    file_pattern : `str`
+        Filename template with spots for variable, icesheet, and season start / end
+    _var : `str`
+        Model or observational field name
+    isheet : `str`
+       Icesheet name (gis or ais)
+    _sea : `str`
+        Season name or month number (e.g. ANN, DJF,..., '01' or 1)
+    year_s : `int`
+        Start year of climatology
+    year_e : `int`
+        End year of climatology
+    sep : `str`, optional
+        Separator within the template, if defined. By default "_"
+
+    Returns
+    -------
+    `str`
+        Formatted filename
+
+    """
     sea_s, sea_e = get_season_bounds(_sea, year_s, year_e)
     if isinstance(_sea, int):
         season = f"{_sea:02d}"
@@ -275,7 +293,33 @@ def gen_file_list(
     overs: str,
     sea: list | tuple | str,
     cycle: str,
-):
+) -> list[Path]:
+    """
+    Generate a list of files to be loaded for a particular dataset climatology.
+
+    Parameters
+    ----------
+    config : dict
+        LIVVext configuratrion dictionary. Must have keys:
+            - ``file_patterns``: the file match pattern for each dataset
+            - ``in_dirs``: Absolute path to directory for each dataset
+            - ``clim_years``: Start and end year for climatology
+            - ``icesheet``: Icesheet identifier (optional, defaults to gis)
+    var_name : list | tuple | str
+        Name or list/tuple of names of fields to be loaded, each in a separate file
+    overs : str
+        Observation version (dset_a, dset_b, ..., or model)
+    sea : list | tuple | str
+        Season or list/tuple of seasons to be loaded
+    cycle : str
+        Climatology averaging period (e.g. ann, sea, mon)
+
+    Returns
+    -------
+    list[Path]
+        List of full file paths to be loaded
+
+    """
     var_files = []
 
     def _fcn_filt(_var):
@@ -340,7 +384,34 @@ def gen_file_list(
 
 
 def load_obs(config, sea="ANN", mode="climoS", single_ds=None, expect_one_time=True):
-    """ """
+    """
+    Load observational (or reanalysis) data.
+
+    Parameters
+    ----------
+    config : dict
+        LIVVext configuratrion dictionary. Must have keys:
+            - ``in_dirs``: the input directories each dataset
+            - ``data_vars``: the variables to be analyzed
+            - ``file_patterns``: the file match pattern for each dataset
+            - ``in_dirs``: Absolute path to directory for each dataset
+            - ``clim_years``: Start and end year for climatology
+            - ``icesheet``: Icesheet identifier (optional, defaults to gis)
+    sea : str, optional
+        Season or month (e.g. ANN, DJF, '01', 1), by default "ANN"
+    mode : str, optional
+        Climatology mode, for sum (climoS), average (climoA), by default "climoS"
+    single_ds : str, optional
+        Load only one dataset, by default None, load all datasets in ``config["in_dirs"]``
+    expect_one_time : bool, optional
+        Assume dataset has a single time per file, by default True
+
+    Returns
+    -------
+    dict[`xr.Dataset`]
+        Dictionary of `xr.Dataset` s, one for each dataset in ``config["in_dirs"]``.
+
+    """
     files = {}
     obs_data = {}
 
@@ -390,6 +461,24 @@ def gen_file_list_timeseries(
     var_name: list | tuple | str,
     overs: str,
 ):
+    """
+    Similar to `gen_file_list` but for timeseries data. Generate list of files to load.
+
+    Parameters
+    ----------
+    config : dict
+        LIVVext configuratrion dictionary.
+    var_name : list | tuple | str
+        Field name or list/tuple of field names to be loaded
+    overs : str
+        "Observational" dataset version (e.g. dset_a, dset_b, ..., or model)
+
+    Returns
+    -------
+    list[Path]
+        List of absolute paths to input dataset files
+
+    """
     var_files = []
 
     def _fcn_filt(_var):
@@ -439,8 +528,25 @@ def gen_file_list_timeseries(
 
 
 @logger.catch
-def load_timeseries_data(config):
-    """Load data for timeseries."""
+def load_timeseries_data(config: dict):
+    """
+    Load data for timeseries.
+
+    Parameters
+    ----------
+    config : `dict`
+        LIVVext configuration dictionary. Should have keys:
+            - ``timeseries_dirs``
+            - ``data_vars``
+            - ``dataset_names``
+            - Other keys as required by ``get_file_list_timeseries``
+
+    Returns
+    -------
+    dict[`xr.Dataset`]
+        Dictionary of datasets for each dataset in ``config["timeseries_dirs"]``
+
+    """
     files = {}
     obs_data = {}
 
@@ -479,7 +585,31 @@ def load_timeseries_data(config):
     return obs_data
 
 
-def parse_var(data_var, dataset, scale):
+def parse_var(
+    data_var: list | tuple | str, dataset: xr.Dataset, scale: float | int | str
+) -> xr.DataArray:
+    """
+    Parse a data_var formula or name.
+
+    Parameters
+    ----------
+    data_var : `list` | `tuple` | `str`
+        data_var definition, if a list or tuple, this is a formula for
+        computing a derived field, if a string, this is a native output
+        field from the dataset. See `livvext.utils.extract_ds` for more details.
+    dataset : `xr.Dataset`
+        Input `xr.Dataset`
+    scale : `float` | `int` | `str`
+        Scale the ``data_var`` field after computation by ``scale``. Can be
+        numeric or a string representation (e.g. 1e-6, 32.5, or "365 * 24").
+        See `livvext.utils.eval_expr` for more details.
+
+    Returns
+    -------
+    `xr.DataArray`
+        Xarray DataArray of the field of intrest
+
+    """
     if isinstance(scale, (int, float)):
         _scale = scale
     else:
@@ -492,7 +622,21 @@ def parse_var(data_var, dataset, scale):
     return _vardata.squeeze() * _scale
 
 
-def parse_var_name(data_var):
+def parse_var_name(data_var: list | tuple | str) -> str:
+    """
+    Parse a LIVVext ``data_var`` formula or native netCDF field name string.
+
+    Parameters
+    ----------
+    data_var : `list` | `tuple` | `str`
+        LIVVext ``data_var`` formula if list or tuple, native output field name if string
+
+    Returns
+    -------
+    `str`
+        String representation of the output field or formula
+
+    """
     if isinstance(data_var, str):
         _out = data_var
     elif isinstance(data_var, (list, tuple)):
@@ -501,14 +645,14 @@ def parse_var_name(data_var):
 
 
 def area_avg(
-    data,
-    config,
-    area_file,
-    area_var,
-    mask_file=None,
-    mask_var=None,
-    sum_out=False,
-    land_only=False,
+    data: xr.DataArray | np.ndarray,
+    config: dict,
+    area_file: Path,
+    area_var: str,
+    mask_file: Path = None,
+    mask_var: str = None,
+    sum_out: bool = False,
+    land_only: bool = False,
 ):
     """
     Compute a masked and weighted area average of some field.
@@ -528,6 +672,11 @@ def area_avg(
     mask_var : str, optional
         Name of the netCDF variable which contains the ice sheet mask data, if not
         set, then use ``maskv`` from ``config``
+    sum_out: bool, optional
+        Return the weighted sum rather than average. Defualt is False
+    land_only: bool, optional
+        Return the average or sum over grid cells which are 100% land so no
+        ocean cells are included. Default is False
 
     Returns
     -------
@@ -597,8 +746,29 @@ def area_avg(
     return _avg, isheet_mask, area_maskice, _data
 
 
-def closest_points(model_x, model_y, obs_x, obs_y):
-    """Determine closest model points to set of observation x/y points."""
+def closest_points(
+    model_x: np.ndarray, model_y: np.ndarray, obs_x: np.ndarray, obs_y: np.ndarray
+) -> tuple[np.ndarray]:
+    """Determine closest model points to set of observation x/y points.
+
+    Parameters
+    ----------
+    model_x : `np.ndarray`
+        Model x coordinate array (lon)
+    model_y : `np.ndarray`
+        Model y coordinate array (lat)
+    obs_x : `np.ndarray`
+        Observation x locations (lon)
+    obs_y : `np.ndarray`
+        Observation y locations (lat)
+
+    Returns
+    -------
+    tuple[np.ndarray]
+        Array of closest points, Array of indicies for observations on the model mesh
+        (nobs, ny, nx)
+
+    """
     # All points in model domain; convert to radians for kd tree query below
     if model_x.ndim == 2:
         lon2d = model_x
@@ -652,6 +822,10 @@ def summarize_result(result):
     status = "Success"
     if isinstance(result, livvkit.elements.Error):
         status = "Failure"
+    elif isinstance(result, livvkit.elements.CompositeElement):
+        _errs = [isinstance(_ele, livvkit.elements.Error) for _ele in result.elements]
+        if any(_errs):
+            status = "Failure"
 
     summary = LIVVDict()
     try:
@@ -668,6 +842,8 @@ def summarize_result(result):
     return summary
 
 
+# STUFF BELOW HERE IS PROBABLY UN-USED-------------------------------------------------
+# Should probably check and remove stuff that isn't needed anymore
 def annotate_plot(axis, color_field=None, label=None):
     """Add land / ocean, gridlines, colourbar."""
     axis.coastlines(linewidth=0.5)

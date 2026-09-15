@@ -46,6 +46,7 @@ def main(args, config):
         "8.0": "firebrick",
     }
     if accplot.shape[0] > 0:
+        fig, axis = plt.subplots(1, 1, figsize=(8, 8), dpi=config.get("img_dpi", 90))
         testplot = accplot.plot(
             kind="scatter",
             x="b",
@@ -54,7 +55,7 @@ def main(args, config):
             c=majorbasins.apply(lambda x: colors[x]),
             legend=True,
             alpha=0.1,
-            figsize=(8, 8),
+            ax=axis,
         )
     else:
         return []
@@ -67,7 +68,8 @@ def main(args, config):
     testplot.set_title("Accumulation")
 
     plt.tight_layout()
-    img_file = os.path.join(args.out, "IB_AccCompare.png")
+    ext = config.get("img_extn", "png")
+    img_file = os.path.join(args.out, f"IB_AccCompare.{ext}")
     plt.savefig(img_file)
     plt.close()
 

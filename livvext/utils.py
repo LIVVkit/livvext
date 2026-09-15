@@ -54,7 +54,7 @@ def bib2html(bib, style=None, backend=None):
     style : `pybtex.style.formatting.BaseStyle`, optional
         Bibliography style to output, by default None, which uses
         ``pybtex.style.formatting.plain.Style``
-    backend : `pybtex.backends.BaseBackend`, optional
+    backend : ``pybtex.backends.BaseBackend``, optional
         HTML backend to format HTML output, by default None, which uses
         ``pybtex.backends.html.Backend``
 

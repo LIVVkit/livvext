@@ -75,8 +75,8 @@ def json_to_yaml(in_file: Path, out_file: Path = None):
         yml.dump(cfg, _fout)
 
 
-def main(args):
-    """ """
+def main(args: argparse.Namespace):
+    """Parse command line arguments, run conversion from JSON(s) -> YAML(s)."""
     print(args)
     assert not (args.cfg_in and args.indir), "Supply only directory OR input file"
 

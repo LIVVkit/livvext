@@ -51,13 +51,15 @@ def run(name, config):
     """
     # TODO: Put your analysis here
     element_list = [
-        el.Error("Unimplemented test", "This test contains no analysis code!"),
+        el.RawHTML("Unimplemented test<br/>This test contains no analysis code!"),
         el.Table(
             title="Sample Table",
             data={"row1": [1, 2, 3], "row2": [4, 5, 6]},
             transpose=True,
         ),
     ]
+    if config.get("throw_exception", False):
+        raise ValueError("Testing failure mode...this is what an error looks like!")
 
     return el.Page(
         name,

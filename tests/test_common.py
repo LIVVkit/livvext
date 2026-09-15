@@ -76,6 +76,42 @@ def test_get_season_bounds():
             lxc.get_season_bounds(_testseason, test_year_s, test_year_e)
             == truth_out[idx]
         )
+    mon_s = 3
+    mon_e = 2
+    truth_out_mon = [
+        ("191503", "202002"),
+        ("191512", "202002"),
+        ("191503", "201905"),
+        ("191506", "201908"),
+        ("191509", "201911"),
+        ("191601", "202001"),
+        ("191601", "202001"),
+        ("191512", "201912"),
+    ]
+
+    for idx, _testseason in enumerate(test_seasons):
+        assert (
+            lxc.get_season_bounds(
+                _testseason, test_year_s, test_year_e, mon_s=mon_s, mon_e=mon_e
+            )
+            == truth_out_mon[idx]
+        )
+
+    # Test calling only mon_s
+    assert lxc.get_season_bounds("ANN", test_year_s, test_year_e, mon_s=5) == (
+        "191505",
+        "202004",
+    )
+    # Test calling only mon_e
+    assert lxc.get_season_bounds("ANN", test_year_s, test_year_e, mon_e=4) == (
+        "191505",
+        "202004",
+    )
+    # Test with start month in middle of season
+    assert lxc.get_season_bounds("MAM", test_year_s, test_year_e, mon_s=4) == (
+        "191504",
+        "202003",
+    )
 
 
 def test_proc_climo_file():
@@ -104,6 +140,21 @@ def test_proc_climo_file():
     for idx, _season in enumerate(test_seasons):
         assert lxc.proc_climo_file(config, "test_1", _season) == truth_1[idx]
         assert lxc.proc_climo_file(config, "test_2", _season) == truth_2[idx]
+
+    config_non_jan = dict(config)
+    config_non_jan["mon_s"] = 3
+    config_non_jan["mon_e"] = 12
+
+    truth_non_jan = [
+        "E3SMCASE.F2010.ne4pg2_oQU480_ANN_190003_202012_climo.nc",
+        "E3SMCASE.F2010.ne4pg2_oQU480_DJF_190012_202012_climo.nc",
+        "E3SMCASE.F2010.ne4pg2_oQU480_01_190001_202001_climo.nc",
+        "E3SMCASE.F2010.ne4pg2_oQU480_10_190010_202010_climo.nc",
+    ]
+    for idx, _season in enumerate(test_seasons):
+        assert (
+            lxc.proc_climo_file(config_non_jan, "test_1", _season) == truth_non_jan[idx]
+        )
 
 
 def test_get_cycle():

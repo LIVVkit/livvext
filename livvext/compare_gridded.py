@@ -3,12 +3,14 @@
 """Compare up to three gridded datasets. Typically one "Model" and 1 or 2 "Observations" """
 
 import os
+import argparse
 
 import matplotlib.path as mpath
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import xarray as xr
+from loguru import logger
 from cartopy import crs as ccrs
 from cartopy import feature as cfeature
 from livvkit import elements as el
@@ -81,6 +83,7 @@ def annotate_plot(
     cnrtxt=None,
     gridline_args=None,
     icesheet="gis",
+    stats=None,
 ):
     """Add land / ocean, gridlines, colourbar."""
     axis.coastlines(linewidth=0.1)
@@ -120,19 +123,30 @@ def annotate_plot(
     if ylabel is not None:
         axis.set_ylabel(ylabel)
 
-    if cnrtxt is not None:
-        plt.figtext(
-            0.98,
-            0.02,
-            s=f"Avg.\n{cnrtxt}",
-            horizontalalignment="right",
-            verticalalignment="bottom",
-            transform=axis.transAxes,
-            bbox={"facecolor": "grey", "alpha": 0.1},
-        )
+    if cnrtxt is not None and stats is None:
+        _text = f"Avg.\n{cnrtxt}"
+    elif stats is not None:
+        _text = ""
+        for _stat in ["min", "max", "avg"]:
+            _text += f"{_stat.capitalize()}: {stats[_stat]:.3g}\n"
+
+        if "units" in stats:
+            _text += stats["units"]
+        else:
+            _text = _text[:-1]
+
+    plt.figtext(
+        0.98,
+        0.02,
+        s=_text,
+        horizontalalignment="right",
+        verticalalignment="bottom",
+        transform=axis.transAxes,
+        bbox={"facecolor": "grey", "alpha": 0.1},
+    )
 
 
-def get_figure(n_dsets, proj=None, icesheet="gis"):
+def get_figure(n_dsets, proj=None, icesheet="gis", config={}):
     """Set up figure based on number of datasets to be plotted."""
     fig_size = {
         "gis": {3: (10, 10), 2: (10, 8), 1: (7, 10)},
@@ -148,7 +162,9 @@ def get_figure(n_dsets, proj=None, icesheet="gis"):
         elif icesheet == "ais":
             proj = ccrs.SouthPolarStereo(central_longitude=0)
 
-    fig = plt.figure(figsize=fig_size[icesheet][n_dsets], dpi=90)
+    _dpi = config.get("img_dpi", 90)
+    logger.info(f"CREATING FIGURE WITH SIZE {fig_size[icesheet][n_dsets]} DPI={_dpi}")
+    fig = plt.figure(figsize=fig_size[icesheet][n_dsets], dpi=_dpi)
 
     if n_dsets == 3:
         axes = [fig.add_subplot(2, 3, i + 1, projection=proj) for i in range(6)]
@@ -163,7 +179,7 @@ def get_figure(n_dsets, proj=None, icesheet="gis"):
     return fig, axes, proj
 
 
-def main(args, config, sea="ANN"):
+def main(args: argparse.Namespace, config: dict, sea: str | int = "ANN"):
     """
     Generate comparison plots for a particular season.
 
@@ -185,7 +201,8 @@ def main(args, config, sea="ANN"):
     Raises
     ------
     NotImplementedError
-        _description_
+        When an icesheet is asked for that is not defined (Antarctica or Greenland)
+
     """
     units = config.get("units", "UNITS UNKNOWN")
     icesheet = config.get("icesheet", "gis").lower()
@@ -217,10 +234,23 @@ def main(args, config, sea="ANN"):
             **lxc.load_obs(config, sea, mode=mode),
         }
     else:
-        all_data = {
-            "model": xr.open_dataset(lxc.proc_climo_file(config, "climo_remap", sea)),
-            **lxc.load_obs(config, sea, mode=mode),
-        }
+        try:
+            all_data = {
+                **lxc.load_obs(config, sea, mode=mode),
+            }
+        except KeyError:
+            # Means there's no obs data, so just move on to model data
+            all_data = {}
+
+        if "climo_remap" in config:
+            all_data["model"] = xr.open_dataset(
+                lxc.proc_climo_file(config, "climo_remap", sea)
+            )
+        else:
+            all_data["model"] = xr.open_dataset(
+                lxc.proc_climo_file(config, "climo", sea)
+            )
+
     for _vers in all_data:
         all_data[_vers] = lxc.check_longitude(all_data[_vers])
 
@@ -243,6 +273,7 @@ def main(args, config, sea="ANN"):
 
     diff_names = []
     dsets = list(config["dataset_names"])
+    logger.info(f"DSETS TO PLOT {dsets}")
     dsets_to_plot = [_dset for _dset in dsets if "remap" not in _dset]
     n_dsets_to_plot = len(dsets_to_plot)
 
@@ -290,7 +321,9 @@ def main(args, config, sea="ANN"):
                 diffs[_diffnm[2]] = _plt_data[_diffnm[0]].values * np.nan
 
         all_aavg = {}
+        all_stats = {}
         diffs_aavg = {}
+        diffs_stats = {}
         mask_r = {}
         area_r = {}
 
@@ -299,6 +332,8 @@ def main(args, config, sea="ANN"):
             _aavg_scale = aavg_config["scale"]
             _do_sum = aavg_config["sum"]
             _aavg_units = aavg_config["units"]
+            all_stats["aavg_units"] = aavg_config["units"]
+            diffs_stats["aavg_units"] = aavg_config["units"]
         else:
             _aavg_scale = 1.0
             _do_sum = False
@@ -317,7 +352,18 @@ def main(args, config, sea="ANN"):
                 sum_out=_do_sum,
                 land_only=config.get("mask_ocean", {}).get(_vers, False),
             )
+            all_stats[_vers] = {
+                "min": np.nanmin(_plt_data[_vers]),
+                "max": np.nanmax(_plt_data[_vers]),
+                "avg": all_aavg[_vers],
+            }
+
             all_aavg[_vers] *= _aavg_scale
+            for _stat in all_stats[_vers]:
+                all_stats[_vers][_stat] *= _aavg_scale
+
+            if all_stats.get("aavg_units"):
+                all_stats[_vers]["units"] = all_stats.get("aavg_units")
 
         aavg_out[data_var["title"]] = {
             config["dataset_names"][_vers]: all_aavg[_vers] for _vers in all_aavg
@@ -333,7 +379,18 @@ def main(args, config, sea="ANN"):
                 sum_out=_do_sum,
                 land_only=config.get("mask_ocean", {}).get(_ds2, False),
             )
+            diffs_stats[_diffname] = {
+                "min": np.nanmin(diffs[_diffname]),
+                "max": np.nanmax(diffs[_diffname]),
+                "avg": diffs_aavg[_diffname],
+            }
             diffs_aavg[_diffname] *= _aavg_scale
+            for _stat in diffs_stats[_diffname]:
+                diffs_stats[_diffname][_stat] *= _aavg_scale
+
+            if diffs_stats.get("aavg_units"):
+                diffs_stats[_diffname]["units"] = diffs_stats.get("aavg_units")
+
             _longname = (
                 f"{config['dataset_names'][_ds1]} - {config['dataset_names'][_ds2]}"
             )
@@ -356,7 +413,9 @@ def main(args, config, sea="ANN"):
         else:
             raise NotImplementedError(f"ICESHEET {icesheet} NOT FOUND USE ais / gis")
 
-        fig, axes, _ = get_figure(n_dsets_to_plot, proj, icesheet=icesheet)
+        fig, axes, _ = get_figure(
+            n_dsets_to_plot, proj, icesheet=icesheet, config=config
+        )
 
         for _vers in _plt_data:
             try:
@@ -380,6 +439,7 @@ def main(args, config, sea="ANN"):
 
         _cmin = data_var.get("cmin", None)
         _cmax = data_var.get("cmax", None)
+
         if _cmin is None or _cmax is None:
             cmin, cmax = lxc.compute_clevs(
                 data=_plt_data,
@@ -387,6 +447,17 @@ def main(args, config, sea="ANN"):
                 bnds=(5, 95),
                 keys=dsets_to_plot,
             )
+            # Repeat this if the cmin and cmax are both 0, until
+            # cmin is min of the data, cmax is max of the data
+            _bnd = 5
+            while cmin == cmax == 0 and _bnd > 0:
+                _bnd -= 1
+                cmin, cmax = lxc.compute_clevs(
+                    data=_plt_data,
+                    even=config.get("clim_even", False),
+                    bnds=(_bnd, 100 - _bnd),
+                    keys=dsets_to_plot,
+                )
 
         # Allows for cmin/cmax to be set indivdually in the config file per field
         if _cmin is not None:
@@ -396,7 +467,7 @@ def main(args, config, sea="ANN"):
 
         _cmin_d = data_var.get("cmin_d", None)
         _cmax_d = data_var.get("cmax_d", None)
-        if _cmin_d is None or _cmax_d is None:
+        if (_cmin_d is None or _cmax_d is None) and diffs:
             cmin_d, cmax_d = lxc.compute_clevs(
                 data=diffs,
                 even=True,
@@ -440,6 +511,7 @@ def main(args, config, sea="ANN"):
                 label=config["dataset_names"][_vers],
                 cnrtxt=cnrtxt,
                 icesheet=icesheet,
+                stats=all_stats[_vers],
             )
 
         if n_dsets_to_plot == 3:
@@ -478,18 +550,21 @@ def main(args, config, sea="ANN"):
                 ),
                 cnrtxt=cnrtxt,
                 icesheet=icesheet,
+                stats=diffs_stats[_diffnm],
             )
-        if n_dsets_to_plot == 3:
-            add_colorbar(_cfd, fig, axes[2 + n_dsets_to_plot], _units, ndsets)
-        else:
-            add_colorbar(
-                _cfd, fig, axes[-1], _units, ndsets=n_dsets_to_plot, cbar_span=False
-            )
-            plt.tight_layout()
-
+        if diff_names:
+            # Only add the difference colourbar when there's a diff field
+            if n_dsets_to_plot == 3:
+                add_colorbar(_cfd, fig, axes[2 + n_dsets_to_plot], _units, ndsets)
+            else:
+                add_colorbar(
+                    _cfd, fig, axes[-1], _units, ndsets=n_dsets_to_plot, cbar_span=False
+                )
+        plt.tight_layout()
+        ext = config.get("img_extn", "png")
         img_file = os.path.join(
             args.out,
-            f"{lxc.img_file_prefix(config)}_{data_var['title'].replace(' ', '_')}_{sea}.png",
+            f"{lxc.img_file_prefix(config)}_{data_var['title'].replace(' ', '_')}_{sea}.{ext}",
         )
         fig.savefig(img_file)
         img_link = os.path.join(

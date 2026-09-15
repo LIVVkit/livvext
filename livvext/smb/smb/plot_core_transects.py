@@ -93,7 +93,8 @@ def main(args, config):
     testplot.set_ylim(-5500, 1500)
 
     plt.tight_layout()
-    img_file = os.path.join(args.out, "core_smbelev_obs.png")
+    ext = config.get("img_extn", "png")
+    img_file = os.path.join(args.out, f"core_smbelev_obs.{ext}")
     plt.savefig(img_file)
     plt.close()
 
@@ -125,7 +126,7 @@ def main(args, config):
     testplot2.set_ylim(-5500, 1500)
 
     plt.tight_layout()
-    img_file = os.path.join(args.out, "core_smbelev_mod.png")
+    img_file = os.path.join(args.out, f"core_smbelev_mod.{ext}")
     plt.savefig(img_file)
     plt.close()
 
@@ -152,7 +153,7 @@ def main(args, config):
         "K-transect",
     ]
 
-    fig = plt.figure(figsize=(12, 12))
+    fig = plt.figure(figsize=(12, 12), dpi=config.get("img_dpi", 90))
     for i in range(0, len(glacier_list)):
         glacplot = fig.add_subplot(i + 221)
         glac_name = glacier_list[i]
@@ -180,7 +181,7 @@ def main(args, config):
         glacplot.set_title(glac_longnames[i], size=12)
 
     plt.tight_layout()
-    img_file = os.path.join(args.out, "core_transects.png")
+    img_file = os.path.join(args.out, f"core_transects.{ext}")
     plt.savefig(img_file)
     plt.close()
 
@@ -203,6 +204,7 @@ def main(args, config):
 
     accplot = working[working.source != "promice"]
     majorbasins = np.floor(accplot.zwallyBasin).astype("str")
+    fig, axis = plt.subplots(1, 1, figsize=(8, 8), dpi=config.get("img_dpi", 90))
     testplot = accplot.plot(
         kind="scatter",
         x="b",
@@ -211,7 +213,7 @@ def main(args, config):
         c=majorbasins.apply(lambda x: colors[x]),
         legend=True,
         alpha=0.6,
-        figsize=(8, 8),
+        ax=axis,
     )
     testplot.set_xlabel("Field SMB estimate (kg m$^{-2}$ a$^{-1}$)")
     testplot.set_ylabel("Modeled SMB (kg m$^{-2}$ a$^{-1}$)")
@@ -221,7 +223,7 @@ def main(args, config):
     testplot.set_title("Accumulation")
 
     plt.tight_layout()
-    img_file = os.path.join(args.out, "core_AccCompare.png")
+    img_file = os.path.join(args.out, f"core_AccCompare.{ext}")
     plt.savefig(img_file)
     plt.close()
 
@@ -240,6 +242,7 @@ def main(args, config):
 
     ablplot = working[working.source == "promice"]
     majorbasins = np.floor(ablplot.zwallyBasin).astype("str")
+    fig, axis = plt.subplots(1, 1, figsize=(8, 8), dpi=config.get("img_dpi", 90))
     testplot = ablplot.plot(
         kind="scatter",
         x="b",
@@ -248,7 +251,7 @@ def main(args, config):
         c=majorbasins.apply(lambda x: colors[x]),
         legend=True,
         alpha=0.6,
-        figsize=(8, 8),
+        ax=axis,
     )
     testplot.set_xlabel("Field SMB estimate (kg m$^{-2}$ a$^{-1}$)")
     testplot.set_ylabel("Modeled SMB (kg m$^{-2}$ a$^{-1}$)")
@@ -258,7 +261,7 @@ def main(args, config):
     testplot.set_title("Ablation")
 
     plt.tight_layout()
-    img_file = os.path.join(args.out, "core_AblCompare.png")
+    img_file = os.path.join(args.out, f"core_AblCompare.{ext}")
     plt.savefig(img_file)
     plt.close()
 

@@ -139,7 +139,7 @@ def plot_core(args, config):
 
     tform = ccrs.PlateCarree()
     lons_model, lats_model, msmb = load_model_data(config)
-    fig, axes, proj = lxcg.get_figure(1, icesheet="gis")
+    fig, axes, proj = lxcg.get_figure(1, icesheet="gis", config=config)
 
     vabsmax = 2000
     cf_smb_model = axes[0].pcolormesh(
@@ -186,7 +186,8 @@ def plot_core(args, config):
     )
 
     plt.tight_layout()
-    img_file = os.path.join(args.out, "core_spatial.png")
+    ext = config.get("img_extn", "png")
+    img_file = os.path.join(args.out, f"core_spatial.{ext}")
     plt.savefig(img_file)
     plt.close()
 
@@ -216,7 +217,7 @@ def plot_ib_spatial(args, config):
     tform = ccrs.PlateCarree()
     _, _, ib_file = preproc.ib_outfile(config)
     ice_bridge = pd.read_csv(ib_file)
-    fig, axes, proj = lxcg.get_figure(1, icesheet="gis")
+    fig, axes, proj = lxcg.get_figure(1, icesheet="gis", config=config)
 
     lat_obs = ice_bridge["Y"].values
     lon_obs = ice_bridge["X"].values
@@ -242,7 +243,9 @@ def plot_ib_spatial(args, config):
         ndsets=1,
     )
     plt.tight_layout()
-    img_file = os.path.join(args.out, "IB_spatial.png")
+
+    ext = config.get("img_extn", "png")
+    img_file = os.path.join(args.out, f"IB_spatial.{ext}")
     plt.savefig(img_file)
     plt.close()
 
@@ -260,7 +263,7 @@ def plot_ib_spatial(args, config):
     img_list.append(img_elem)
 
     # Plot IB - Model difference
-    fig, axes, proj = lxcg.get_figure(1, icesheet="gis")
+    fig, axes, proj = lxcg.get_figure(1, icesheet="gis", config=config)
     smbobs_diff = ice_bridge["mod_b"].values - ice_bridge["b"].values
     cf_diff = axes[0].scatter(
         lon_obs,
@@ -289,7 +292,9 @@ def plot_ib_spatial(args, config):
     )
 
     plt.tight_layout()
-    img_file = os.path.join(args.out, "IB_spatial_difference.png")
+
+    ext = config.get("img_extn", "png")
+    img_file = os.path.join(args.out, f"IB_spatial_difference.{ext}")
     plt.savefig(img_file)
     plt.close()
 
@@ -342,7 +347,7 @@ def plot_metadata(args, config):
         ]
     )
 
-    fig, axes, proj = lxcg.get_figure(1, icesheet="gis")
+    fig, axes, proj = lxcg.get_figure(1, icesheet="gis", config=config)
 
     # Read in the zwally basins and mask out model cells that are missing a basin designation
     basins = np.floor(zwally_data.zwally_basin.values)
@@ -443,7 +448,8 @@ def plot_metadata(args, config):
     )
     plt.tight_layout()
 
-    img_file = os.path.join(args.out, "plot_meta_old.png")
+    ext = config.get("img_extn", "png")
+    img_file = os.path.join(args.out, f"plot_meta_old.{ext}")
     plt.savefig(img_file)
     plt.close()
 

@@ -9,7 +9,7 @@ import mache
 import livvext
 
 ALL_SHEETS = "gis,ais"
-ALL_SETS = "cmb,smb,energy_racmo,energy_era5,energy_merra2,energy_ceres"
+ALL_SETS = "cmb,smb,snow,energy_racmo,energy_era5,energy_merra2,energy_ceres"
 
 
 def args():
@@ -63,7 +63,7 @@ def args():
         type=str,
         default="all",
         help=(
-            "Analysis sets to run: cmb, smb, energy_racmo, energy_era5, "
+            "Analysis sets to run: cmb, smb, snow, energy_racmo, energy_era5, "
             "energy_merra2, energy_ceres, or all to run all available"
         ),
     )
@@ -97,7 +97,7 @@ def args():
     return parser.parse_args()
 
 
-def gen_cfg(cfg_template, params, cfg_out):
+def gen_cfg(cfg_template: Path, params: dict, cfg_out: Path) -> Path:
     """
     Generate and write LIVVext configuration file from template and parameters.
 
@@ -131,7 +131,7 @@ def gen_cfg(cfg_template, params, cfg_out):
     return cfg_out
 
 
-def parse_sets(sheets, sets):
+def parse_sets(sheets: str, sets: str) -> dict:
     """Parse comma separated strings of sets / icesheets to analyse."""
 
     params = {}

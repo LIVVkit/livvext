@@ -82,6 +82,10 @@ comparison to gridded RACMO reanalysis. [CMB = (Precip - (Runoff + Sublimation)]
 comparison to gridded RACMO reanalysis. [CMB = (Precip - (Runoff + Sublimation)]
 """,
     },
+    "H2OSNO": {
+        "gis": "Analysis of the model snow storage terms for Greenland ice sheet",
+        "ais": "Analysis of the model snow storage terms for Antarctic ice sheet",
+    },
 }
 
 base_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
@@ -207,9 +211,15 @@ def run(name, config):
     tabs["References"] = [refs]
 
     logger.info(f"FINISHED SMB_ICECORES WITH OUTPUT TO {img_dir}")
+    try:
+        _docs = PAGE_DOCS[config.get("primary_var", "smbgl")][
+            config.get("icesheet", "gis")
+        ]
+    except KeyError:
+        _docs = f"Plots for {config.get('primary_var', 'UNKNOWN')}"
     return el.Page(
         name,
-        PAGE_DOCS[config.get("primary_var", "smbgl")][config.get("icesheet", "gis")],
+        _docs,
         elements=[run_summary, el.Tabs(tabs)],
     )
 

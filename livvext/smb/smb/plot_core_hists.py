@@ -66,7 +66,9 @@ def main(args, config):
     zwally_regions = [2, 3, 4, 1, 5, 6, 7, 8]
     pltcrds = [(0, 1), (1, 0), (1, 1), (0, 0), (2, 0), (2, 1), (3, 0), (3, 1)]
 
-    fig, axes = plt.subplots(nrows=4, ncols=2, figsize=(10, 20))
+    fig, axes = plt.subplots(
+        nrows=4, ncols=2, figsize=(10, 20), dpi=config.get("img_dpi", 90)
+    )
     for i in range(0, len(list_regions)):
         regname = list_regions[i]
         inde = pltcrds[i]
@@ -81,7 +83,8 @@ def main(args, config):
         subs.set_ylim(0, 65)
 
     plt.tight_layout()
-    img_file = os.path.join(args.out, "core_diffhist_basins.png")
+    ext = config.get("img_extn", "png")
+    img_file = os.path.join(args.out, f"core_diffhist_basins.{ext}")
     plt.savefig(img_file)
     plt.close()
     img_link = os.path.join(
@@ -99,7 +102,7 @@ def main(args, config):
     difftest = pd.DataFrame(
         data=smb_avg.mod_b - smb_avg.b, index=smb_avg.index, columns=["difference"]
     )
-    _ = plt.figure(figsize=(8, 8))
+    _ = plt.figure(figsize=(8, 8), dpi=config.get("img_dpi", 90))
     hist1 = difftest["difference"].hist(bins=30, edgecolor="k")
     hist1.set_xlabel("Model - observed SMB difference\n(kg m$^{-2}$ a$^{-1}$)")
     hist1.set_ylabel("Cell frequency")
@@ -107,7 +110,7 @@ def main(args, config):
     hist1.axvline(x=0.0, c="lightskyblue", linewidth=2)
 
     plt.tight_layout()
-    img_file = os.path.join(args.out, "core_diffhist_all.png")
+    img_file = os.path.join(args.out, f"core_diffhist_all.{ext}")
     plt.savefig(img_file)
     plt.close()
 

@@ -8,16 +8,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     - name: Set up Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v7
       with:
         python-version: 3.14
 
     - name: Set up Pixi ${{ matrix.python-version }}
-      uses: prefix-dev/setup-pixi@v0.9.4
+      uses: prefix-dev/setup-pixi@v0.10.0
       with:
-        pixi-version: v0.62.2
+        pixi-version: v0.76.2
         # Project environment caching uses pixi.lock as the cache key input.
         # If you don't commit a lockfile, disable caching to avoid ENOENT.
         # cache: ${{ hashFiles('pixi.lock') != '' }}
@@ -33,7 +33,7 @@ jobs:
             --config pyproject.toml
 
     - name: Push API documentation to Github Pages
-      uses: peaceiris/actions-gh-pages@v3
+      uses: peaceiris/actions-gh-pages@v4
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./docs

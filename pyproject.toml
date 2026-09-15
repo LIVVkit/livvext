@@ -60,7 +60,7 @@ dependencies = [
     "pybtex>=0.25.1",
     "f90nml>=1.5",
     "loguru>=0.7.3",
-    "livvkit>=3.3.1",
+    "livvkit>=3.4.0",
 ]
 
 classifiers = [
@@ -155,8 +155,18 @@ intersphinx = [
     "https://xarray.pydata.org/en/latest/objects.inv",
     "https://docs.pybtex.org/objects.inv",
     "https://livvkit.github.io/Docs/objects.inv",
+    "http://docs.scipy.org/doc/numpy/objects.inv",
 
 ]
 theme = "readthedocs"
-privacy = ["PRIVATE:**.__*__", "PUBLIC:**.__init__", "PRIVATE:**.ipynb_checkpoints"]
-add-package = ["./livvext", "./livvext/smb", "./livvext/energy"]
+privacy = [
+    "PRIVATE:**.__*__",
+    "PUBLIC:**.__init__",
+    "PRIVATE:**.ipynb_checkpoints",
+]
+add-package = [
+    "./livvext",
+    "./livvext/smb",
+    "./livvext/energy",
+    "./livvext/snow",
+]
