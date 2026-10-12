@@ -60,7 +60,7 @@ dependencies = [
     "pybtex>=0.25.1",
     "f90nml>=1.5",
     "loguru>=0.7.3",
-    "livvkit>=3.4.0",
+    "livvkit>=3.4.1",
 ]
 
 classifiers = [
@@ -131,6 +131,9 @@ python = "3.13.*"
 [tool.pixi.feature.py314dev.dependencies]
 python = "3.14.*"
 
+[tool.pixi.feature.py315dev.dependencies]
+python = "3.15.*"
+
 [tool.pixi.environments]
 default = { solve-group = "default" }
 dev = ["dev"]
@@ -139,6 +142,7 @@ py311dev = ["py311dev", "dev"]
 py312dev = ["py312dev", "dev"]
 py313dev = ["py313dev", "dev"]
 py314dev = ["py314dev", "dev"]
+py314dev = ["py315dev", "dev"]
 buildenv = ["buildenv"]
 
 [dependency-groups]
