@@ -127,13 +127,20 @@ def annotate_plot(
         _text = f"Avg.\n{cnrtxt}"
     elif stats is not None:
         _text = ""
-        for _stat in ["min", "max", "avg"]:
+        if "tot" in stats:
+            _text += f"Tot: {stats['tot']:.3g}\n{stats.get('aavg_units')}\n"
+        else:
+            _text += f"Avg: {stats['avg']:.3g}\n"
+
+        for _stat in ["min", "max"]:
             _text += f"{_stat.capitalize()}: {stats[_stat]:.3g}\n"
 
         if "units" in stats:
             _text += stats["units"]
         else:
             _text = _text[:-1]
+    else:
+        _text = ""
 
     plt.figtext(
         0.98,
@@ -355,18 +362,20 @@ def main(args: argparse.Namespace, config: dict, sea: str | int = "ANN"):
                 sum_out=_do_sum,
                 land_only=config.get("mask_ocean", {}).get(_vers, False),
             )
-            all_stats[_vers] = {
-                "min": np.nanmin(_plt_data[_vers]),
-                "max": np.nanmax(_plt_data[_vers]),
-                "avg": all_aavg[_vers],
-            }
-
             all_aavg[_vers] *= _aavg_scale
-            for _stat in all_stats[_vers]:
-                all_stats[_vers][_stat] *= _aavg_scale
+            if _do_sum:
+                _avgkey = "tot"
+            else:
+                _avgkey = "avg"
+            # Sometimes area average, sometimes area sum is the "mean" measure
+            all_stats[_vers] = {_avgkey: all_aavg[_vers]}
+
+            # for _stat in all_stats[_vers]:
+            #     all_stats[_vers][_stat] *= _aavg_scale
 
             if all_stats.get("aavg_units"):
-                all_stats[_vers]["units"] = all_stats.get("aavg_units")
+                all_stats[_vers]["aavg_units"] = all_stats.get("aavg_units")
+                all_stats[_vers]["units"] = _units
 
         aavg_out[data_var["title"]] = {
             config["dataset_names"][_vers]: all_aavg[_vers] for _vers in all_aavg
@@ -382,17 +391,20 @@ def main(args: argparse.Namespace, config: dict, sea: str | int = "ANN"):
                 sum_out=_do_sum,
                 land_only=config.get("mask_ocean", {}).get(_ds2, False),
             )
-            diffs_stats[_diffname] = {
-                "min": np.nanmin(diffs[_diffname]),
-                "max": np.nanmax(diffs[_diffname]),
-                "avg": diffs_aavg[_diffname],
-            }
+
+            if _do_sum:
+                _avgkey = "tot"
+            else:
+                _avgkey = "avg"
             diffs_aavg[_diffname] *= _aavg_scale
-            for _stat in diffs_stats[_diffname]:
-                diffs_stats[_diffname][_stat] *= _aavg_scale
+            diffs_stats[_diffname] = {_avgkey: diffs_aavg[_diffname]}
+
+            # for _stat in diffs_stats[_diffname]:
+            #     diffs_stats[_diffname][_stat] *= _aavg_scale
 
             if diffs_stats.get("aavg_units"):
-                diffs_stats[_diffname]["units"] = diffs_stats.get("aavg_units")
+                diffs_stats[_diffname]["aavg_units"] = diffs_stats.get("aavg_units")
+                diffs_stats[_diffname]["units"] = _units
 
             _longname = (
                 f"{config['dataset_names'][_ds1]} - {config['dataset_names'][_ds2]}"
@@ -486,6 +498,12 @@ def main(args: argparse.Namespace, config: dict, sea: str | int = "ANN"):
         ndsets = len(dsets)
         _comment = ""
         for idx, _vers in enumerate(dsets_to_plot):
+            all_stats[_vers].update(
+                {
+                    "min": np.nanmin(_plt_data[_vers]),
+                    "max": np.nanmax(_plt_data[_vers]),
+                }
+            )
             _cf = axes[idx].pcolormesh(
                 all_data[_vers]["lon"],
                 all_data[_vers]["lat"],
@@ -536,6 +554,12 @@ def main(args: argparse.Namespace, config: dict, sea: str | int = "ANN"):
             else:
                 cnrtxt = f"{diffs_aavg[_diffnm]:.2f}"
 
+            diffs_stats[_diffnm].update(
+                {
+                    "min": np.nanmin(diffs[_diffnm]),
+                    "max": np.nanmax(diffs[_diffnm]),
+                }
+            )
             _cfd = axes[n_dsets_to_plot + idx].pcolormesh(
                 all_data[_ds1]["lon"],
                 all_data[_ds1]["lat"],
