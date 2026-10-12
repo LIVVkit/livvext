@@ -81,9 +81,7 @@ def run(name, config):
     if "meta" in config:
         meta = utils.climo_meta_update(config)
 
-        run_summary = el.Table(
-            title="Case Summary", data=meta, transpose=True
-        )
+        run_summary = el.Table(title="Case Summary", data=meta, transpose=True)
 
     else:
         run_summary = el.RawHTML("<h3>Case Summary</h3>")
@@ -145,7 +143,7 @@ def run(name, config):
                         f"River discharge components {SEASON_NAME[season]} ({season})",
                         images[season],
                     ),
-                ]
+                ],
             )
             for season in images
         ]

@@ -142,7 +142,7 @@ py311dev = ["py311dev", "dev"]
 py312dev = ["py312dev", "dev"]
 py313dev = ["py313dev", "dev"]
 py314dev = ["py314dev", "dev"]
-py314dev = ["py315dev", "dev"]
+py315dev = ["py315dev", "dev"]
 buildenv = ["buildenv"]
 
 [dependency-groups]
