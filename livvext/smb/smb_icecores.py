@@ -176,9 +176,9 @@ def run(name, config):
             )
 
     if "meta" in config:
-        run_summary = el.Table(
-            title="Case Summary", data=config["meta"], transpose=True
-        )
+        meta = utils.climo_meta_update(config)
+
+        run_summary = el.Table(title="Case Summary", data=meta, transpose=True)
     else:
         run_summary = el.RawHTML("<h3>Case Summary</h3>")
 
