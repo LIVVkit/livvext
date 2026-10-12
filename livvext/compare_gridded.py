@@ -246,11 +246,14 @@ def main(args: argparse.Namespace, config: dict, sea: str | int = "ANN"):
             all_data["model"] = xr.open_dataset(
                 lxc.proc_climo_file(config, "climo_remap", sea)
             )
+        elif "climo_river" in config:
+            all_data["model"] = xr.open_dataset(
+                lxc.proc_climo_file(config, "climo_river", sea)
+            )
         else:
             all_data["model"] = xr.open_dataset(
                 lxc.proc_climo_file(config, "climo", sea)
             )
-
     for _vers in all_data:
         all_data[_vers] = lxc.check_longitude(all_data[_vers])
 
