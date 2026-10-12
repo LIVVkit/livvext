@@ -25,6 +25,8 @@ jobs:
             pixi-env: py313dev
           - python-version: "3.14"
             pixi-env: py314dev
+          - python-version: "3.15"
+            pixi-env: py315dev
 
     steps:
     - uses: actions/checkout@v7

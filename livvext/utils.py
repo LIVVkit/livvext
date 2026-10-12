@@ -306,3 +306,46 @@ def will_it_float(test_str: str) -> bool:
     except ValueError:
         _will = False
     return _will
+
+
+def climo_meta_update(config, dset_tag="dset_a"):
+    """
+    Extract the start / end years of reanalysis climatology to put in metadata table.
+
+    Parameters
+    ----------
+    config : `dict`
+        LIVVkit configuration dictionary (should contain ``meta``, ``dataset_names``,
+        and ``clim_years``)
+
+    dset_tag : `str`
+        Tag for dataset (default is ``dset_a``, but could be ``dset_(b, c, ...)``)
+
+    Returns
+    -------
+    meta : `dict`
+        Updated metadata for LIVVkit validation page with climatology years for the
+        ``dset_tag`` dataset
+
+    """
+    meta = config.get("meta")
+    _clim_years = config.get("clim_years")
+    if _clim_years is not None:
+        try:
+            _dset_name = config.get("dataset_names").get(dset_tag)
+        # Will except if "dataset_names" isn't there, or
+        # `dset_tag`` not in dataset_names, so just default (shouldn't happen, but)
+        # would rather default to a generic name than crash the whole module
+        except (KeyError, AttributeError):
+            _dset_name = "Comparison dataset?"
+        _years = _clim_years.get(dset_tag, {"year_s": -1, "year_e": -1})
+        _year_fmt = f"{_years['year_s']} - {_years['year_e']}"
+
+        meta[f"{_dset_name} years"] = [_year_fmt]
+
+    # This is legacy, pop the climatology years tag from the metadata so the wrong
+    # info doesn't appear in the table
+    if "Climatology years" in meta:
+        meta.pop("Climatology years")
+
+    return meta

@@ -184,6 +184,12 @@ def main():
             _ts_dir = _grid_dir.replace("/clim/", "/ts/monthly/")
             climo_dirs[f"dir_{_grid}"] = Path(_grid_dir)
             ts_dirs[f"dir_ts_{_grid}"] = Path(_ts_dir)
+        climo_dirs["dir_river"] = Path(
+            str(climo_dirs["dir_native"]).replace("lnd", "rof")
+        )
+        ts_dirs["dir_ts_river"] = Path(
+            str(ts_dirs["dir_ts_native"]).replace("lnd", "rof")
+        )
 
     case_dir = Path(cl_args.casedir)
 
