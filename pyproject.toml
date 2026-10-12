@@ -173,4 +173,5 @@ add-package = [
     "./livvext/smb",
     "./livvext/energy",
     "./livvext/snow",
+    "./livvext/river",
 ]
