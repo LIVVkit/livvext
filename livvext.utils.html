@@ -161,6 +161,16 @@
         
 
         
+            <div class="itemName"><code><a href="#climo_meta_update" class="internal-link" title="livvext.utils.climo_meta_update">climo<wbr></wbr>_meta<wbr></wbr>_update</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
             <div class="itemName"><code><a href="#eval_expr" class="internal-link" title="livvext.utils.eval_expr">eval<wbr></wbr>_expr</a></code>
             </div>
         
@@ -327,6 +337,16 @@
         
 
         
+            <div class="itemName"><code><a href="livvext.river.html" class="internal-link" title="livvext.river">river</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
             <div class="itemName"><code><a href="livvext.smb.html" class="internal-link" title="livvext.smb">smb</a></code>
             </div>
         
@@ -433,7 +453,7 @@
         </div>
 
         <div class="extrasDocstring">
-          <a href="https://github.com/LIVVkit/livvext/tree/7da772996d4bb709f5feb1fa8fa4370723322685/livvext/utils.py" class="sourceLink">(source)</a>
+          <a href="https://github.com/LIVVkit/livvext/tree/66b49198da515485d14b2550aecb1293ad59f896/livvext/utils.py" class="sourceLink">(source)</a>
         </div>
 
         <div class="moduleDocstring">
@@ -441,7 +461,7 @@
         </div>
 
         <div id="split-tables">
-          <table class="children sortable" id="id16">
+          <table class="children sortable" id="id18">
   
   
   <tr class="class">
@@ -459,6 +479,11 @@
     <td>Function</td>
     <td><code><a href="#bib2html" class="internal-link" title="livvext.utils.bib2html">bib2html</a></code></td>
     <td>Convert a BibTeX bibliography to HTML.</td>
+  </tr><tr class="function">
+    
+    <td>Function</td>
+    <td><code><a href="#climo_meta_update" class="internal-link" title="livvext.utils.climo_meta_update">climo<wbr></wbr>_meta<wbr></wbr>_update</a></code></td>
+    <td>Extract the start / end years of reanalysis climatology to put in metadata table.</td>
   </tr><tr class="function">
     
     <td>Function</td>
@@ -520,7 +545,7 @@
     
     
     <span class="py-keyword">def</span>&#160;<span class="py-defname">apply_operator</span><span class="function-signature">(<span class="rst-sig-param">operands, </span><span class="rst-sig-param">operator, </span><span class="rst-sig-param">name=<a href="https://docs.python.org/3/builtins/constants.html#False" class="intersphinx-link">False</a></span>):</span>
-    <a class="sourceLink" href="https://github.com/LIVVkit/livvext/tree/7da772996d4bb709f5feb1fa8fa4370723322685/livvext/utils.py#L225">
+    <a class="sourceLink" href="https://github.com/LIVVkit/livvext/tree/66b49198da515485d14b2550aecb1293ad59f896/livvext/utils.py#L225">
       
       (source)
     </a>
@@ -549,7 +574,7 @@ of field names (e.g. [U, V], or [T, [U, V]], or [T, [U, [V, X]]])</td></tr><tr><
     
     <div><span class="decorator">@<a href="https://docs.python.org/3/library/functools.html#functools.singledispatch" class="intersphinx-link">singledispatch</a><br /></span></div>
     <span class="py-keyword">def</span>&#160;<span class="py-defname">bib2html</span><span class="function-signature">(<span class="rst-sig-param">bib, </span><span class="rst-sig-param">style=<a href="https://docs.python.org/3/builtins/constants.html#None" class="intersphinx-link">None</a>, </span><span class="rst-sig-param">backend=<a href="https://docs.python.org/3/builtins/constants.html#None" class="intersphinx-link">None</a></span>):</span>
-    <a class="sourceLink" href="https://github.com/LIVVkit/livvext/tree/7da772996d4bb709f5feb1fa8fa4370723322685/livvext/utils.py#L45">
+    <a class="sourceLink" href="https://github.com/LIVVkit/livvext/tree/66b49198da515485d14b2550aecb1293ad59f896/livvext/utils.py#L45">
       
       (source)
     </a>
@@ -569,6 +594,35 @@ raise <code><a href="https://docs.python.org/3/builtins/exceptions.html#NotImple
 </div><div class="basefunction">
   
   
+  <a name="livvext.utils.climo_meta_update">
+    
+  </a>
+  <a name="climo_meta_update">
+    
+  </a>
+  <div class="functionHeader">
+    
+    
+    <span class="py-keyword">def</span>&#160;<span class="py-defname">climo_meta_update</span><span class="function-signature">(<span class="rst-sig-param">config, </span><span class="rst-sig-param">dset_tag=<span class="rst-variable-quote">'</span><span class="rst-variable-string">dset_a</span><span class="rst-variable-quote">'</span></span>):</span>
+    <a class="sourceLink" href="https://github.com/LIVVkit/livvext/tree/66b49198da515485d14b2550aecb1293ad59f896/livvext/utils.py#L311">
+      
+      (source)
+    </a>
+    <a class="headerLink" href="#climo_meta_update" title="livvext.utils.climo_meta_update">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p>Extract the start / end years of reanalysis climatology to put in metadata table.</p><table class="fieldTable"><tr class="fieldStart"><td class="fieldName" colspan="2">Parameters</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">config:</span><code><a href="https://docs.python.org/3/builtins/stdtypes.html#dict" class="intersphinx-link">dict</a></code></td><td class="fieldArgDesc">LIVVkit configuration dictionary (should contain <tt class="rst-docutils rst-literal">meta</tt>, <tt class="rst-docutils rst-literal">dataset_names</tt>,
+and <tt class="rst-docutils rst-literal">clim_years</tt>)</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">dset<wbr></wbr>_tag:</span><code><a href="https://docs.python.org/3/builtins/stdtypes.html#str" class="intersphinx-link">str</a></code></td><td class="fieldArgDesc">Tag for dataset (default is <tt class="rst-docutils rst-literal">dset_a</tt>, but could be <tt class="rst-docutils rst-literal">dset_(b, c, <span class="pre">...)</span></tt>)</td></tr></table><table class="fieldTable"><tr class="fieldStart"><td class="fieldName" colspan="2">Returns</td></tr><tr><td class="fieldArgContainer"><code><a href="https://docs.python.org/3/builtins/stdtypes.html#dict" class="intersphinx-link">dict</a></code></td><td class="fieldArgDesc"><strong>meta</strong> - Updated metadata for LIVVkit validation page with climatology years for the
+<tt class="rst-docutils rst-literal">dset_tag</tt> dataset</td></tr></table></div>
+  </div>
+</div><div class="basefunction">
+  
+  
   <a name="livvext.utils.eval_expr">
     
   </a>
@@ -579,7 +633,7 @@ raise <code><a href="https://docs.python.org/3/builtins/exceptions.html#NotImple
     
     
     <span class="py-keyword">def</span>&#160;<span class="py-defname">eval_expr</span><span class="function-signature">(<span class="rst-sig-param">expr</span>):</span>
-    <a class="sourceLink" href="https://github.com/LIVVkit/livvext/tree/7da772996d4bb709f5feb1fa8fa4370723322685/livvext/utils.py#L123">
+    <a class="sourceLink" href="https://github.com/LIVVkit/livvext/tree/66b49198da515485d14b2550aecb1293ad59f896/livvext/utils.py#L123">
       
       (source)
     </a>
@@ -609,7 +663,7 @@ Will be checked to contain _only_ numbers and mathematical symbols:
     
     
     <span class="py-keyword">def</span>&#160;<span class="py-defname">extract_ds</span><span class="function-signature">(<span class="rst-sig-param">expr, </span><span class="rst-sig-param">dset, </span><span class="rst-sig-param">name=<a href="https://docs.python.org/3/builtins/constants.html#False" class="intersphinx-link">False</a></span>):</span>
-    <a class="sourceLink" href="https://github.com/LIVVkit/livvext/tree/7da772996d4bb709f5feb1fa8fa4370723322685/livvext/utils.py#L156">
+    <a class="sourceLink" href="https://github.com/LIVVkit/livvext/tree/66b49198da515485d14b2550aecb1293ad59f896/livvext/utils.py#L156">
       
       (source)
     </a>
@@ -639,7 +693,7 @@ or an expression of this kind.
     
     
     <span class="py-keyword">def</span>&#160;<span class="py-defname">extract_name</span><span class="function-signature">(<span class="rst-sig-param">expr</span>):</span>
-    <a class="sourceLink" href="https://github.com/LIVVkit/livvext/tree/7da772996d4bb709f5feb1fa8fa4370723322685/livvext/utils.py#L268">
+    <a class="sourceLink" href="https://github.com/LIVVkit/livvext/tree/66b49198da515485d14b2550aecb1293ad59f896/livvext/utils.py#L268">
       
       (source)
     </a>
@@ -669,7 +723,7 @@ or an expression of this kind.
     
     
     <span class="py-keyword">def</span>&#160;<span class="py-defname">extract_vars</span><span class="function-signature">(<span class="rst-sig-param">expr</span>):</span>
-    <a class="sourceLink" href="https://github.com/LIVVkit/livvext/tree/7da772996d4bb709f5feb1fa8fa4370723322685/livvext/utils.py#L202">
+    <a class="sourceLink" href="https://github.com/LIVVkit/livvext/tree/66b49198da515485d14b2550aecb1293ad59f896/livvext/utils.py#L202">
       
       (source)
     </a>
@@ -696,7 +750,7 @@ or an expression of this kind.
     
     
     <span class="py-keyword">def</span>&#160;<span class="py-defname">will_it_float</span><span class="function-signature">(<span class="rst-sig-param">test_str: <code><a href="https://docs.python.org/3/builtins/stdtypes.html#str" class="intersphinx-link">str</a></code></span>) -&gt; <code><a href="https://docs.python.org/3/builtins/functions.html#bool" class="intersphinx-link">bool</a></code>:</span>
-    <a class="sourceLink" href="https://github.com/LIVVkit/livvext/tree/7da772996d4bb709f5feb1fa8fa4370723322685/livvext/utils.py#L289">
+    <a class="sourceLink" href="https://github.com/LIVVkit/livvext/tree/66b49198da515485d14b2550aecb1293ad59f896/livvext/utils.py#L289">
       
       (source)
     </a>
@@ -723,7 +777,7 @@ or an expression of this kind.
     
     <div><span class="decorator">@bib2html.register<br /></span></div>
     <span class="py-keyword">def</span>&#160;<span class="py-defname">_bib2html_bibdata</span><span class="function-signature">(<span class="rst-sig-param">bib: <code><a href="https://docs.pybtex.org/api/parsing.html#pybtex.database.BibliographyData" class="intersphinx-link">pybtex.database.BibliographyData</a></code>, </span><span class="rst-sig-param">style=<a href="https://docs.python.org/3/builtins/constants.html#None" class="intersphinx-link">None</a>, </span><span class="rst-sig-param">backend=<a href="https://docs.python.org/3/builtins/constants.html#None" class="intersphinx-link">None</a></span>):</span>
-    <a class="sourceLink" href="https://github.com/LIVVkit/livvext/tree/7da772996d4bb709f5feb1fa8fa4370723322685/livvext/utils.py#L111">
+    <a class="sourceLink" href="https://github.com/LIVVkit/livvext/tree/66b49198da515485d14b2550aecb1293ad59f896/livvext/utils.py#L111">
       
       (source)
     </a>
@@ -750,7 +804,7 @@ or an expression of this kind.
     
     <div><span class="decorator">@bib2html.register<br /></span></div>
     <span class="py-keyword">def</span>&#160;<span class="py-defname">_bib2html_list</span><span class="function-signature">(<span class="rst-sig-param">bib: <code><a href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable" class="intersphinx-link">Iterable</a></code>, </span><span class="rst-sig-param">style=<a href="https://docs.python.org/3/builtins/constants.html#None" class="intersphinx-link">None</a>, </span><span class="rst-sig-param">backend=<a href="https://docs.python.org/3/builtins/constants.html#None" class="intersphinx-link">None</a></span>):</span>
-    <a class="sourceLink" href="https://github.com/LIVVkit/livvext/tree/7da772996d4bb709f5feb1fa8fa4370723322685/livvext/utils.py#L90">
+    <a class="sourceLink" href="https://github.com/LIVVkit/livvext/tree/66b49198da515485d14b2550aecb1293ad59f896/livvext/utils.py#L90">
       
       (source)
     </a>
@@ -777,7 +831,7 @@ or an expression of this kind.
     
     <div><span class="decorator">@bib2html.register<br /></span></div>
     <span class="py-keyword">def</span>&#160;<span class="py-defname">_bib2html_string</span><span class="function-signature">(<span class="rst-sig-param">bib: <code><a href="https://docs.python.org/3/builtins/stdtypes.html#str" class="intersphinx-link">str</a></code>, </span><span class="rst-sig-param">style=<a href="https://docs.python.org/3/builtins/constants.html#None" class="intersphinx-link">None</a>, </span><span class="rst-sig-param">backend=<a href="https://docs.python.org/3/builtins/constants.html#None" class="intersphinx-link">None</a></span>):</span>
-    <a class="sourceLink" href="https://github.com/LIVVkit/livvext/tree/7da772996d4bb709f5feb1fa8fa4370723322685/livvext/utils.py#L78">
+    <a class="sourceLink" href="https://github.com/LIVVkit/livvext/tree/66b49198da515485d14b2550aecb1293ad59f896/livvext/utils.py#L78">
       
       (source)
     </a>
@@ -804,7 +858,7 @@ or an expression of this kind.
     <div class="container-fluid">
       <a href="index.html">API Documentation</a> for <a href="https://github.com/LIVVkit/livvext" class="projecthome">LIVVext</a>,
     generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a>
-      25.10.1 at 2026-09-15 18:57:34.
+      25.10.1 at 2026-10-12 17:08:31.
     </div>
     
     <script src="ajax.js" type="text/javascript"></script>
