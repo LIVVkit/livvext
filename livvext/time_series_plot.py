@@ -81,7 +81,6 @@ def main(args, config):
             config_names[_dset] = _dset
     img_elem = []
     for idx, data_var in enumerate(config["data_vars"]):
-
         obs_aavg[data_var["title"]] = {}
         diffs_aavg[data_var["title"]] = {}
 
