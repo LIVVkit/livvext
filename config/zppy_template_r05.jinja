@@ -449,6 +449,7 @@ common_racmo_energy_vars: &common_racmo_energy_vars
     sign: 1
     scales: {dset_a: 1, model: 1}
     units: K
+    ac_axis: -1
 
   - title: Albedo
     dset_a: [/, rsusgl, rsds]
@@ -463,6 +464,7 @@ common_racmo_energy_vars: &common_racmo_energy_vars
     cmax: 0.9
     cmin_d: -0.2
     cmax_d: 0.2
+    ac_axis: 1
 
   - title: Shortwave net
     dset_a: ['-', rsds, rsusgl]
@@ -537,6 +539,7 @@ common_era_energy_vars: &common_era_energy_vars
     sign: 1
     scales: {dset_a: 1, model: 1}
     units: K
+    ac_axis: -1
 
   - title: Albedo
     dset_a: [/, rsus, rsds]
@@ -551,6 +554,7 @@ common_era_energy_vars: &common_era_energy_vars
     cmax: 1.0
     cmin_d: -0.2
     cmax_d: 0.2
+    ac_axis: 1
 
   - title: Shortwave net
     dset_a: ['-', rsds, rsus]
@@ -625,6 +629,7 @@ common_merra_energy_vars: &common_merra_energy_vars
     sign: 1
     scales: {dset_a: 1, model: 1}
     units: K
+    ac_axis: -1
 
   - title: Albedo
     dset_a: [/, rsus, rsds]
@@ -639,6 +644,7 @@ common_merra_energy_vars: &common_merra_energy_vars
     cmax: 0.83
     cmin_d: -0.2
     cmax_d: 0.2
+    ac_axis: 1
 
   - title: Shortwave net
     dset_a: ['-', rsds, rsus]
@@ -707,49 +713,50 @@ common_merra_energy_vars: &common_merra_energy_vars
     cmap: RdBu_r
 
 common_ceres_energy_vars: &common_ceres_energy_vars
-    - title: Albedo
-      dset_a: [/, rsus, rsds]
-      model:
-        - /
-        - [+, FSRND, FSRVD]
-        - [+, FSDSVD, FSDSND]
-      sign: 1
-      scales: { dset_a: 1, model: 1 }
-      units: unitless
-      cmin: 0.5
-      cmax: 0.83
-      cmin_d: -0.2
-      cmax_d: 0.2
+  - title: Albedo
+    dset_a: [/, rsus, rsds]
+    model:
+      - /
+      - [+, FSRND, FSRVD]
+      - [+, FSDSVD, FSDSND]
+    sign: 1
+    scales: { dset_a: 1, model: 1 }
+    units: unitless
+    cmin: 0.5
+    cmax: 0.83
+    cmin_d: -0.2
+    cmax_d: 0.2
+    ac_axis: 1
 
-    - title: Shortwave net
-      dset_a: sfc_net_sw_all_mon
-      model: FSA
-      comment: " (Positive to surface)"
-      sign: 1
-      scales: { dset_a: 1, model: 1 }
-      units: W m^-2
+  - title: Shortwave net
+    dset_a: sfc_net_sw_all_mon
+    model: FSA
+    comment: " (Positive to surface)"
+    sign: 1
+    scales: { dset_a: 1, model: 1 }
+    units: W m^-2
 
-    - title: Shortwave down
-      dset_a: rsds
-      model: FSDS
-      sign: 1
-      scales: { dset_a: 1, model: 1 }
-      units: W m^-2
+  - title: Shortwave down
+    dset_a: rsds
+    model: FSDS
+    sign: 1
+    scales: { dset_a: 1, model: 1 }
+    units: W m^-2
 
-    - title: Longwave net
-      dset_a: sfc_net_lw_all_mon
-      model: FIRA
-      comment: " (Positive to atmosphere)"
-      sign: 1
-      scales: { dset_a: -1, model: 1 }
-      units: W m^-2
+  - title: Longwave net
+    dset_a: sfc_net_lw_all_mon
+    model: FIRA
+    comment: " (Positive to atmosphere)"
+    sign: 1
+    scales: { dset_a: -1, model: 1 }
+    units: W m^-2
 
-    - title: Longwave down
-      dset_a: rlds
-      model: FLDS
-      sign: 1
-      scales: { dset_a: 1, model: 1 }
-      units: W m^-2
+  - title: Longwave down
+    dset_a: rlds
+    model: FLDS
+    sign: 1
+    scales: { dset_a: 1, model: 1 }
+    units: W m^-2
 
 {% if gis %}
 # Greenland

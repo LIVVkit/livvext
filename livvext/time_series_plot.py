@@ -65,12 +65,13 @@ def main(args, config):
     obs_data = {
         _dset: _data for _dset, _data in ts_data.items() if "model" not in _dset
     }
+    model_data = lxc.check_longitude(model_data)
+    for _dset, _data in obs_data.items():
+        obs_data[_dset] = lxc.check_longitude(_data)
 
     obs_aavg = {}
     model_aavg = {}
     diffs_aavg = {}
-    mask_r = {}
-    area_r = {}
 
     config_names = {}
     for _dset in ts_data:
@@ -80,13 +81,15 @@ def main(args, config):
             config_names[_dset] = _dset
     img_elem = []
     for idx, data_var in enumerate(config["data_vars"]):
-        logger.info(f"   PLOTTING {config.get('icesheet', '')} TS: {data_var['title']}")
-        _obs_in = {}
+        obs_aavg[data_var["title"]] = {}
+        diffs_aavg[data_var["title"]] = {}
 
-        aavg_config = data_var.get("aavg", None)
+        logger.info(f"   PLOTTING {config.get('icesheet', '')} TS: {data_var['title']}")
+
         _scale = data_var.get("scales", config.get("scales"))
         _units = data_var.get("units", config.get("units", "UNITS???"))
 
+        aavg_config = data_var.get("aavg", None)
         if aavg_config is not None:
             _aavg_units = aavg_config["units"]
             _aavg_scale = aavg_config["scale"]
@@ -97,46 +100,33 @@ def main(args, config):
             _do_sum = False
 
         for rvers in obs_data:
-            _obs_in[rvers] = lxc.parse_var(
-                data_var[rvers], obs_data[rvers], _scale[rvers]
+            _area_file = config["masks"][rvers].format(icesheet=config["icesheet"])
+            obs_aavg[data_var["title"]][rvers] = lxc.parse_var(
+                data_var[rvers],
+                obs_data[rvers],
+                _scale[rvers],
+                area_file=_area_file,
+                aavg=True,
+                aavg_sum=_do_sum,
+                land_only=config.get("mask_ocean", {}).get(rvers, False),
             )
 
-        try:
-            _model_plt = lxc.parse_var(data_var["model"], model_data, _scale["model"])
-        except KeyError:
-            print(f"MODEL DATA NOT FOUND FOR: {data_var['model']}")
-            continue
-
-        obs_aavg[data_var["title"]] = {}
-        diffs_aavg[data_var["title"]] = {}
-        mask_r[data_var["title"]] = {}
-        area_r[data_var["title"]] = {}
-
-        # for _vers in ["dset_a"]:
-        for _vers in obs_data:
-            obs_aavg[data_var["title"]][_vers], mask_r[_vers], area_r[_vers], _ = (
-                lxc.area_avg(
-                    _obs_in[_vers],
-                    {},
-                    area_file=config["masks"][_vers].format(
-                        icesheet=config["icesheet"]
-                    ),
-                    area_var="area",
-                    mask_var="Icemask",
-                    sum_out=_do_sum,
-                )
-            )
         _model_area_file = config["masks"].get(
             "model_native", config["masks"].get("model")
         )
-        model_aavg[data_var["title"]], _, _, _ = lxc.area_avg(
-            _model_plt,
-            {},
-            area_file=_model_area_file.format(icesheet=config["icesheet"]),
-            area_var="area",
-            mask_var="Icemask",
-            sum_out=_do_sum,
-        )
+        try:
+            model_aavg[data_var["title"]] = lxc.parse_var(
+                data_var["model"],
+                model_data,
+                _scale["model"],
+                area_file=_model_area_file.format(icesheet=config["icesheet"]),
+                aavg=True,
+                aavg_sum=_do_sum,
+                land_only=config.get("mask_ocean", {}).get("model", False),
+            )
+        except KeyError:
+            print(f"MODEL DATA NOT FOUND FOR: {data_var['model']}")
+            continue
 
         color = f"C{idx}"
         lw = 1.1
@@ -146,9 +136,6 @@ def main(args, config):
         else:
             model_contrib_sign = 1
 
-        # _obs_plt = (
-        #     obs_aavg[data_var["title"]]["dset_a"] * obs_contrib_sign * _aavg_scale
-        # ).squeeze()
         _obs_plt = {}
         for _dset in obs_aavg[data_var["title"]]:
             if _contrib_signs is not None:
@@ -199,7 +186,7 @@ def main(args, config):
             axes = [axes]
 
         var_label = f" {data_var['title']}"
-
+        ann_mean_desc = f" ann. mean model: {_model_plt.mean():.2g}"
         # Plot model time series
         axes[0].plot(
             ts_data["model"].time,
@@ -228,6 +215,10 @@ def main(args, config):
                 label=var_label,
                 color=color,
                 lw=lw,
+            )
+            ann_mean_desc += (
+                f" ann. mean {config['dataset_names'][_dset]}: "
+                f"{_obs_plt[_dset].mean():.2g}"
             )
             # Plot obs trend line
             obs_m, obs_b, obs_t = obs_trends[_dset]
@@ -303,7 +294,8 @@ def main(args, config):
             + " "
             + desc_comment
             + " "
-            + f"trends in units of [{_trend_units}]",
+            + f"trends in units of [{_trend_units}]"
+            + ann_mean_desc,
             img_link,
             height=args.img_height,
             group=IMG_GROUP,
