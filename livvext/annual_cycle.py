@@ -55,11 +55,13 @@ def main(args, config):
     else:
         obs_data = {}
 
+    model_data = lxc.check_longitude(model_data)
+    for _dset, _data in obs_data.items():
+        obs_data[_dset] = lxc.check_longitude(_data)
+
     obs_aavg = {}
     model_aavg = {}
     diffs_aavg = {}
-    mask_r = {}
-    area_r = {}
 
     # Going to be Model + number of obs datasets
     nplts = len(obs_data) + 1
@@ -82,16 +84,20 @@ def main(args, config):
 
     for idx, data_var in enumerate(config["data_vars"]):
         logger.info(f"WORKING ON {data_var['title']}")
-        _obs_in = {}
-        # Left or right axis (0 for left 1 for right, default to 0)
+        # Left or right axis (0 for left 1 for right, -1 for not plotted. Default to 0)
         _axis = data_var.get("ac_axis", 0)
+        obs_aavg[data_var["title"]] = {}
+        diffs_aavg[data_var["title"]] = {}
 
         if _axis == 0:
             axes = axes0
             logger.info(f"USING AXIS 0 FOR {data_var['title']}")
-        else:
+        elif _axis == 1:
             axes = axes1
             logger.info(f"USING AXIS 1 FOR {data_var['title']}")
+        else:
+            logger.info(f"NOT PLOTTING {data_var['title']}")
+            continue
 
         aavg_config = data_var.get("aavg", None)
 
@@ -105,46 +111,43 @@ def main(args, config):
             _do_sum = False
 
         for rvers in obs_data:
-            _obs_in[rvers] = lxc.parse_var(
-                data_var[rvers], obs_data[rvers], config["scales"][rvers]
+            _area_file = config["masks"][rvers].format(icesheet=config["icesheet"])
+            logger.info(f"LOAD AREA FILE: {_area_file} FOR {rvers}")
+            obs_aavg[data_var["title"]][rvers] = lxc.parse_var(
+                data_var[rvers],
+                obs_data[rvers],
+                config["scales"][rvers],
+                area_file=_area_file,
+                aavg=True,
+                aavg_sum=_do_sum,
+                land_only=config.get("mask_ocean", {}).get(rvers, False),
+            )
+        if "remap" in _clim_key:
+            _model_area_file = config["masks"].get(
+                "model_remap", config["masks"].get("model")
+            )
+        else:
+            _model_area_file = config["masks"].get(
+                "model_native", config["masks"].get("model")
             )
 
         try:
-            _model_plt = (
-                lxc.parse_var(data_var["model"], model_data, config["scales"]["model"])
+            model_aavg[data_var["title"]] = (
+                lxc.parse_var(
+                    data_var["model"],
+                    model_data,
+                    config["scales"]["model"],
+                    area_file=_model_area_file.format(icesheet=config["icesheet"]),
+                    aavg=True,
+                    aavg_sum=_do_sum,
+                    land_only=config.get("mask_ocean", {}).get("model", False),
+                )
                 / 365
             )
         except KeyError:
             logger.error(f"MODEL DATA NOT FOUND FOR {data_var['model']}")
             continue
 
-        obs_aavg[data_var["title"]] = {}
-        diffs_aavg[data_var["title"]] = {}
-        mask_r[data_var["title"]] = {}
-        area_r[data_var["title"]] = {}
-
-        for _vers in _obs_in:
-            obs_aavg[data_var["title"]][_vers], mask_r[_vers], area_r[_vers], _ = (
-                lxc.area_avg(
-                    _obs_in[_vers],
-                    {},
-                    area_file=config["masks"][_vers].format(
-                        icesheet=config["icesheet"]
-                    ),
-                    area_var="area",
-                    mask_var="Icemask",
-                    sum_out=_do_sum,
-                )
-            )
-
-        model_aavg[data_var["title"]], _, _, _ = lxc.area_avg(
-            _model_plt,
-            {},
-            area_file=config["masks"]["model"].format(icesheet=config["icesheet"]),
-            area_var="area",
-            mask_var="Icemask",
-            sum_out=_do_sum,
-        )
         if data_var.get("primary_var", False):
             color = "k"
             lw = 2.0
@@ -156,12 +159,10 @@ def main(args, config):
         if obs_aavg[data_var["title"]].get("dset_a", None) is not None:
             _obs_plt = (
                 obs_aavg[data_var["title"]]["dset_a"]
-                * data_var["ac_contrib_sign"]["dset_a"]
+                * data_var.get("ac_contrib_sign", {}).get("dset_a", 1)
                 * _aavg_scale
             )
             obs_data_out[data_var["title"]] = _obs_plt
-        # if isinstance(_obs_plt, np.ma.masked_array):
-        #     _obs_plt = _obs_plt.compressed().squeeze()
 
         _model_plt = (
             model_aavg[data_var["title"]]
@@ -203,14 +204,16 @@ def main(args, config):
 
         logger.info(f"DONE - WORKING ON {data_var['title']}")
 
+    _model_name = config["dataset_names"].get(
+        "model", config["dataset_names"].get("model_native", "MODEL")
+    )
     model_data_out["month"] = np.arange(1, 12 + 1)
     model_data_out = pd.DataFrame(model_data_out)
     model_data_out.index = model_data_out["month"]
     model_data_out.to_csv(
         Path(
             args.out,
-            f"annual_cycle_{lxc.img_file_prefix(config)}_"
-            f"{config['dataset_names']['model']}.csv",
+            f"annual_cycle_{lxc.img_file_prefix(config)}_{_model_name}.csv",
         )
     )
     if "dset_a" in config:
@@ -245,7 +248,7 @@ def main(args, config):
         _labels = [_line.get_label() for _line in plotted_lines[_ix]]
         axis.legend(plotted_lines[_ix], _labels, fontsize=8)
 
-    _ = axes[0].set_title(config["dataset_names"]["model"])
+    _ = axes[0].set_title(_model_name)
     if len(axes) > 1:
         _ = axes[1].set_title(config["dataset_names"]["dset_a"])
 
@@ -261,6 +264,9 @@ def main(args, config):
     _names = {**config["dataset_names"]}
     if "dset_a" not in _names:
         _names["dset_a"] = ""
+
+    if "model" not in _names:
+        _names["model"] = _model_name
 
     img_elem = el.Image(
         "SMB component annual cycles",
