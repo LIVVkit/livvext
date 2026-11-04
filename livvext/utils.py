@@ -4,11 +4,14 @@
 import operator as op
 from collections.abc import Iterable
 from functools import singledispatch
+from pathlib import Path
 
 import pybtex.database
 import pybtex.io
 from pybtex.backends.html import Backend as BaseBackend
 from pybtex.style.formatting.plain import Style as PlainStyle
+
+from livvext import common as lxc
 
 
 class HTMLBackend(BaseBackend):
@@ -153,7 +156,15 @@ def eval_expr(expr):
     return _expr_out
 
 
-def extract_ds(expr, dset, name=False):
+def extract_ds(
+    expr,
+    dset,
+    name=False,
+    area_file: Path = None,
+    aavg: bool = False,
+    aavg_sum: bool = False,
+    land_only: bool = False,
+):
     """
     Recursively extract a formula from a list of operands and dataset fields.
 
@@ -167,7 +178,15 @@ def extract_ds(expr, dset, name=False):
     dset : xarray.Dataset
         Dataset which contains the fields described in ``expr``
     name : bool, optional
-        If true, output the string of the interpreterd expression rather than its result
+        If true, output the string of the interpreted expression rather than its result
+    area_file : `Path`, optional
+        Path to file containing area weights used when
+        area-averaging (aavg=True), default: None
+    aavg : bool, optional
+        Perform area-weighted averaging (or summation) before extracting data.
+        Needed for albedo computation (or other multiplication / division operations)
+    aavg_sum : bool, optional
+
 
     Returns
     -------
@@ -183,14 +202,28 @@ def extract_ds(expr, dset, name=False):
     operand_queue = []
     for _operand in operands:
         if isinstance(_operand, (list, tuple)):
-            operand_queue.append(extract_ds(_operand, dset, name))
+            operand_queue.append(
+                extract_ds(_operand, dset, name, area_file, aavg, aavg_sum, land_only)
+            )
 
         elif isinstance(_operand, str) and not name:
             _number = will_it_float(_operand)
             if _number:
                 operand_queue.append(_number)
             else:
-                operand_queue.append(dset[_operand])
+                if aavg:
+                    _data, _, _, _ = lxc.area_avg(
+                        dset[_operand],
+                        {},
+                        area_file=area_file,
+                        area_var="area",
+                        mask_var="Icemask",
+                        sum_out=aavg_sum,
+                        land_only=land_only,
+                    )
+                else:
+                    _data = dset[_operand]
+                operand_queue.append(_data)
         else:
             operand_queue.append(_operand)
 

@@ -586,7 +586,13 @@ def load_timeseries_data(config: dict):
 
 
 def parse_var(
-    data_var: list | tuple | str, dataset: xr.Dataset, scale: float | int | str
+    data_var: list | tuple | str,
+    dataset: xr.Dataset,
+    scale: float | int | str,
+    area_file: Path = None,
+    aavg: bool = False,
+    aavg_sum: bool = False,
+    land_only: bool = False,
 ) -> xr.DataArray:
     """
     Parse a data_var formula or name.
@@ -603,6 +609,12 @@ def parse_var(
         Scale the ``data_var`` field after computation by ``scale``. Can be
         numeric or a string representation (e.g. 1e-6, 32.5, or "365 * 24").
         See `livvext.utils.eval_expr` for more details.
+    area_file : `Path`, optional
+        Path to file containing area weights used when
+        area-averaging (aavg=True), default: None
+    aavg : bool, optional
+        Perform area-weighted averaging (or summation) before extracting data.
+        Needed for albedo computation (or other multiplication / division operations)
 
     Returns
     -------
@@ -616,9 +628,26 @@ def parse_var(
         _scale = lxu.eval_expr(scale)
 
     if isinstance(data_var, list):
-        _vardata = lxu.extract_ds(data_var, dataset)
+        _vardata = lxu.extract_ds(
+            data_var,
+            dataset,
+            area_file=area_file,
+            aavg=aavg,
+            aavg_sum=aavg_sum,
+            land_only=land_only,
+        )
     else:
         _vardata = dataset[data_var].squeeze()
+        if aavg:
+            _vardata, _, _, _ = area_avg(
+                _vardata,
+                {},
+                area_file=area_file,
+                area_var="area",
+                mask_var="Icemask",
+                sum_out=aavg_sum,
+                land_only=land_only,
+            )
     return _vardata.squeeze() * _scale
 
 
@@ -697,6 +726,7 @@ def area_avg(
         raise
 
     area_data = check_longitude(area_data)
+
     if mask_file is None:
         mask_data = area_data
     else:
