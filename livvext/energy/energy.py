@@ -40,7 +40,7 @@ import pandas as pd
 from livvkit import elements as el
 from loguru import logger
 
-from livvext import compare_gridded, time_series_plot, utils
+from livvext import annual_cycle, compare_gridded, time_series_plot, utils
 from livvext.common import SEASON_NAME
 from livvext.common import summarize_result as sum_res
 
@@ -88,11 +88,18 @@ def run(name, config):
     tables = {}
 
     for season in ["ANN", "DJF", "MAM", "JJA", "SON"]:
+        if season == "ANN":
+            logger.info("PLOT ANNUAL CYCLE DATA")
+            images[season] = annual_cycle.main(args, config)
+            logger.info("DONE - PLOT ANNUAL CYCLE DATA")
+        else:
+            images[season] = []
+
         logger.info(
             f"PLOTTING COMPARE GRIDDED FOR {config.get('icesheet', '')} {season}"
         )
         _plots, aavgs = compare_gridded.main(args, config, sea=season)
-        images[season] = _plots
+        images[season].extend(_plots)
 
         aavgs = aavgs.apply(
             lambda x: pd.Series([f"{xi:.2f}" for xi in x], index=x.index)
